@@ -1,0 +1,111 @@
+/*
+ * Pyoor design tokens. Every colour, size and timing value in the app comes from here.
+ *
+ * Contrast (WCAG 2.x, measured):
+ *   ivory  on navy        14.85:1    muted on navy       8.85:1
+ *   gold   on navy         8.48:1    navy  on gold       8.48:1 (primary button)
+ *   body   on ivory        6.85:1    gold-dark on ivory  5.16:1
+ *   gold   on ivory        1.75:1  ← never use gold for text on ivory; use --color-gold-dark
+ */
+:root {
+  /* ---- palette ---- */
+  --color-navy: #131b3f;
+  --color-navy-900: #0b1028;
+  --color-navy-800: #0e1430;
+  --color-gold: #d8b46a;
+  --color-gold-dark: #7d6128;
+  --color-ivory: #f6f1e7;
+  --color-muted-on-navy: #b9bccb;
+  --color-text-on-ivory: #4e5266;
+
+  /* ---- semantic roles ---- */
+  --surface-dark: var(--color-navy);
+  --surface-darker: var(--color-navy-900);
+  --surface-light: var(--color-ivory);
+  --text-on-dark: var(--color-ivory);
+  --text-on-dark-muted: var(--color-muted-on-navy);
+  --text-on-light: var(--color-navy);
+  --text-on-light-body: var(--color-text-on-ivory);
+  --accent-on-dark: var(--color-gold);
+  --accent-on-light: var(--color-gold-dark);
+  --line-on-dark: rgb(216 180 106 / 0.35); /* gold hairline */
+  --line-on-light: rgb(19 27 63 / 0.14);
+  --focus-ring: var(--color-gold);
+  --hero-gradient: radial-gradient(
+    120% 90% at 50% 35%,
+    var(--color-navy) 0%,
+    var(--color-navy-800) 55%,
+    var(--color-navy-900) 100%
+  );
+
+  /* ---- type ---- (font families are injected by next/font in app/layout.tsx) */
+  --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-body: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-hindi: var(--font-tiro), 'Tiro Devanagari Hindi', serif;
+
+  /* fluid scale, 360 px → 1440 px */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
+  --text-2xl: clamp(1.625rem, 1.3rem + 1.4vw, 2.5rem);
+  --text-3xl: clamp(2.125rem, 1.6rem + 2.4vw, 3.75rem);
+  --text-display: clamp(2.5rem, 1.7rem + 3.8vw, 5.25rem);
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+  --tracking-display: 0.04em;
+  --tracking-label: 0.18em; /* small uppercase gold labels */
+
+  /* ---- space (4 px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --section-pad-y: clamp(var(--space-8), 6vw + 2rem, var(--space-10));
+  --gutter: clamp(var(--space-4), 4vw, var(--space-7));
+  --container-max: 80rem; /* 1280 px */
+  --container-narrow: 46rem;
+
+  /* ---- shape ---- */
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --border-hairline: 1px;
+
+  /* ---- sizing ---- */
+  --touch-target: 44px;
+  --header-height: 4.5rem;
+  --announcement-height: 2.25rem;
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 700ms;
+
+  /* ---- layers ---- */
+  --z-canvas: 0;
+  --z-content: 1;
+  --z-header: 50;
+  --z-sticky-bar: 60;
+  --z-drawer: 100;
+  --z-overlay: 90;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
