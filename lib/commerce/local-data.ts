@@ -64,6 +64,7 @@ export const products: Product[] = [
     ],
     featuredImage: blackSaltPhoto,
     images: [blackSaltPhoto],
+    // model: '/models/pyoor-herbal-black-salt.glb',
     model: '/models/pyoor-herbal-black-salt.glb',
     ingredients: [
       'Sambhar Lake salt',

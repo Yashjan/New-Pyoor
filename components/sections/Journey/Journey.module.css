@@ -1,0 +1,126 @@
+.journey {
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 32px;
+  padding: clamp(88px, 10vw, 140px) var(--gutter) 40px;
+}
+
+.headTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.headLead {
+  max-width: 36ch;
+}
+
+/* Phones and reduced motion: a plain vertical list. */
+.pin {
+  position: relative;
+  padding-bottom: clamp(64px, 8vw, 96px);
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 6vw, 64px);
+  margin: 0;
+  padding: 0 var(--gutter);
+  list-style: none;
+}
+
+.line,
+.progress {
+  display: none;
+}
+
+.chap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: var(--surface);
+}
+
+.chap p {
+  margin: 0;
+  max-width: 40ch;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 1;
+  color: var(--accent-line);
+}
+
+/* Wide screens with motion: a pinned horizontal track (HomeMotion scrubs its x). */
+@media (min-width: 861px) {
+  :global(html.motion) .pin {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    height: 100svh;
+    padding-bottom: 0;
+  }
+
+  :global(html.motion) .track {
+    flex-direction: row;
+    gap: clamp(24px, 3vw, 48px);
+    width: max-content;
+    will-change: transform;
+  }
+
+  :global(html.motion) .chap {
+    flex: none;
+    width: min(72vw, 520px);
+  }
+
+  :global(html.motion) .line {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--accent-line);
+    opacity: 0.5;
+  }
+
+  :global(html.motion) .progress {
+    display: block;
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: 40px;
+    height: 1px;
+    background: var(--hairline);
+  }
+
+  :global(html.motion) .progress i {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+}
+
+/* Without the pin (no JS / reduced motion), show the chapters as a 2-up grid on wide screens. */
+@media (min-width: 861px) {
+  :global(html:not(.motion)) .track {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: var(--container-max);
+    margin-inline: auto;
+  }
+}

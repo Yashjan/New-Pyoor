@@ -1,23 +1,23 @@
+/* The bag: surface-alt panel with the only drop shadow in the system (shadow-drawer). */
 .drawer {
-  --focus-ring: var(--color-gold-dark);
-  color-scheme: light;
-  width: min(26rem, 100vw);
+  width: min(28rem, 100vw);
   max-width: 100vw;
   height: 100dvh;
   max-height: 100dvh;
   margin: 0 0 0 auto;
   padding: 0;
   border: 0;
-  background: var(--surface-light);
-  color: var(--text-on-light);
+  background: var(--surface-alt);
+  color: var(--text);
+  box-shadow: var(--shadow-drawer);
 }
 
 .drawer::backdrop {
-  background: rgb(11 16 40 / 0.6);
+  background: rgba(18, 26, 59, 0.45);
 }
 
 .drawer[open] {
-  animation: slide-in var(--duration-base) var(--ease-out);
+  animation: slide-in var(--duration-base) var(--ease-settle);
 }
 
 @keyframes slide-in {
@@ -37,21 +37,26 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) var(--space-5);
-  border-bottom: var(--border-hairline) solid var(--line-on-light);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .title {
-  font-size: var(--text-2xl);
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: var(--display-s-size);
+  line-height: var(--display-s-leading);
+  color: var(--ink);
 }
 
 .iconButton {
   display: grid;
   place-items: center;
-  width: var(--touch-target);
-  height: var(--touch-target);
+  width: var(--touch-min);
+  height: var(--touch-min);
   border: 0;
+  border-radius: var(--radius-pill);
   background: none;
+  color: var(--ink);
 }
 
 .empty {
@@ -60,17 +65,11 @@
   justify-items: start;
   gap: var(--space-4);
   padding: var(--space-6) var(--space-5);
-  color: var(--text-on-light-body);
-}
-
-/* The empty-state button is an outline button meant for navy; recolour for ivory. */
-.empty a {
-  color: var(--text-on-light);
-  border-color: var(--color-gold-dark);
 }
 
 .lines {
   overflow-y: auto;
+  margin: 0;
   padding: 0 var(--space-5);
   list-style: none;
 }
@@ -80,15 +79,14 @@
   grid-template-columns: 72px 1fr auto;
   gap: var(--space-4);
   padding: var(--space-5) 0;
-  border-bottom: var(--border-hairline) solid var(--line-on-light);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .thumb {
   width: 72px;
   height: 90px;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  background: #ece5d6;
+  background: var(--surface-sunk);
 }
 
 .thumbImg {
@@ -110,22 +108,23 @@
   min-width: 0;
 }
 
+/* Under 28px, so Manrope (Cormorant never goes below 28px). */
 .lineTitle {
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-family: var(--font-sans);
+  font-size: var(--body-size);
   font-weight: 600;
+  color: var(--ink);
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-display);
 }
 
 .lineTitle:hover {
   text-decoration: underline;
+  text-decoration-color: var(--accent-line);
 }
 
 .lineMeta {
-  font-size: var(--text-sm);
-  color: var(--text-on-light-body);
+  font-size: var(--body-s-size);
+  color: var(--text-muted);
 }
 
 .lineActions {
@@ -139,17 +138,18 @@
 .stepper {
   display: inline-flex;
   align-items: center;
-  border: var(--border-hairline) solid var(--line-on-light);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
 }
 
 .stepper button {
   display: grid;
   place-items: center;
-  width: var(--touch-target);
-  height: var(--touch-target);
+  width: var(--touch-min);
+  height: var(--touch-min);
   border: 0;
   background: none;
+  color: var(--ink);
 }
 
 .stepper button:disabled {
@@ -161,20 +161,23 @@
   min-width: 2ch;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
 
 .remove {
-  min-height: var(--touch-target);
+  min-height: var(--touch-min);
   padding: 0 var(--space-2);
   border: 0;
   background: none;
-  font-size: var(--text-sm);
-  color: var(--text-on-light-body);
+  font-size: var(--body-s-size);
+  color: var(--text);
   text-decoration: underline;
+  text-decoration-color: var(--accent-line);
 }
 
 .lineTotal {
   font-weight: 600;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -182,23 +185,21 @@
   display: grid;
   gap: var(--space-3);
   padding: var(--space-5);
-  border-top: var(--border-hairline) solid var(--line-on-light);
+  border-top: 1px solid var(--hairline);
 }
 
 .subtotal {
   display: flex;
   justify-content: space-between;
   font-weight: 600;
-  font-size: var(--text-lg);
+  font-size: var(--price-size);
+  line-height: var(--price-leading);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .note {
-  font-size: var(--text-sm);
-  color: var(--text-on-light-body);
+  font-size: var(--body-s-size);
+  color: var(--text-muted);
   text-align: center;
-}
-
-/* Checkout is disabled on ivory: show it as a navy outline, still legible. */
-.foot button:disabled {
-  color: var(--text-on-light-body);
 }

@@ -1,36 +1,36 @@
-import { Hero } from '@/components/hero/Hero';
-import { RevealOnScroll } from '@/components/motion/RevealOnScroll';
-import { Collection } from '@/components/sections/Collection/Collection';
-import { Origin } from '@/components/sections/Origin/Origin';
-import { Process } from '@/components/sections/Process/Process';
+import { JarHero } from '@/components/hero/JarHero';
+import { HomeMotion } from '@/components/motion/HomeMotion';
+import { Crystals } from '@/components/sections/Crystals/Crystals';
+import { Journey } from '@/components/sections/Journey/Journey';
 import { Recipes } from '@/components/sections/Recipes/Recipes';
-import { TextureBand } from '@/components/sections/TextureBand/TextureBand';
-import { TrustRow } from '@/components/sections/TrustRow/TrustRow';
-import { getProducts, isPurchasable } from '@/lib/commerce';
+import { Roots } from '@/components/sections/Roots/Roots';
+import { Salts } from '@/components/sections/Salts/Salts';
+import { getProduct, getProducts, isPurchasable, type Money } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
 
+/** Homepage (docs/design-handoff/hero-reference/concept.html): one idea per screen. */
 export default async function HomePage() {
-  const products = await getProducts();
+  const [products, black, lake] = await Promise.all([
+    getProducts(),
+    getProduct('herbal-black-salt'),
+    getProduct('natural-lake-salt'),
+  ]);
 
-  const prices = products
+  // "Shop the salts — from ₹249": the lowest price among products that can be bought.
+  const lowest = products
     .flatMap((p) => p.variants)
     .filter(isPurchasable)
-    .map((v) => v.price);
-  const lowest = prices.reduce<(typeof prices)[number] | null>(
-    (min, p) => (min === null || p.amount < min.amount ? p : min),
-    null,
-  );
+    .reduce<Money | null>((min, v) => (!min || v.price.amount < min.amount ? v.price : min), null);
 
   return (
     <main id="main">
-      <Hero fromPrice={lowest ? formatPrice(lowest) : null} />
-      <TextureBand />
-      <Collection products={products} />
-      <Origin />
-      <Process />
+      <JarHero fromPrice={lowest ? formatPrice(lowest) : null} />
+      <Roots />
+      <Journey />
+      <Salts black={black} lake={lake} />
+      <Crystals />
       <Recipes />
-      <TrustRow />
-      <RevealOnScroll />
+      <HomeMotion />
     </main>
   );
 }

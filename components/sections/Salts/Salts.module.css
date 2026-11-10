@@ -1,0 +1,19 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: clamp(64px, 8vw, 120px);
+  text-align: center;
+}
+
+.horizon {
+  width: min(320px, 60%);
+  margin-top: 10px;
+}
+
+.prods {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(96px, 12vw, 180px);
+}

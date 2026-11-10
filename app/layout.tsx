@@ -1,33 +1,26 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Manrope, Tiro_Devanagari_Hindi } from 'next/font/google';
-import { AnnouncementBar } from '@/components/AnnouncementBar/AnnouncementBar';
+import { BagToast } from '@/components/BagToast/BagToast';
 import { CartDrawer } from '@/components/CartDrawer/CartDrawer';
 import { Footer } from '@/components/Footer/Footer';
-import { Header } from '@/components/Header/Header';
+import { SmoothScroll } from '@/components/motion/SmoothScroll';
 import { CartProvider } from '@/components/providers/CartProvider';
-import { getProducts } from '@/lib/commerce';
+import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
 import { getSiteUrl, site } from '@/lib/site';
 import './globals.css';
 
+// Brand book §4: Cormorant Garamond 500 + 500 italic, Manrope 400/500/600, Tiro Devanagari 400.
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['500', '600'],
+  weight: '500',
+  style: ['normal', 'italic'],
   variable: '--font-cormorant',
   display: 'swap',
 });
 
-// Italic is only used in the texture band, below the fold: don't preload it.
-const cormorantItalic = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: '400',
-  style: 'italic',
-  variable: '--font-cormorant-italic',
-  display: 'swap',
-  preload: false,
-});
-
 const manrope = Manrope({
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
   variable: '--font-manrope',
   display: 'swap',
 });
@@ -37,7 +30,7 @@ const tiro = Tiro_Devanagari_Hindi({
   weight: '400',
   variable: '--font-tiro',
   display: 'swap',
-  // Only used for small Hindi accents; don't block the first paint on it.
+  // Only Hindi product names use it, below the fold: don't block the first paint on it.
   preload: false,
 });
 
@@ -56,31 +49,29 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#131B3F',
+  themeColor: '#f5f1e8',
   width: 'device-width',
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const products = await getProducts();
-  const searchItems = products.map(({ handle, title, titleHindi, summary, tags }) => ({
-    handle,
-    title,
-    titleHindi,
-    summary,
-    keywords: tags.join(' ').replaceAll('-', ' '),
-  }));
+/**
+ * Runs before first paint: `html.motion` switches on the scroll-driven layouts (pinned hero,
+ * horizontal journey). Without JS, or with prefers-reduced-motion, the class is never added
+ * and every section lays out as a normal static page.
+ */
+const MOTION_FLAG = `try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion')}catch(e){}`;
 
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
+    // The motion flag changes <html>'s class before React hydrates.
     <html
       lang="en-IN"
-      className={[
-        cormorant.variable,
-        cormorantItalic.variable,
-        manrope.variable,
-        tiro.variable,
-      ].join(' ')}
+      className={[cormorant.variable, manrope.variable, tiro.variable].join(' ')}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_FLAG }} />
+      </head>
       {/* Browser extensions (e.g. ColorZilla's `cz-shortcut-listen`) add attributes to <body>
           before React hydrates. This only ignores attribute differences on <body> itself;
           mismatches anywhere inside it are still reported. */}
@@ -89,12 +80,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           Skip to content
         </a>
         <CartProvider>
-          <AnnouncementBar />
-          <Header searchItems={searchItems} />
+          <SiteHeader />
           {children}
-          <Footer products={products} />
+          <Footer />
           <CartDrawer />
+          <BagToast />
         </CartProvider>
+        <SmoothScroll />
       </body>
     </html>
   );

@@ -1,0 +1,197 @@
+.hdr {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: var(--header-height);
+  padding: 0 var(--gutter);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle);
+}
+
+.scrolled {
+  background: rgba(245, 241, 232, 0.86); /* ivory-100 at 86% */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom-color: var(--hairline);
+}
+
+.nav {
+  display: flex;
+  gap: 30px;
+}
+
+.nav a,
+.endLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-size: var(--nav-size);
+  font-weight: 500;
+  letter-spacing: var(--nav-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: linear-gradient(var(--accent-line), var(--accent-line)) 0 calc(50% + 12px) / 0 1px
+    no-repeat;
+  transition: background-size var(--duration-base) var(--ease-settle);
+}
+
+.nav a:hover,
+.endLink:hover {
+  background-size: 100% 1px;
+}
+
+.logo {
+  grid-column: 2;
+  display: block;
+  border-radius: 0 0 14px 14px;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    padding var(--duration-base) var(--ease-settle);
+}
+
+.logo img {
+  height: 44px;
+  width: auto;
+}
+
+.end {
+  grid-column: 3;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 22px;
+}
+
+.bag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink);
+  font: 600 13px/1 var(--font-sans);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bag b {
+  display: inline-block;
+  min-width: 1ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.bump {
+  animation: bump 0.5s var(--ease-settle);
+}
+
+@keyframes bump {
+  40% {
+    transform: scale(1.08);
+  }
+}
+
+.menuBtn {
+  display: none;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  min-height: var(--touch-min);
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 600 13px/1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* ---- the full-screen menu (phones) ---- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  padding: 96px var(--gutter) 48px;
+  background: var(--surface);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.6s var(--ease-settle);
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.menuShown {
+  clip-path: inset(0 0 0 0);
+}
+
+.menu nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu nav a {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1.15;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.menuOpen {
+  background: var(--navy-800);
+  border-bottom-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.menuOpen .menuBtn,
+.menuOpen .bag {
+  color: var(--ivory-100);
+  border-color: rgba(205, 167, 94, 0.5);
+}
+
+.menuOpen :focus-visible {
+  outline-color: var(--gold-300);
+}
+
+@media (max-width: 860px) {
+  .hdr {
+    height: var(--header-height-mobile);
+  }
+
+  .nav,
+  .endLink {
+    display: none;
+  }
+
+  .logo img {
+    height: 34px;
+  }
+
+  .menuBtn {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* The green logo always sits on ivory: on the navy menu it gets the crest. */
+  .menuOpen .logo {
+    background: var(--crest);
+    padding: 6px 12px;
+  }
+}

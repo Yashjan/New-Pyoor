@@ -1,86 +1,56 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Product } from '@/lib/commerce';
 import { site } from '@/lib/site';
 import styles from './Footer.module.css';
 import { NewsletterForm } from './NewsletterForm';
 
-export function Footer({ products }: { products: Pick<Product, 'handle' | 'title'>[] }) {
+/** Navy footer with the logo on its ivory crest (concept.html). Copy is the prototype's. */
+export function Footer() {
   const { company } = site;
-  const tel = company.phone.replace(/\s/g, '');
-
   return (
-    <footer className={styles.footer}>
-      <div className={`container ${styles.top}`}>
-        <div className={styles.brand}>
-          <Image
-            src="/brand/pyoor-logo-gold.png"
-            alt="Pyoor"
-            width={1189}
-            height={489}
-            sizes="140px"
-            className={styles.logo}
-          />
-          <p className={styles.line}>
-            Salt from Sambhar Lake, Rajasthan, harvested, crafted and packed on its shores.
+    <footer className={styles.footer} data-theme="navy">
+      <div className={styles.top}>
+        <Link className={styles.crest} href="/#top" aria-label="Back to top">
+          <Image src="/brand/pyoor-logo.png" alt="" width={629} height={264} sizes="110px" />
+        </Link>
+      </div>
+      <div className={styles.grid}>
+        <div>
+          <p className={styles.big}>
+            From the lake, <span className="py-italic">to your table.</span>
           </p>
           <NewsletterForm />
         </div>
-
-        <nav aria-label="Shop" className={styles.col}>
-          <h2 className={styles.colTitle}>Shop</h2>
-          <ul>
-            {products.map((p) => (
-              <li key={p.handle}>
-                <Link href={`/product/${p.handle}`}>{p.title}</Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav aria-label="Pyoor" className={styles.col}>
-          <h2 className={styles.colTitle}>Pyoor</h2>
-          <ul>
-            {site.nav
-              .filter((item) => item.label !== 'Shop')
-              .map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
-                </li>
-              ))}
-          </ul>
-        </nav>
-
-        <div className={styles.col}>
-          <h2 className={styles.colTitle}>Contact</h2>
-          <address className={styles.address}>
+        <div>
+          <h2 className={styles.h}>Shop</h2>
+          <Link href="/product/herbal-black-salt">Herbal Black Salt</Link>
+          <Link href="/product/natural-lake-salt">Natural Lake Salt</Link>
+          {/* [CONFIRM] Amazon listing URL */}
+          <Link href="/#shop">Buy on Amazon</Link>
+        </div>
+        <div>
+          <h2 className={styles.h}>Pyoor</h2>
+          <Link href="/#roots">Our roots</Link>
+          <Link href="/#journey">The journey</Link>
+          <Link href="/#recipes">Recipes</Link>
+        </div>
+        <div>
+          <h2 className={styles.h}>Contact</h2>
+          <p className={styles.contact}>
             {company.legalName}
             <br />
-            {company.address.street}
+            58-R, Shiv Vihar Colony, Phulera Road, Sambhar Lake, Jaipur, Rajasthan 303604
             <br />
-            {company.address.locality}, {company.address.region} {company.address.postalCode}
-          </address>
-          <ul>
-            <li>
-              <a href={`tel:${tel}`}>{company.phone}</a>
-            </li>
-            <li>
-              <a href={`mailto:${company.email}`} className={styles.email}>
-                {company.email}
-              </a>
-            </li>
-          </ul>
+            <br />
+            <a href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a>
+          </p>
         </div>
       </div>
-
-      <div className={`container ${styles.bottom}`}>
-        <p>
-          © {new Date().getFullYear()} {company.legalName}
-          <span aria-hidden="true"> · </span>
-          <br className={styles.mobileBreak} />
-          FSSAI Lic. No. {company.fssaiLicence}
-        </p>
-        <p className={styles.disclaimer}>{site.brandNameDisclaimer}</p>
+      <div className={styles.base}>
+        <span>
+          © 2026 {company.legalName} · FSSAI Lic. No. {company.fssaiLicence}
+        </span>
+        <span>{site.brandNameDisclaimer}</span>
       </div>
     </footer>
   );

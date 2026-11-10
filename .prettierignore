@@ -5,3 +5,4 @@ public
 tools/3d/source
 tools/3d/textures
 package-lock.json
+docs/design-handoff

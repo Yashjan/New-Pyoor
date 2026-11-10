@@ -6,7 +6,6 @@
 
 export const site = {
   name: 'Pyoor',
-  tagline: 'Salt, the way the lake makes it.',
   description:
     'Salt from Sambhar Lake, Rajasthan. Herbal black salt and natural lake salt, packed at the source in 1 kg jars.',
   company: {
@@ -25,12 +24,6 @@ export const site = {
   /** Required by FSSAI for brand names that sound like "pure". Must appear in the footer. */
   brandNameDisclaimer:
     '“Pyoor” is only a brand name and does not represent the true nature of the product.',
-  nav: [
-    { label: 'Shop', href: '/#shop' },
-    { label: 'Sambhar Lake', href: '/#origin' },
-    { label: 'Our Process', href: '/#process' },
-    { label: 'Recipes', href: '/#recipes' },
-  ],
 } as const;
 
 /** Absolute site URL for canonical links, Open Graph, sitemap and JSON-LD. */

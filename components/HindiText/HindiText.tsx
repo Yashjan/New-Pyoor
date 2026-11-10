@@ -14,7 +14,7 @@ export function HindiText({ children, className }: { children: string; className
       {words.map((word, i) => (
         <Fragment key={i}>
           {i > 0 && ' '}
-          <span className="hindi">{word}</span>
+          <span className="py-deva">{word}</span>
         </Fragment>
       ))}
     </span>

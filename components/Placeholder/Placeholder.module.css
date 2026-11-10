@@ -1,0 +1,23 @@
+.ph {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px dashed var(--hairline-strong);
+  background: var(--surface-sunk);
+  color: var(--text-muted);
+  font-size: var(--body-s-size);
+  line-height: var(--body-s-leading);
+  text-align: center;
+}
+
+.in {
+  padding: var(--space-5);
+}
+
+.in strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+}

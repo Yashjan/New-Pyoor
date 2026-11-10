@@ -36,62 +36,103 @@ npm run dev                  # http://localhost:3000
 
 ```
 app/                     routes (App Router)
-  layout.tsx             fonts (next/font), global metadata, skip link
-  globals.css            reset, base typography, focus styles, utilities; imports tokens
+  layout.tsx             fonts (next/font), metadata, the `html.motion` flag, header/footer/bag
+  globals.css            reset, base type, focus ring, Lenis rules, shared `py-` type utilities
   page.tsx               homepage
-  product/[handle]/      product detail page (static, one per published product)
-components/              UI components, one folder each with a .module.css
-  AnnouncementBar/ Header/ Footer/ CartDrawer/ ProductCard/ Button/ …
-  sections/              homepage sections (TextureBand, Collection, Origin, Process, Recipes, TrustRow)
-  hero/                  Hero (copy + poster), RingBadge; JarHero scene arrives in Step 3
-  providers/             CartProvider (cart state + drawer open/close)
-  motion/                RevealOnScroll (GSAP fade-and-rise on enter)
+  product/[handle]/      product page (skeleton until Step 4; one static page per product)
+components/              one folder per component, each with a .module.css
+  Button/ Horizon/ Placeholder/ ProductFeature/ SiteHeader/   design-system components
+  SplitText/ HindiText/  headings split into word masks; Devanagari words
+  CartDrawer/ BagToast/  the bag (native <dialog>) and the "Added to bag" toast
+  Footer/                navy footer, logo on the ivory crest, newsletter
+  sections/              Roots, Journey, Salts, Crystals, Recipes
+  hero/JarHero.tsx       the pinned 3D hero (copy, poster, beats, rail)
+  hero/scene/            the 3D logic, all pure functions of scroll progress (see below)
+  motion/                SmoothScroll (Lenis ↔ ScrollTrigger), HomeMotion (page choreography)
+  providers/             CartProvider
 lib/
-  site.ts                company facts, nav, FSSAI disclaimer (single source)
+  site.ts                company facts, FSSAI disclaimer (single source)
   format.ts              price formatting (₹, or "Price coming soon")
   commerce/              the commerce layer (see below)
-  three/                 three.js loaders, quality tiers, helpers               (Step 3)
-styles/tokens.css        design tokens: colours, type scale, spacing, motion, z-index
+  three/                 quality tiers, GLTF + Meshopt loader, dispose helpers
+  motion/                lazy GSAP loader, Lenis store + anchor scrolling
+styles/tokens.css        design tokens, ported from docs/design-handoff/design-system/tokens.json
 public/
   models/                compressed jar models served to the browser (generated)
-  brand/                 logos (gold for navy backgrounds, ivory, original SVG)
-  images/                product photos
+  brand/                 pyoor-logo.png (green master, used), original SVG; gold/ivory PNGs are
+                         legacy recolours and must not be used (brand book §6)
+  images/renders/        transparent jar renders from the 3D models (poster, product features)
+  images/textures/       crystals.jpg (navy crystals section)
+docs/design-handoff/     the approved design: HANDOFF.md, design-system/, hero-reference/
+docs/images/             review screenshots (hero stages, compression before/after)
 tools/3d/                3D asset pipeline (not shipped)
-  source/                original uncompressed jar models (the source of truth)
-  textures/              label artwork + salt crystal textures
-  build_jar.py           rebuilds source/*.glb from textures
-  crystal_tex.py         regenerates the salt crystal textures
-  name_textures.py       names glTF images by material slot (used by compress.sh)
-  compress.sh            the compression pipeline (`npm run models`)
-docs/images/             review material (e.g. compression before/after renders)
 ```
 
-## Design tokens
+## Design system
 
-All colours, type sizes, spacing and timings live in [`styles/tokens.css`](styles/tokens.css) as CSS
-custom properties; components use semantic tokens (`--text-on-dark`, `--accent-on-light` …) rather
-than raw palette values. Measured contrast ratios are in the file header. **Gold `#D8B46A` is not
-legible on ivory (1.75:1); use `--color-gold-dark` for text on light surfaces.**
+The approved system is in [`docs/design-handoff/design-system/`](docs/design-handoff/design-system/):
+"Label True" palette (ivory ground, navy ink, one gold thread; green only in the logo) and Cormorant
+Garamond / Manrope / Tiro Devanagari Hindi. Read its `README.md` (the brand book) before changing UI.
 
-Fonts are self-hosted at build time with `next/font/google`: Cormorant Garamond (display), Manrope
-(body), Tiro Devanagari Hindi (Hindi accents, not preloaded).
+- [`styles/tokens.css`](styles/tokens.css) mirrors `tokens.json` exactly: raw palette, semantic tokens
+  for the ivory default and `[data-theme="navy"]` overrides, type styles, spacing, radius, layout,
+  timing. Change `tokens.json` first, then mirror it. The only additions are the prototype's fluid
+  display ramp (`--d-xl`, `--d-l`, `--d-m`).
+- Put `data-theme="navy"` on a section and every semantic token flips (Crystals, footer, mobile menu).
+- Cormorant never below 28px; prices always Manrope 600 tabular; small gold text uses
+  `--accent-text` (gold-500 is only 3.1:1 on ivory).
+- One primary button per screen; unpriced products get a disabled "Price coming soon" button.
 
-## Front-end notes
+## The 3D hero
 
-- **Fonts are kept to four files (~147 KB).** The ₹ sign would otherwise pull in the `latin-ext`
-  files of Manrope and Cormorant (~48 KB), so `globals.css` defines `Rupee Sans` / `Rupee Serif`:
-  faces that cover only U+20B9 from fonts already on the device. `HindiText` wraps each Hindi word
-  separately so a space does not pull in Tiro's latin file (~20 KB). Use `<HindiText>` for any
-  Devanagari with spaces.
-- **Scroll reveals:** add `data-reveal` to an element. Content is visible by default; GSAP only hides
-  elements below the fold after it has loaded, so nothing stays hidden if JS fails. Do not put
-  `data-reveal` on an element with a CSS `transform` transition (it fights GSAP): wrap it instead.
-- **Do not use `content-visibility: auto` on page sections.** It lowers layout cost, but ScrollTrigger
-  measures positions from the placeholder heights and reveals then fail to fire. Tested and removed.
-- **`experimental.inlineCss` was tested and rejected:** the CSS is also duplicated in the RSC payload,
-  which took the HTML from 65 KB to 175 KB and made LCP worse.
-- **Modals** (menu, search, cart) use native `<dialog>` through `useModalDialog`, which provides the
-  focus trap, Esc to close and focus return.
+`components/hero/JarHero.tsx` + `components/hero/scene/`, ported from
+`docs/design-handoff/hero-reference/concept.html`. The hero section is 520vh tall with a sticky
+stage; scroll progress p (0–1) drives everything.
+
+| p         | What happens                                                                |
+| --------- | --------------------------------------------------------------------------- |
+| 0 – .14   | jar floats with a slow turn (pointer parallax); headline fades out from .03 |
+| .05 – .24 | lid unscrews 1.5 turns while rising, then flies up and away                 |
+| .24 – .42 | jar tips ~113° around its bottom-left edge; the camera follows              |
+| .44 – .76 | ~6,000 precomputed crystals pour into a heap; the salt surface sinks        |
+| .74 – .86 | jar rises out of frame                                                      |
+| .76 – .97 | heap spreads, salt-crust plane fades in, gold horizon line, "Sambhar Lake"  |
+
+| File                      | Role                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| `scene/jar.ts`            | `createJarRig()` (pivot → jar → lid groups), `setJar()` tilt pose, `poseJar()` |
+| `scene/camera.ts`         | the `K` camera keyframes and `cameraAt(p)`                                     |
+| `scene/grains.ts`         | `buildGrains()` (seeded paths, once) and `updateGrains(p)` (InstancedMesh)     |
+| `scene/ground.ts`         | `crustTexture()` salt flats, soft shadow floor, gold horizon mesh              |
+| `scene/createJarScene.ts` | renderer, lights, loop, resize, visibility pause, dispose                      |
+| `lib/three/quality.ts`    | tiers: 6,000 grains desktop / 2,800 phones / 1,500 weak devices                |
+
+- **Deterministic.** No physics and no state carried between frames: each grain's path is computed
+  once from a seeded RNG, and every frame is a function of p. The scene eases towards the scroll
+  position and then snaps exactly onto it, so the same scroll position always gives the same frame
+  (verified pixel-for-pixel scrolling forwards and back). Only the idle float and pointer parallax
+  (p < .14) depend on time; `?heroStill` freezes them for screenshots.
+- **Relative motion.** meshopt quantization gives every node a base transform; the rig uses
+  `attach()` and offsets (e.g. `Salt_top` y) so those transforms are preserved.
+- **Loading.** The headline and buttons are server-rendered; three.js and the model are imported
+  after the page is idle, and the poster (`images/renders/jar-black.webp`) shows until the first
+  3D frame. Rendering pauses while the hero is off-screen; everything is disposed on unmount.
+- **The text beats and rail** are a GSAP timeline scrubbed by the same progress (`HomeMotion`).
+
+## Motion and reduced motion
+
+- `app/layout.tsx` adds `html.motion` before first paint when JS runs and the visitor hasn't asked
+  for reduced motion. CSS keys the pinned hero and the horizontal Journey on that class. Without it
+  (no JS, or reduced motion) there is no WebGL, no smooth scroll and no scrubbing: the hero is one
+  static screen with the poster, its three beats stack below, and Journey is a plain list.
+- Lenis runs on GSAP's ticker and feeds ScrollTrigger (`SmoothScroll`). Same-page links (`/#shop`)
+  are intercepted in the capture phase and scrolled by Lenis.
+- `HomeMotion` handles the rest: heading word reveals (`[data-split]`), `[data-fade]`,
+  `[data-draw]` (horizon), `[data-parallax]`, `[data-float]`, `[data-clip-reveal]`, the crystals
+  zoom and the pinned Journey (≥ 861px). Content is visible in the server HTML; tweens only start
+  from hidden states once GSAP has loaded.
+- **Do not use `content-visibility: auto` on page sections**: ScrollTrigger then measures
+  placeholder heights and triggers misfire (tested in Step 2).
 
 ## 3D models
 
@@ -118,6 +159,9 @@ Decisions:
   rather than overwriting `position`/`scale`. `thicknessFactor` on the PET materials is rescaled by
   gltf-transform to match, so the world-space thickness is unchanged.
 - Decoding requires `MeshoptDecoder` (`three/examples/jsm/libs/meshopt_decoder.module.js`) on the GLTFLoader.
+
+Hero stage screenshots: [`docs/images/hero-stages-desktop.jpg`](docs/images/hero-stages-desktop.jpg),
+[`docs/images/hero-stages-mobile.jpg`](docs/images/hero-stages-mobile.jpg).
 
 Before/after render (three.js, same lighting): [`docs/images/model-compression-before-after.jpg`](docs/images/model-compression-before-after.jpg).
 
@@ -155,9 +199,10 @@ removeFromCart(lineId);
 | `local-cart.ts`    | `CartProvider` over `localStorage` (stores only variant id + qty; prices re-resolved on read).                                                                         |
 | `index.ts`         | Picks the providers and re-exports the API.                                                                                                                            |
 
-A `null` price shows **Price coming soon** and disables Add to cart: unpriced items never enter the
-cart (`isPurchasable` in `types.ts`, enforced again in `local-cart.ts`). A `null` free-shipping
-threshold hides that message in the announcement bar.
+A `null` price shows a disabled **Price coming soon** button instead of Add to bag: unpriced items
+never enter the bag (`isPurchasable` in `types.ts`, enforced again in `local-cart.ts`). The
+free-shipping threshold (`getFreeShippingThreshold()`) is kept for checkout; the premium design has
+no announcement bar to show it in.
 
 ### Switching to Shopify (later)
 

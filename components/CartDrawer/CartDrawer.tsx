@@ -16,22 +16,22 @@ export function CartDrawer() {
   const lines = cart?.lines ?? [];
 
   return (
-    <dialog ref={ref} className={styles.drawer} aria-labelledby="cart-title">
+    <dialog ref={ref} className={styles.drawer} aria-labelledby="cart-title" data-lenis-prevent>
       <div className={styles.panel}>
         <div className={styles.head}>
           <h2 id="cart-title" className={styles.title}>
-            Your cart
+            Your bag
           </h2>
           <button type="button" className={styles.iconButton} onClick={closeCart}>
             <CloseIcon />
-            <span className="visually-hidden">Close cart</span>
+            <span className="sr-only">Close bag</span>
           </button>
         </div>
 
         {lines.length === 0 ? (
           <div className={styles.empty}>
-            <p>Your cart is empty.</p>
-            <ButtonLink href="/#shop" variant="outline" onClick={closeCart}>
+            <p>Your bag is empty.</p>
+            <ButtonLink href="/#shop" variant="secondary" onClick={closeCart}>
               Shop the salts
             </ButtonLink>
           </div>
@@ -111,7 +111,7 @@ function CartLineItem({ line, onNavigate }: { line: CartLine; onNavigate: () => 
             </button>
           </div>
           <button type="button" className={styles.remove} onClick={() => remove(line.id)}>
-            Remove<span className="visually-hidden"> {product.title}</span>
+            Remove<span className="sr-only"> {product.title}</span>
           </button>
         </div>
       </div>
