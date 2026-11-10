@@ -59,11 +59,11 @@ export const viewport: Viewport = {
  * - `html.motion` switches on the scroll-driven layouts (pinned hero, horizontal journey).
  *   Without JS, or with prefers-reduced-motion, the class is never added and every section
  *   lays out as a normal static page.
- * - On the homepage, `html[data-intro]` picks the loader (components/IntroLoader): "full" on
- *   the first visit of the session with motion allowed, otherwise "fade" (a 0.3 s fade).
- *   Without JS the attribute is never set and there is no loader at all.
+ * - On the homepage, `html[data-intro]` picks the intro (components/loader): "full" on the
+ *   first visit of the session (or with ?intro=always), "reduced" on a first visit with reduced
+ *   motion, otherwise "fade" (a 0.3 s fade). Without JS there is no intro at all.
  */
-const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m)d.classList.add('motion');if(location.pathname==='/'){var s=1;try{s=sessionStorage.getItem('pyoor-intro')}catch(e){}d.setAttribute('data-intro',m&&!s?'full':'fade')}}catch(e){}`;
+const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m)d.classList.add('motion');if(location.pathname==='/'){var s=1;try{s=sessionStorage.getItem('pyoor-intro')}catch(e){}if(/[?&]intro=always(&|$)/.test(location.search))s=0;d.setAttribute('data-intro',s?'fade':m?'full':'reduced')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

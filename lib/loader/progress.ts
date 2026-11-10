@@ -24,6 +24,11 @@ export function reportLoad(part: LoadPart, fraction: number): void {
   listeners.forEach((fn) => fn(p));
 }
 
+/** How far one part has got (0–1). */
+export function partProgress(part: LoadPart): number {
+  return parts[part];
+}
+
 export function onLoadProgress(fn: (p: number) => void): () => void {
   listeners.add(fn);
   return () => listeners.delete(fn);

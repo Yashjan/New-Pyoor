@@ -85,7 +85,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className={headerClass}>
+      <header className={headerClass} data-site-header>
         <button
           ref={menuButton}
           type="button"

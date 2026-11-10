@@ -1,5 +1,5 @@
 import { JarHero } from '@/components/hero/JarHero';
-import { IntroLoader } from '@/components/IntroLoader/IntroLoader';
+import { CrystalDawn } from '@/components/loader/CrystalDawn';
 import { HomeMotion } from '@/components/motion/HomeMotion';
 import { Crystals } from '@/components/sections/Crystals/Crystals';
 import { Journey } from '@/components/sections/Journey/Journey';
@@ -10,7 +10,7 @@ import { getProduct, getProducts, isPurchasable, type Money } from '@/lib/commer
 import { formatPrice } from '@/lib/format';
 
 /** Runs as <main> is parsed: busy until the first-visit loader reveals the page. */
-const MAIN_BUSY = `document.documentElement.getAttribute('data-intro')==='full'&&document.currentScript.parentNode.setAttribute('aria-busy','true')`;
+const MAIN_BUSY = `/^(full|reduced)$/.test(document.documentElement.getAttribute('data-intro'))&&document.currentScript.parentNode.setAttribute('aria-busy','true')`;
 
 /** Homepage (docs/design-handoff/hero-reference/concept.html): one idea per screen. */
 export default async function HomePage() {
@@ -28,7 +28,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <IntroLoader />
+      <CrystalDawn />
       {/* aria-busy is set by MAIN_BUSY before hydration, so React must not fight over it. */}
       <main id="main" suppressHydrationWarning>
         <script dangerouslySetInnerHTML={{ __html: MAIN_BUSY }} />

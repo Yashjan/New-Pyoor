@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
+import { Horizon } from '@/components/Horizon/Horizon';
 import { SplitText } from '@/components/SplitText/SplitText';
+import { prefetchWithProgress, whenIntroDone } from '@/lib/loader/prefetch';
 import { introIsFull, reportLoad } from '@/lib/loader/progress';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
@@ -50,10 +52,27 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     let dispose: (() => void) | undefined;
 
     // Start after the page has painted and gone idle, so the text and buttons come first.
-    // During the first-visit loader the text is covered anyway, so start straight away.
+    // Under the first-visit intro: download the model and three.js straight away (that is the
+    // intro's real progress), but build the scene only after the reveal, so its heavy setup
+    // (context, environment, shader compile) never stalls the intro. The poster, placed where
+    // the 3D jar renders, stands in until then.
+    const intro = introIsFull();
+    if (intro)
+      void prefetchWithProgress(MODEL_URL, (f) => reportLoad('model', f), controller.signal).catch(
+        () => reportLoad('model', 1),
+      );
     const start = async () => {
       const { createJarScene } = await import('./scene/createJarScene');
       reportLoad('three', 1);
+      if (intro) {
+        await whenIntroDone(controller.signal);
+        // let the hero's own intro play first, then build in the next idle moment
+        await new Promise<void>((resolve) =>
+          window.requestIdleCallback
+            ? window.requestIdleCallback(() => resolve(), { timeout: 2000 })
+            : window.setTimeout(resolve, 1200),
+        );
+      }
       if (controller.signal.aborted) return;
       try {
         const scene = await createJarScene({
@@ -62,7 +81,7 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
           onFirstFrame: () => setPosterGone(true),
-          onModelProgress: (f) => reportLoad('model', f),
+          onModelProgress: intro ? undefined : (f) => reportLoad('model', f),
           signal: controller.signal,
         });
         if (controller.signal.aborted) scene.dispose();
@@ -72,10 +91,10 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         if ((err as Error).name !== 'AbortError') console.error('Jar hero failed to start', err);
       }
     };
-    const useIdle = !introIsFull() && !!window.requestIdleCallback;
+    const useIdle = !intro && !!window.requestIdleCallback;
     const idle = useIdle
       ? window.requestIdleCallback(() => void start(), { timeout: 1200 })
-      : window.setTimeout(() => void start(), introIsFull() ? 0 : 200);
+      : window.setTimeout(() => void start(), intro ? 0 : 200);
 
     return () => {
       controller.abort();
@@ -128,6 +147,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             <span>Batch and dates on every jar</span>
             <span>Cash on delivery</span>
           </div>
+          {/* The gold thread under the copy: the loader's horizon line lands here. */}
+          <Horizon className={styles.horizonLine} data-hero-horizon />
         </div>
 
         <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
@@ -153,8 +174,6 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             <span className={styles.fill} data-rail-fill />
           </span>
         </div>
-        {/* Where the loader's gold line comes to rest: the ground line under the jar. */}
-        <span className={styles.horizon} aria-hidden="true" data-hero-horizon />
         <div className={styles.cue} aria-hidden="true" data-hero-cue>
           Scroll
           <i />

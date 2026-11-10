@@ -16,8 +16,7 @@ const THREAD_PITCH = 0.0045;
 const UNSCREW_TURNS = 2.5;
 /** The cap: these nodes turn and lift together. Neck_thread stays on the jar. */
 const LID_PARTS = ['Lid', 'Lid_rim', 'Lid_thread'] as const;
-/** Clear or smoky plastic: no hard shadow. */
-const NO_SHADOW = ['Body', 'Lid', 'Lid_thread', 'Neck_thread'];
+/** The jar casts no realtime shadow: a soft contact ellipse (ground.ts) sits under it. */
 
 export interface JarRig {
   /** Tilts around the jar's bottom-left edge. */
@@ -36,14 +35,13 @@ export interface JarRig {
  * Builds the rig around the loaded model. `attach()` keeps each node's world transform, so
  * the quantized base transforms stay intact and all motion below is relative to them.
  */
-export function createJarRig(model: Object3D, castShadows: boolean): JarRig {
+export function createJarRig(model: Object3D): JarRig {
   const meshes: Record<string, Mesh> = {};
   model.traverse((o) => {
     if ((o as Mesh).isMesh) {
       const mesh = o as Mesh;
       meshes[mesh.name] = mesh;
-      // Clear PET doesn't cast a hard shadow.
-      mesh.castShadow = castShadows && !NO_SHADOW.includes(mesh.name);
+      mesh.castShadow = false;
     }
   });
   for (const name of ['Body', 'Salt', 'Salt_top', 'Label', ...LID_PARTS, 'Neck_thread']) {

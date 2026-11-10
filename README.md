@@ -120,26 +120,48 @@ stage; scroll progress p (0–1) drives everything.
   3D frame. Rendering pauses while the hero is off-screen; everything is disposed on unmount.
 - **The text beats and rail** are a GSAP timeline scrubbed by the same progress (`HomeMotion`).
 
-## First-visit loader
+## First-visit intro: Crystal Dawn
 
-`components/IntroLoader/` (homepage only). `app/layout.tsx` sets `html[data-intro]` before first
-paint: **full** on the first visit of the session (`sessionStorage['pyoor-intro']`) with motion
-allowed, otherwise **fade** (later visits and reduced motion: a 0.3 s CSS fade). Without JS there
-is no loader.
+`components/loader/` (homepage only): `dawn.ts` draws the scene with Canvas 2D (no three.js), and
+`CrystalDawn.tsx` runs the timeline. Salt is born at dawn: on an ivory dawn a point of light grows
+into a hopper crystal drawn in gold hairlines, the sun rises behind it, the crystal catches the
+light, breaks into grains that fall into the horizon, and the horizon opens onto the hero.
 
-- The gold line's fill is real progress (`lib/loader/progress.ts`): `document.fonts.ready` 20%,
-  three.js 15% + GSAP 15%, the jar GLB's download (GLTFLoader `onProgress`) 50%. Devices without
-  3D report the three.js and model parts as done.
-- Reveal at ≥ 900 ms and 100%, or at 2.5 s regardless (the hero poster covers a jar still loading).
-- Exit, 1.1 s expo.inOut, on the Web Animations API so it never waits for GSAP: the logo flies
-  into the measured header slot (FLIP), the line widens to full width and settles on the hero's
-  ground line (`[data-hero-horizon]`), the curtain lifts (`clip-path`), and the hero intro is
-  released at 0.7 s (`html[data-intro-play]`).
-- The page underneath is server-rendered; the overlay is `aria-hidden` and `<main>` is
-  `aria-busy="true"` until the reveal. A CSS failsafe removes the overlay after 6 s if its JS
-  never runs.
+`app/layout.tsx` sets `html[data-intro]` before first paint:
 
-Screenshots: [`docs/images/loader/`](docs/images/loader/).
+| Value       | When                                                                             | What plays                                                |
+| ----------- | -------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **full**    | first visit of the session (`sessionStorage['pyoor-intro']`), or `?intro=always` | the whole story                                           |
+| **reduced** | first visit, with reduced motion                                                 | the finished crystal and logo, a 0.6 s hold, a 0.3 s fade |
+| **fade**    | later visits                                                                     | a 0.3 s fade, CSS only                                    |
+| _(unset)_   | no JS, or any other page                                                         | nothing                                                   |
+
+Phases, on a typical first visit (about 3.8 s from when the story starts):
+
+| Phase | Time    | What happens                                                                                                                                                                                                                          |
+| ----- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A     | 0–0.6 s | The horizon draws out from the centre and the seed blooms. This part is CSS, in the server HTML, so it plays from the first paint.                                                                                                    |
+| B     | ≥ 1.2 s | The crystal grows, driven by real load progress.                                                                                                                                                                                      |
+| C     | 0.45 s  | A glint runs round the hopper rim and spirals to the centre.                                                                                                                                                                          |
+| D     | 0.9 s   | The crystal releases into 820 grains (360 on phones).                                                                                                                                                                                 |
+| E     | —       | The logo rises in and glides to the header, and the nav and bag fade in. The horizon then opens (1.1 s): the sky lifts, the ground drops, and the gold seam settles onto the hero's `Horizon`. The jar rises in once it is uncovered. |
+
+- **Load progress** comes from `lib/loader/progress.ts`, spring-smoothed:
+  - fonts 20%,
+  - three.js and GSAP imports 30%,
+  - the jar GLB download 50%.
+- **Cap:** 2.2 s after the first paint, the story moves on whatever has loaded, so a reveal lands
+  at about 4.5 s at most. Skip: after 1 s, a click, tap or any key jumps to the release.
+- **The hero's 3D scene is built only after the reveal.** The intro downloads the model (it is
+  cached, with a content-hashed URL) and imports three.js. Until the 3D scene is ready, the
+  poster stands in, placed where the 3D jar renders. This keeps the intro at 60 fps under 4× CPU
+  throttling.
+- **Accessibility:** the overlay is `aria-hidden`, and `<main>` is `aria-busy` until the reveal.
+  A CSS failsafe removes the overlay after 6 s if its JS never runs. If 2D canvas fails, the
+  reduced version plays.
+
+Recordings and the FPS report are in [`docs/video/loader/`](docs/video/loader/). The approved
+stills are in [`docs/images/loader/`](docs/images/loader/): v1, v2 and v3.
 
 ## Motion and reduced motion
 

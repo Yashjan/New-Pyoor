@@ -1,5 +1,6 @@
 import {
   CanvasTexture,
+  Group,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -70,9 +71,76 @@ export function crustTexture(): CanvasTexture {
   return t;
 }
 
-/** Soft shadow under the jar, the salt flats (fade in at the end) and the gold horizon line. */
+/** A round falloff (white → transparent), tinted by the material colour. */
+function blobTexture(stops: readonly (readonly [number, number])[]): CanvasTexture {
+  const S = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = S;
+  const g = canvas.getContext('2d')!;
+  const grad = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+  for (const [o, a] of stops) grad.addColorStop(o, `rgba(255,255,255,${a})`);
+  g.fillStyle = grad;
+  g.fillRect(0, 0, S, S);
+  const t = new CanvasTexture(canvas);
+  t.colorSpace = SRGBColorSpace;
+  return t;
+}
+
+// roughly Gaussian: no visible edge anywhere
+const AMBIENT_STOPS = [
+  [0, 1],
+  [0.25, 0.82],
+  [0.5, 0.45],
+  [0.75, 0.14],
+  [1, 0],
+] as const;
+// tighter core: nearly solid under the base, then a short falloff
+const CORE_STOPS = [
+  [0, 1],
+  [0.55, 0.92],
+  [0.8, 0.38],
+  [1, 0],
+] as const;
+
+/**
+ * The jar's contact shadow, the grains' shadows on the floor, the salt flats (fade in at the
+ * end) and the gold horizon line.
+ */
 export function createGround() {
-  const shadowFloor = new Mesh(new PlaneGeometry(4, 4), new ShadowMaterial({ opacity: 0.16 }));
+  // Two layers under the 10 cm jar: a tight navy core at the base and a wide ambient ellipse.
+  const contact = new Group();
+  const contactMats: [MeshBasicMaterial, number][] = [];
+  const layer = (
+    stops: readonly (readonly [number, number])[],
+    opacity: number,
+    w: number,
+    d: number,
+    y: number,
+  ) => {
+    const mat = new MeshBasicMaterial({
+      map: blobTexture(stops),
+      color: 0x121a3b,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+      fog: false,
+    });
+    const m = new Mesh(new PlaneGeometry(1, 1), mat);
+    m.rotation.x = -Math.PI / 2;
+    m.position.y = y;
+    m.scale.set(w, d, 1);
+    m.renderOrder = 1;
+    contact.add(m);
+    contactMats.push([mat, opacity]);
+  };
+  layer(AMBIENT_STOPS, 0.08, 0.2, 0.12, 0.0004); // soft ambient, 20 × 12 cm
+  layer(CORE_STOPS, 0.16, 0.11, 0.0198, 0.0006); // contact core: 1.1 × base, depth 0.18 × width
+
+  // Realtime shadows are only cast by the pour grains (the heap); tinted navy, not grey.
+  const shadowFloor = new Mesh(
+    new PlaneGeometry(4, 4),
+    new ShadowMaterial({ color: 0x121a3b, opacity: 0.12 }),
+  );
   shadowFloor.rotation.x = -Math.PI / 2;
   shadowFloor.receiveShadow = true;
 
@@ -99,6 +167,8 @@ export function createGround() {
   horizon.position.set(0, 0.02, -9);
 
   return {
+    contact,
+    contactMats,
     shadowFloor,
     shadowMat: shadowFloor.material,
     crust,

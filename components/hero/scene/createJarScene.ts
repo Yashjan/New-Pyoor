@@ -11,7 +11,7 @@ import {
   Scene,
   SRGBColorSpace,
   WebGLRenderer,
-  type Vector3,
+  Vector3,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
@@ -50,6 +50,8 @@ declare global {
 
 const IVORY = new Color('#f5f1e8');
 const SKY = new Color('#eee9df');
+
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const { canvas, tier, signal } = opts;
@@ -99,9 +101,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   scene.add(key, rim, new HemisphereLight(0xffffff, 0xe8dfcd, 0.35));
 
   const ground = createGround();
-  scene.add(ground.shadowFloor, ground.crust, ground.horizon);
+  scene.add(ground.contact, ground.shadowFloor, ground.crust, ground.horizon);
 
   // ---- the jar ----
+  // Setup runs while the first-visit intro is on screen: yield a frame between the heavy steps
+  // so their costs don't stack into one long stall.
+  await nextFrame();
   let gltf;
   try {
     gltf = await modelLoad;
@@ -111,7 +116,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     envRT.dispose();
     throw err;
   }
-  const rig = createJarRig(gltf.scene, tier.shadows);
+  const rig = createJarRig(gltf.scene);
   scene.add(rig.pivot);
 
   const grainMesh = createGrainMesh(tier.grains, tier.shadows);
@@ -158,6 +163,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
 
   // ---- loop ----
   const clock = new Clock();
+  const jarBase = new Vector3();
   let sp = opts.getProgress(); // smoothed progress
   let frames = 0;
   let raf = 0;
@@ -179,12 +185,19 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     pointer.y += (target.y - pointer.y) * 0.05;
 
     poseJar(rig, p, t, pointer, layout);
+    // Contact shadow follows the jar's base and fades as the jar tips up off the floor.
+    rig.pivot.updateMatrixWorld(true);
+    rig.jar.getWorldPosition(jarBase);
+    ground.contact.position.x = jarBase.x;
+    ground.contact.position.z = jarBase.z;
     updateGrains(grainMesh, grains, mouth, p);
 
     // Salt flats: the crust fades in, the sky warms, the gold horizon appears.
     const flat = smooth(0.78, 0.93, p);
     ground.crustMat.opacity = flat;
-    ground.shadowMat.opacity = 0.16 * (1 - flat);
+    ground.shadowMat.opacity = 0.12 * (1 - flat);
+    const contactFade = (1 - smooth(0.24, 0.36, p)) * (rig.pivot.visible ? 1 : 0);
+    for (const [mat, base] of ground.contactMats) mat.opacity = base * contactFade;
     ground.horizonMat.opacity = smooth(0.86, 0.97, p) * 0.9;
     (scene.background as Color).copy(IVORY).lerp(SKY, flat);
     scene.fog!.color.copy(scene.background as Color);
@@ -196,6 +209,21 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     window.__pyoorHero = { p, target: goal, frames };
     if (frames === 1) opts.onFirstFrame();
   };
+  // Compile every material before the first frame, in parallel where the driver supports it
+  // (KHR_parallel_shader_compile), instead of blocking the page for ~0.2–0.7 s on first render.
+  await nextFrame();
+  try {
+    await renderer.compileAsync(scene, camera);
+  } catch {
+    // older drivers: the first render compiles them instead
+  }
+  if (signal.aborted) {
+    disposeObject(scene);
+    envRT.dispose();
+    pmrem.dispose();
+    renderer.dispose();
+    throw new DOMException('Aborted', 'AbortError');
+  }
   raf = requestAnimationFrame(frame);
 
   return {

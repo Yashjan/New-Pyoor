@@ -1,0 +1,198 @@
+/*
+ * Crystal Dawn overlay. Hidden unless app/layout.tsx set html[data-intro] (homepage, JS on).
+ * Above the header (50) and the bag toast (60); the header is lifted above it (101) once the
+ * logo has landed in its slot.
+ */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  pointer-events: none;
+  /* the dawn ground, also the first paint before the canvas draws */
+  background: linear-gradient(#f5f1e8 0%, #f5f1e8 50%, #efe6d6 100%);
+}
+
+:global(html[data-intro='full']:not([data-intro-done])) .root,
+:global(html[data-intro='reduced']:not([data-intro-done])) .root {
+  display: block;
+  pointer-events: auto; /* a click or tap here skips (after 1 s) */
+}
+
+/* the horizon is opening: the page shows through between the two halves */
+.root[data-open] {
+  background: transparent;
+  pointer-events: none;
+}
+
+/*
+ * Phase A without JS: the gold horizon draws outward from the centre (expo-out, 0.6 s) and the
+ * seed blooms where the crystal will grow. Same geometry as dawn.ts (horizon at 58%; crystal
+ * size L = min(18vw / 1.3, 21% of the height), 40vw / 1.4 on phones). The canvas takes over
+ * at the same moment of the animation and these hide.
+ */
+.hz,
+.seed {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+}
+
+:global(html[data-intro='full']) .hz,
+:global(html[data-intro='full']) .seed {
+  display: block;
+}
+
+.root[data-canvas] .hz,
+.root[data-canvas] .seed {
+  visibility: hidden;
+}
+
+.hz {
+  left: 0;
+  right: 0;
+  top: calc(58% - 0.5px);
+  top: round(down, 58%, 1px); /* the same pixel row as the canvas horizon */
+  height: 1px;
+  background: var(--gold-500);
+  opacity: 0.88;
+  transform-origin: 50% 50%;
+  animation: dawn-hz 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.seed {
+  --L: min(13.85vw, 21svh);
+  --r: 54px;
+  left: calc(50% - 0.12 * var(--L) - var(--r));
+  top: calc(58% - 0.98 * var(--L) - var(--r));
+  top: calc(round(down, 58%, 1px) + 0.5px - 0.98 * var(--L) - var(--r));
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 250, 240, 1) 0%,
+    rgba(255, 250, 240, 0.85) 4%,
+    rgba(205, 167, 94, 0.25) 10%,
+    rgba(205, 167, 94, 0.07) 40%,
+    rgba(205, 167, 94, 0) 100%
+  );
+  animation: dawn-seed 0.45s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dawn-hz {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes dawn-seed {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 699px) {
+  .seed {
+    --L: min(28.57vw, 21svh);
+    --r: 44px;
+  }
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hi,
+.en {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(58% + 30px);
+  margin: 0;
+  text-align: center;
+  opacity: 0;
+}
+
+.hi {
+  font-family: var(--font-tiro), serif;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--gold-700);
+}
+
+.en {
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--slate-500);
+}
+
+.logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.logo img {
+  display: block;
+  width: auto;
+  height: 72px;
+}
+
+/* later visits: a plain 0.3 s fade, no content, no JS needed */
+:global(html[data-intro='fade']) .root {
+  display: block;
+  animation: dawn-fade 0.3s ease both;
+}
+
+:global(html[data-intro='fade']) .root > * {
+  display: none;
+}
+
+/* failsafe if the JS never runs: get out of the way after 6 s */
+:global(html[data-intro='full']) .root:not([data-running]),
+:global(html[data-intro='reduced']) .root:not([data-running]) {
+  animation: dawn-fade 0.3s 6s ease both;
+}
+
+@keyframes dawn-fade {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ---- the page under the full intro ---- */
+:global(html[data-intro='full']:not([data-intro-done])),
+:global(html[data-intro='reduced']:not([data-intro-done])) {
+  overflow: hidden;
+}
+
+/* the header: its logo is the overlay's until it lands; nav and bag fade in as it does */
+:global(html[data-intro='full']:not([data-header-in]) [data-header-logo]) {
+  visibility: hidden;
+}
+
+:global(html[data-intro='full'] [data-site-header] > :not([data-header-logo])) {
+  transition: opacity 0.4s var(--ease-settle);
+}
+
+:global(
+  html[data-intro='full']:not([data-header-in]) [data-site-header] > :not([data-header-logo])
+) {
+  opacity: 0;
+}
+
+:global(html[data-intro='full'][data-header-in]:not([data-intro-done]) [data-site-header]) {
+  z-index: 101;
+}
