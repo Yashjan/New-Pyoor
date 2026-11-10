@@ -7,8 +7,9 @@
 # Pipeline (per jar):
 #   1. name_textures.py   name images by material slot so they can be targeted below
 #   2. dedup + prune      drop duplicate/unused data
-#   3. resize             salt normal + roughness maps to 512 px (they tile every ~1.5 cm);
-#                         the label and salt albedo keep full resolution
+#   3. resize             salt roughness map to 512 px, normal map to 512 px except for the
+#                         jars in FULL_NORMAL (they tile every ~1.5 cm); the label and salt
+#                         albedo keep full resolution
 #   4. webp               normal map at q90 (lossy normals glint badly), everything else q80
 #   5. meshopt            geometry compression + quantization (EXT_meshopt_compression)
 #
@@ -25,6 +26,8 @@ SRC="$ROOT/tools/3d/source"
 OUT="$ROOT/public/models"
 GT="$ROOT/node_modules/.bin/gltf-transform"
 BUDGET_BYTES=$((600 * 1024))
+# Jars that keep the 1024 px salt normal map (the hero jar, seen up close while it pours).
+FULL_NORMAL=(pyoor-herbal-black-salt.glb)
 REQUIRED_EXT=(KHR_materials_transmission KHR_materials_ior KHR_materials_volume)
 
 [[ -x "$GT" ]] || { echo "gltf-transform not found; run npm install first" >&2; exit 1; }
@@ -48,7 +51,9 @@ for src in "$SRC"/*.glb; do
   python3 "$ROOT/tools/3d/name_textures.py" "$src" "$TMP/0.glb" >/dev/null
   "$GT" dedup "$TMP/0.glb" "$TMP/1.glb" >/dev/null
   "$GT" prune "$TMP/1.glb" "$TMP/2.glb" >/dev/null
-  "$GT" resize "$TMP/2.glb" "$TMP/3.glb" --pattern "*_{normal,mr}" --width 512 --height 512 >/dev/null
+  small="*_{normal,mr}"
+  [[ " ${FULL_NORMAL[*]} " == *" $name "* ]] && small="*_mr"
+  "$GT" resize "$TMP/2.glb" "$TMP/3.glb" --pattern "$small" --width 512 --height 512 >/dev/null
   "$GT" webp "$TMP/3.glb" "$TMP/4.glb" --slots normalTexture --quality 90 --effort 80 >/dev/null
   "$GT" webp "$TMP/4.glb" "$TMP/5.glb" --quality 80 --effort 80 >/dev/null
   "$GT" meshopt "$TMP/5.glb" "$OUT/$name" >/dev/null
