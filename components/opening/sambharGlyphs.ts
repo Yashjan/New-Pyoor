@@ -14,7 +14,7 @@ export interface SambharLetter {
 export const SAMBHAR = {
   /** Ink bounds: x and width are exactly the ink, so the word's width is its ink width. */
   viewBox: [69.8, -636, 4837.2, 648] as const,
-  /** The gold line's y (300 units above the baseline). */
+  /** The seam's y: where the word splits (300 units above the baseline). */
   line: -300,
   cap: 625,
   letters: [

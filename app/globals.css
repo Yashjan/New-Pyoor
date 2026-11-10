@@ -15,6 +15,9 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   background: var(--ivory-100);
+  /* Keep the scrollbar's space even while scrolling is locked (the opening, the bag), so the
+     page never changes width and nothing jumps sideways when the lock is released. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -81,7 +84,7 @@ html.lenis body {
 }
 
 .lenis.lenis-stopped {
-  overflow: clip;
+  overflow: hidden; /* not clip: hidden keeps the reserved scrollbar gutter */
 }
 
 /* Homepage first visit (components/opening): the header comes in after SAMBHAR is inked.

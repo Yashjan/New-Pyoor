@@ -26,7 +26,7 @@ const WORD = 'SAMBHAR';
 const TRACK = 40;
 /** Optical spacing per pair, added to the tracking (font units; the font kerns none of these). */
 const PAIR = { SA: -28, AM: -28, MB: 10, BH: 6, HA: -34, AR: -36 };
-/** The gold line, 300/1000 em above the baseline: just under H's bar (315–337), just over A's (262–283). */
+/** The seam (where the word splits), 300/1000 em above the baseline: just under H's bar (315–337), just over A's (262–283). */
 const LINE = 300;
 /** "Top-left-most": among points within this many units of the contour's top, the leftmost. */
 const TOP_TOLERANCE = 12;
@@ -123,7 +123,7 @@ export interface SambharLetter {
 export const SAMBHAR = {
   /** Ink bounds: x and width are exactly the ink, so the word's width is its ink width. */
   viewBox: [${viewBox.join(', ')}] as const,
-  /** The gold line's y (${LINE} units above the baseline). */
+  /** The seam's y: where the word splits (${LINE} units above the baseline). */
   line: ${-LINE},
   cap: ${cap},
   letters: ${JSON.stringify(letters, null, 2)} as readonly SambharLetter[],

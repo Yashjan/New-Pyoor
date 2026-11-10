@@ -118,7 +118,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
       aria-label="Pyoor Herbal Black Salt"
       data-hero
     >
-      <div className={styles.stage}>
+      {/* --seam is set on the stage before hydration (SambharOpening's pre-paint script) */}
+      <div className={styles.stage} suppressHydrationWarning>
         {/* behind the jar: the dawn glow in the opening, and a fine grain against banding */}
         <div className={styles.glow} aria-hidden="true" data-opening-glow />
         <div className={styles.grain} aria-hidden="true" />

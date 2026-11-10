@@ -6,10 +6,9 @@
  *   [data-intro='full']     first visit: the engraving. CSS starts it at first paint on a 3 s
  *                           clock; with [data-opening-js] the component drives it from real
  *                           load progress. Without JS a failsafe fills it and shows the header.
- *   [data-intro='return']   same session: the word starts filled
  *
  * Geometry: the word's ink is 78% of the width (phones: the width less 16px gutters) and the
- * gold line sits on --seam (a whole pixel at half the height). The word box is shifted up by
+ * seam (where the word splits) sits on --seam (a whole pixel at half the height). The word box is shifted up by
  * the line's position within it (--line-frac), so the line runs 300/1000 em above the baseline.
  */
 
@@ -89,29 +88,6 @@
   line-height: 24px;
   text-align: center;
   color: var(--gold-700);
-}
-
-.line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: var(--seam);
-  height: 1px;
-  background: var(--gold-500);
-  opacity: 0.9;
-  transform-origin: 50% 50%;
-}
-
-/* the glint that runs along the line once the ink is in */
-.line i {
-  position: absolute;
-  left: 0;
-  top: -4px;
-  width: 180px;
-  height: 9px;
-  background: radial-gradient(closest-side, rgba(205, 167, 94, 0.75), rgba(205, 167, 94, 0));
-  opacity: 0;
-  will-change: transform;
 }
 
 .body {
@@ -195,12 +171,6 @@
   animation: cue 2.2s var(--ease-settle) infinite;
 }
 
-/* return visit: filled at once; the small line and the cue fade in */
-:global(html[data-intro='return']) .body,
-:global(html[data-intro='return']) .cue {
-  animation: fade 0.6s 0.2s var(--ease-settle) both;
-}
-
 /* ---- first visit, before the script: the engraving on its 3 s clock ---- */
 :global(html[data-intro='full']:not([data-intro-done])) .ink {
   opacity: 0;
@@ -213,10 +183,6 @@
 
 :global(html[data-intro='full']:not([data-opening-js])) .strokes path {
   animation: engrave linear both;
-}
-
-:global(html[data-intro='full']:not([data-opening-js])) .line {
-  animation: grow 3s linear both;
 }
 
 :global(html[data-intro='full']:not([data-opening-js])) .hindi {
@@ -256,12 +222,6 @@
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
-  }
-}
-
-@keyframes grow {
-  from {
-    transform: scaleX(0);
   }
 }
 

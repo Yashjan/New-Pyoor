@@ -85,8 +85,6 @@ export interface OpeningPose {
   intro: number;
   /** सांभर, riding with the top half. */
   hindi: number;
-  /** The gold line, riding under the top half. */
-  line: number;
   /** The progress rail of the jar sequence. */
   rail: number;
 }
@@ -94,7 +92,7 @@ export interface OpeningPose {
 /**
  * Everything the opening shows, as a pure function of its progress o (0–1 over OPEN_VH):
  *   .00–.06  the small line and the cue leave
- *   .00–.40  the horizon opens: SAMBHAR splits along the gold line
+ *   .00–.40  the horizon opens: SAMBHAR splits along the seam
  *   .10–.55  the jar rises out of the gap as it opens (the approved stills: one sunrise)
  *   .40–.72  the halves drift out, the top half under the header, the bottom past the edge
  *   .70–1    the jar glides to 62% (desktop) as the headline and CTA fade in
@@ -110,7 +108,6 @@ export function openingPose(o: number): OpeningPose {
     copy: smoothSpan(o, 0.74, 0.96),
     intro: 1 - span(o, 0, 0.06),
     hindi: 1 - clamp01(open / 0.5),
-    line: 1 - clamp01(open / 0.7),
     rail: smoothSpan(o, 0.88, 1),
   };
 }

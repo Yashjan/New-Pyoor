@@ -4,14 +4,7 @@ import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { loadProgress, onLoadProgress, reportLoad } from '@/lib/loader/progress';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
-import {
-  OPEN_VH,
-  clamp01,
-  easeInOut,
-  expoOut,
-  openingPose,
-  openingStore,
-} from '@/lib/motion/opening';
+import { OPEN_VH, clamp01, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
   AFTER,
@@ -28,8 +21,6 @@ import {
 import styles from './SambharOpening.module.css';
 
 const [VX, VY, VW, VH] = SAMBHAR.viewBox;
-/** Session flag: a return visit in the same session shows SAMBHAR already filled. */
-export const INTRO_KEY = 'pyoor-intro';
 
 /** React dev mounts effects twice: the intro's clock survives the remount. */
 let introClock: number | null = null;
@@ -43,14 +34,14 @@ const inkWidth = (w: number) => (w < PHONE ? w - 32 : 0.78 * w);
 const GEO = {
   '--line-frac': ((SAMBHAR.line - VY) / VH).toFixed(5),
   '--aspect': `${VW} / ${VH}`,
-  // the baseline and the cap line, measured from the gold line, per unit of word width
+  // the baseline and the cap line, measured from the seam, per unit of word width
   '--base-w': (-SAMBHAR.line / VW).toFixed(5),
   '--cap-w': ((SAMBHAR.cap + SAMBHAR.line) / VW).toFixed(5),
 } as CSSProperties;
 
 /**
  * Runs as the markup is parsed, before first paint: the hairline width in font units (1 CSS px,
- * 0.75 on phones) and the seam (the gold line, on a whole pixel at half the height), so the
+ * 0.75 on phones) and the seam (where the word splits, on a whole pixel at half the height), so the
  * CSS engraving can start at once, before any script has loaded.
  */
 const PRE = `(function(r){var w=innerWidth,s=(w<${PHONE}?w-32:.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px';r.style.setProperty('--sw',((w<${PHONE}?.75:1)/s).toFixed(3));r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
@@ -66,7 +57,7 @@ function Word() {
       focusable="false"
     >
       <defs>
-        {/* The ink's mask: a band centred on the gold line, feathered 2px at both edges. */}
+        {/* The ink's mask: a band centred on the seam, feathered 2px at both edges. */}
         <linearGradient
           id={`${id}g`}
           gradientUnits="userSpaceOnUse"
@@ -150,15 +141,14 @@ function Word() {
  * "Sambhar is engraved": the homepage's opening, inside the hero's pinned stage.
  *
  *   A  SAMBHAR engraves in gold hairlines, letter by letter, as the page really loads (fonts
- *      20%, three.js + GSAP 30%, the jar 50%); the gold line through it grows with the same
- *      progress. Then the navy ink spreads outward from the line, the outline fades, a glint
- *      runs along the line, and the header, the small line and the scroll cue come in.
- *   B  Scrolling opens the horizon: the word splits along the line, the halves part and drift
+ *      20%, three.js + GSAP 30%, the jar 50%). Then the navy ink spreads outward from the
+ *      seam, the outline fades, and the header, the small line and the scroll cue come in.
+ *   B  Scrolling opens the horizon: the word splits along the seam, the halves part and drift
  *      out (the top half under the header), the gap glowing faintly gold.
  *   C  The jar rises out of the gap (components/hero/scene reads the same progress), then
  *      glides to 62% as the headline and CTA fade in.
  *
- * html[data-intro] (app/layout.tsx): "full" plays A, "return" (same session) starts filled.
+ * html[data-intro="full"] (app/layout.tsx) plays A on every load, refreshes included.
  * Without JS, or with reduced motion, the CSS shows the filled word at once, fades only. The
  * engraving starts in CSS before any script arrives; this component takes over its clock.
  */
@@ -177,8 +167,6 @@ export function SambharOpening() {
     // the halves move as transforms only; their clips are static (SambharOpening.module.css)
     const top = $('[data-half="top"] > div');
     const bottom = $('[data-half="bottom"] > div');
-    const line = $('[data-line]');
-    const glint = $('[data-glint]');
     const hindi = $('[data-hindi]');
     const body = $('[data-body]');
     const cue = $('[data-cue]');
@@ -246,7 +234,6 @@ export function SambharOpening() {
           }
         }
       }
-      line.style.transform = `scaleX(${e.toFixed(4)})`;
       hindiIn = Math.min(1, e * 1.4);
       hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
     };
@@ -274,10 +261,6 @@ export function SambharOpening() {
       setFill(expoOut(phase(s, AFTER.fill)));
       const outline = (1 - phase(s, AFTER.outline)).toFixed(3);
       for (const g of strokes) g.style.opacity = outline;
-      const gl = phase(s, AFTER.glint);
-      const gw = glint.offsetWidth;
-      glint.style.transform = `translate3d(${(-gw + easeInOut(gl) * (W + gw)).toFixed(1)}px,0,0)`;
-      glint.style.opacity = gl > 0 && gl < 1 ? Math.sin(Math.PI * gl).toFixed(3) : '0';
       const hd = easeOutSettle(phase(s, AFTER.header)).toFixed(3);
       for (const k of headerKids) k.style.opacity = hd;
       body.style.opacity = phase(s, AFTER.body).toFixed(3);
@@ -300,15 +283,10 @@ export function SambharOpening() {
       html.setAttribute('data-intro-done', '');
       html.style.removeProperty('overflow');
       lenisStore.get()?.start();
-      try {
-        sessionStorage.setItem(INTRO_KEY, '1');
-      } catch {
-        // storage blocked: every visit plays the full intro
-      }
       introDone = true;
     };
 
-    // a return visit (or a remount after the intro): the word is already filled
+    // a remount after the intro: the word is already filled
     if (introDone && !html.hasAttribute('data-intro-done')) {
       html.setAttribute('data-header-in', '');
       html.setAttribute('data-intro-done', '');
@@ -316,7 +294,8 @@ export function SambharOpening() {
 
     if (!introDone) {
       // Take over the CSS engraving's clock (it has been running since first paint).
-      const css = line.getAnimations()[0];
+      // the first hairline (S, no delay) carries the CSS clock
+      const css = contours[0]?.[0]?.el.getAnimations()[0];
       const cssElapsed =
         introClock !== null
           ? (performance.now() - introClock) / 1000
@@ -342,7 +321,7 @@ export function SambharOpening() {
       // Arrived already scrolled (restored position): no intro, the filled word.
       if (window.scrollY > 8) finishIntro();
       else {
-        html.style.overflow = 'hidden'; // held until the glint has run (Lenis is stopped too)
+        html.style.overflow = 'hidden'; // held until the outline has faded (Lenis is stopped too)
         setEngrave(x);
         setFill(0);
         const tick = (now: number) => {
@@ -390,8 +369,6 @@ export function SambharOpening() {
       // (the top half is clipped under the header: it never crosses the nav or the logo)
       top.style.transform = `translate3d(0,${(-up).toFixed(2)}px,0)`;
       bottom.style.transform = `translate3d(0,${down.toFixed(2)}px,0)`;
-      line.style.translate = `0 ${(-up).toFixed(2)}px`;
-      line.style.opacity = (0.9 * P.line).toFixed(3);
       hindiOpen = P.hindi;
       hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
       if (introDone) {
@@ -481,9 +458,6 @@ export function SambharOpening() {
             <Word />
           </div>
         </div>
-      </div>
-      <div className={styles.line} aria-hidden="true" data-line>
-        <i data-glint />
       </div>
       <p className={`py-lead ${styles.body}`} data-body>
         Black salt and lake salt from India’s largest inland salt lake.

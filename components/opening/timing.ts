@@ -28,19 +28,18 @@ export const ENGRAVE_MAX = 3;
 
 /**
  * After the engraving, in seconds (one thing at a time, overlapping by at most 30%):
- * the ink spreads from the gold line, the outline fades, a glint runs along the line,
- * then the header, the small line and the scroll cue.
+ * the ink spreads from the seam, the outline fades, then the header, the small line and
+ * the scroll cue.
  */
 export const AFTER = {
   fill: [0, 0.8],
   outline: [0.56, 1],
-  glint: [0.9, 1.6],
-  header: [1.45, 2.05],
-  body: [1.88, 2.48],
-  cue: [2.3, 2.9],
+  header: [1, 1.6],
+  body: [1.42, 2.02],
+  cue: [1.84, 2.44],
 } as const;
-/** Scrolling is held until the glint has run; the intro counts as done after the cue. */
-export const UNLOCK_AT = AFTER.glint[1];
+/** Scrolling is held until the outline has faded; the intro counts as done after the cue. */
+export const UNLOCK_AT = AFTER.outline[1];
 export const DONE_AT = AFTER.cue[1];
 
 export const phase = (t: number, [a, b]: readonly [number, number]) => clamp01((t - a) / (b - a));
