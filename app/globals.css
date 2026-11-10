@@ -1,5 +1,24 @@
 @import '../styles/tokens.css';
 
+/* ---------- ₹ from a local font ----------
+ * The rupee sign (U+20B9) lives in the latin-ext subsets of Manrope and Cormorant, so a
+ * single "₹249" would download ~48 KB of extra font files. These faces cover only U+20B9
+ * from fonts already on the device; if none is found, the browser falls back to the web font. */
+@font-face {
+  font-family: 'Rupee Sans';
+  src:
+    local('Roboto'), local('Segoe UI'), local('Helvetica Neue'), local('Arial'),
+    local('DejaVu Sans');
+  unicode-range: U+20B9;
+}
+
+@font-face {
+  font-family: 'Rupee Serif';
+  src: local('Noto Serif'), local('Times New Roman'), local('Georgia'), local('DejaVu Serif');
+  unicode-range: U+20B9;
+  size-adjust: 86%; /* system serifs set ₹ larger than Cormorant's numerals */
+}
+
 /* ---------- reset ---------- */
 *,
 *::before,
@@ -14,11 +33,29 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  color-scheme: dark light;
+  color-scheme: dark;
+  scrollbar-gutter: stable; /* no layout shift when a modal locks page scroll */
+}
+
+/* Lock page scroll while a modal (menu, search, cart) is open. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* Anchor targets clear the sticky header. */
+[id] {
+  scroll-margin-top: calc(var(--header-height) + var(--space-2));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 body {
   min-height: 100dvh;
+  overflow-x: clip; /* guard against stray horizontal scroll */
   background: var(--surface-dark);
   color: var(--text-on-dark);
   font-family: var(--font-body);

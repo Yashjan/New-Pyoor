@@ -1,0 +1,176 @@
+.footer {
+  background: var(--surface-darker);
+  color: var(--text-on-dark-muted);
+  font-size: var(--text-sm);
+  border-top: var(--border-hairline) solid var(--line-on-dark);
+}
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: var(--space-7) var(--space-6);
+  padding-block: var(--space-9) var(--space-7);
+}
+
+.brand {
+  display: grid;
+  /* Explicit shrinkable tracks: an <input>'s intrinsic width (~200 px) would otherwise set
+     the column's minimum and push the footer wider than a 320 px screen. */
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  align-content: start;
+  gap: var(--space-4);
+  max-width: 26rem;
+}
+
+.logo {
+  width: 8.75rem;
+  height: auto;
+}
+
+.line {
+  color: var(--text-on-dark);
+}
+
+.col {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.col a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--text-on-dark);
+  text-decoration: none;
+}
+
+.col a:hover {
+  color: var(--color-gold);
+  text-decoration: underline;
+}
+
+.colTitle {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent-on-dark);
+}
+
+.address {
+  font-style: normal;
+  line-height: var(--leading-body);
+}
+
+.email {
+  overflow-wrap: anywhere;
+}
+
+/* ---- newsletter ---- */
+.newsletter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.newsletterLabel {
+  color: var(--text-on-dark);
+}
+
+.newsletterRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.newsletterInput {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: var(--border-hairline) solid var(--line-on-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-navy-800);
+  color: var(--text-on-dark);
+}
+
+.newsletterInput::placeholder {
+  color: var(--text-on-dark-muted);
+}
+
+.newsletterButton {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-gold);
+  color: var(--color-navy);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.newsletterButton:disabled,
+.newsletterInput:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.newsletterStatus {
+  min-height: 1.5em;
+  color: var(--color-gold);
+}
+
+/* ---- bottom bar ---- */
+.bottom {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-5) var(--space-6);
+  border-top: var(--border-hairline) solid rgb(216 180 106 / 0.2);
+  font-size: var(--text-xs);
+}
+
+.disclaimer {
+  color: var(--text-on-dark-muted);
+}
+
+.mobileBreak {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top > .col:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .mobileBreak {
+    display: inline;
+  }
+
+  .bottom [aria-hidden='true'] {
+    display: none;
+  }
+}

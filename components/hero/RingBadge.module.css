@@ -1,0 +1,46 @@
+.badge {
+  /* No `position` here: the parent decides placement (the hero absolutely positions it). */
+  display: grid;
+  place-items: center;
+  width: clamp(6.5rem, 10vw, 8.5rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--surface-dark);
+  box-shadow: 0 0 0 1px var(--line-on-dark);
+  color: var(--color-gold);
+}
+
+.badge > * {
+  grid-area: 1 / 1;
+}
+
+.ring {
+  width: 92%;
+  height: 92%;
+  animation: spin 24s linear infinite;
+}
+
+.text {
+  fill: currentColor;
+  font-family: var(--font-body);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.center {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  line-height: 1;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring {
+    animation: none;
+  }
+}

@@ -1,0 +1,204 @@
+.drawer {
+  --focus-ring: var(--color-gold-dark);
+  color-scheme: light;
+  width: min(26rem, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: var(--surface-light);
+  color: var(--text-on-light);
+}
+
+.drawer::backdrop {
+  background: rgb(11 16 40 / 0.6);
+}
+
+.drawer[open] {
+  animation: slide-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-hairline) solid var(--line-on-light);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 0;
+  background: none;
+}
+
+.empty {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5);
+  color: var(--text-on-light-body);
+}
+
+/* The empty-state button is an outline button meant for navy; recolour for ivory. */
+.empty a {
+  color: var(--text-on-light);
+  border-color: var(--color-gold-dark);
+}
+
+.lines {
+  overflow-y: auto;
+  padding: 0 var(--space-5);
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
+  border-bottom: var(--border-hairline) solid var(--line-on-light);
+}
+
+.thumb {
+  width: 72px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: #ece5d6;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbBlank {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lineBody {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.lineTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-display);
+}
+
+.lineTitle:hover {
+  text-decoration: underline;
+}
+
+.lineMeta {
+  font-size: var(--text-sm);
+  color: var(--text-on-light-body);
+}
+
+.lineActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: var(--border-hairline) solid var(--line-on-light);
+  border-radius: var(--radius-sm);
+}
+
+.stepper button {
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 0;
+  background: none;
+}
+
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper output {
+  min-width: 2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.remove {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  font-size: var(--text-sm);
+  color: var(--text-on-light-body);
+  text-decoration: underline;
+}
+
+.lineTotal {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.foot {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-top: var(--border-hairline) solid var(--line-on-light);
+}
+
+.subtotal {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.note {
+  font-size: var(--text-sm);
+  color: var(--text-on-light-body);
+  text-align: center;
+}
+
+/* Checkout is disabled on ivory: show it as a navy outline, still legible. */
+.foot button:disabled {
+  color: var(--text-on-light-body);
+}

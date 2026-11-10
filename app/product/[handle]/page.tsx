@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { HindiText } from '@/components/HindiText/HindiText';
 import { getProduct, getProducts } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
 
@@ -29,7 +30,11 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
   return (
     <main id="main" className="container" style={{ paddingBlock: 'var(--section-pad-y)' }}>
       <h1 style={{ textTransform: 'uppercase', fontSize: 'var(--text-3xl)' }}>{product.title}</h1>
-      {product.titleHindi && <p className="hindi">{product.titleHindi}</p>}
+      {product.titleHindi && (
+        <p>
+          <HindiText>{product.titleHindi}</HindiText>
+        </p>
+      )}
       <p>{product.summary}</p>
       {variant && (
         <p>

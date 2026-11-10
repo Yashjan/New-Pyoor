@@ -1,0 +1,81 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-5);
+  border: var(--border-hairline) solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--color-gold);
+  color: var(--color-navy);
+}
+
+.primary:hover:not(:disabled) {
+  background: #e4c784;
+}
+
+.outline {
+  border-color: var(--color-gold);
+  background: transparent;
+  color: var(--text-on-dark);
+}
+
+.outline:hover:not(:disabled) {
+  background: rgb(216 180 106 / 0.12);
+}
+
+.dark {
+  background: var(--color-navy);
+  color: var(--color-ivory);
+}
+
+.dark:hover:not(:disabled) {
+  background: var(--color-navy-800);
+}
+
+/* Disabled stays legible (≥ 4.5:1) while clearly inactive. */
+.primary:disabled,
+.dark:disabled,
+.outline:disabled {
+  border-color: currentColor;
+  background: transparent;
+  opacity: 0.85;
+}
+
+.dark:disabled {
+  color: var(--text-on-light-body);
+}
+
+.primary:disabled,
+.outline:disabled {
+  color: var(--text-on-dark-muted);
+}
+
+.sm {
+  padding-inline: var(--space-4);
+  font-size: var(--text-xs);
+}
+
+.fullWidth {
+  width: 100%;
+}

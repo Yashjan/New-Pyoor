@@ -39,8 +39,11 @@
   );
 
   /* ---- type ---- (font families are injected by next/font in app/layout.tsx) */
-  --font-display: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
-  --font-body: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  /* 'Rupee …' faces only cover ₹ (see globals.css) */
+  --font-display: 'Rupee Serif', var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Rupee Sans', var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-display-italic:
+    'Rupee Serif', var(--font-cormorant-italic), 'Cormorant Garamond', Georgia, serif;
   --font-hindi: var(--font-tiro), 'Tiro Devanagari Hindi', serif;
 
   /* fluid scale, 360 px → 1440 px */

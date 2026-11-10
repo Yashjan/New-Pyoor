@@ -1,14 +1,29 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Manrope, Tiro_Devanagari_Hindi } from 'next/font/google';
+import { AnnouncementBar } from '@/components/AnnouncementBar/AnnouncementBar';
+import { CartDrawer } from '@/components/CartDrawer/CartDrawer';
+import { Footer } from '@/components/Footer/Footer';
+import { Header } from '@/components/Header/Header';
+import { CartProvider } from '@/components/providers/CartProvider';
+import { getProducts } from '@/lib/commerce';
 import { getSiteUrl, site } from '@/lib/site';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
+  weight: ['500', '600'],
   variable: '--font-cormorant',
   display: 'swap',
+});
+
+// Italic is only used in the texture band, below the fold: don't preload it.
+const cormorantItalic = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: '400',
+  style: 'italic',
+  variable: '--font-cormorant-italic',
+  display: 'swap',
+  preload: false,
 });
 
 const manrope = Manrope({
@@ -46,14 +61,37 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const products = await getProducts();
+  const searchItems = products.map(({ handle, title, titleHindi, summary, tags }) => ({
+    handle,
+    title,
+    titleHindi,
+    summary,
+    keywords: tags.join(' ').replaceAll('-', ' '),
+  }));
+
   return (
-    <html lang="en-IN" className={`${cormorant.variable} ${manrope.variable} ${tiro.variable}`}>
+    <html
+      lang="en-IN"
+      className={[
+        cormorant.variable,
+        cormorantItalic.variable,
+        manrope.variable,
+        tiro.variable,
+      ].join(' ')}
+    >
       <body>
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        {children}
+        <CartProvider>
+          <AnnouncementBar />
+          <Header searchItems={searchItems} />
+          {children}
+          <Footer products={products} />
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

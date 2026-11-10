@@ -1,0 +1,94 @@
+.band {
+  display: grid;
+  align-items: center;
+  height: 150px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(11 16 40 / 0.66), rgb(11 16 40 / 0.66)),
+    url('/images/textures/black-salt-crystals.webp') center / 300px auto repeat;
+  border-block: var(--border-hairline) solid var(--line-on-dark);
+}
+
+.track {
+  display: flex;
+  justify-content: center;
+}
+
+.line {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  font-family: var(--font-display-italic);
+  font-style: italic;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-on-dark);
+}
+
+.line :global(.hindi) {
+  font-style: normal;
+  font-size: 0.82em;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.diamond {
+  margin-inline: 0.7em;
+  font-size: 0.4em;
+  font-style: normal;
+  color: var(--color-gold);
+}
+
+/* Desktop: one static, centred line. */
+.line[aria-hidden='true'],
+.trailing {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .track {
+    justify-content: flex-start;
+    width: max-content;
+    animation: marquee 32s linear infinite;
+  }
+
+  .line[aria-hidden='true'] {
+    display: flex;
+  }
+
+  .trailing {
+    display: inline;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+    width: auto;
+    justify-content: center;
+    padding-inline: var(--gutter);
+  }
+
+  .line {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: var(--space-2);
+    white-space: normal;
+    font-size: var(--text-2xl);
+  }
+
+  .line[aria-hidden='true'],
+  .trailing {
+    display: none;
+  }
+}
