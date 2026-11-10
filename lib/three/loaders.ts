@@ -6,10 +6,24 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
  * textures). Note: quantization gives every node a base translation and scale, so animate
  * relative to those values rather than overwriting them.
  */
-export function loadJarModel(url: string, signal?: AbortSignal): Promise<GLTF> {
+export function loadJarModel(
+  url: string,
+  signal?: AbortSignal,
+  onProgress?: (fraction: number) => void,
+): Promise<GLTF> {
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   return new Promise((resolve, reject) => {
     if (signal?.aborted) return reject(new DOMException('Aborted', 'AbortError'));
-    loader.load(url, resolve, undefined, reject);
+    loader.load(
+      url,
+      (gltf) => {
+        onProgress?.(1);
+        resolve(gltf);
+      },
+      (e) => {
+        if (e.lengthComputable && e.total > 0) onProgress?.(e.loaded / e.total);
+      },
+      reject,
+    );
   });
 }

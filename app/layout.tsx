@@ -55,22 +55,26 @@ export const viewport: Viewport = {
 };
 
 /**
- * Runs before first paint: `html.motion` switches on the scroll-driven layouts (pinned hero,
- * horizontal journey). Without JS, or with prefers-reduced-motion, the class is never added
- * and every section lays out as a normal static page.
+ * Runs before first paint:
+ * - `html.motion` switches on the scroll-driven layouts (pinned hero, horizontal journey).
+ *   Without JS, or with prefers-reduced-motion, the class is never added and every section
+ *   lays out as a normal static page.
+ * - On the homepage, `html[data-intro]` picks the loader (components/IntroLoader): "full" on
+ *   the first visit of the session with motion allowed, otherwise "fade" (a 0.3 s fade).
+ *   Without JS the attribute is never set and there is no loader at all.
  */
-const MOTION_FLAG = `try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion')}catch(e){}`;
+const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m)d.classList.add('motion');if(location.pathname==='/'){var s=1;try{s=sessionStorage.getItem('pyoor-intro')}catch(e){}d.setAttribute('data-intro',m&&!s?'full':'fade')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // The motion flag changes <html>'s class before React hydrates.
+    // The head flags change <html>'s class and data-intro before React hydrates.
     <html
       lang="en-IN"
       className={[cormorant.variable, manrope.variable, tiro.variable].join(' ')}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: MOTION_FLAG }} />
+        <script dangerouslySetInnerHTML={{ __html: HEAD_FLAGS }} />
       </head>
       {/* Browser extensions (e.g. ColorZilla's `cz-shortcut-listen`) add attributes to <body>
           before React hydrates. This only ignores attribute differences on <body> itself;

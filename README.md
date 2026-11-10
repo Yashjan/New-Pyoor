@@ -120,6 +120,27 @@ stage; scroll progress p (0–1) drives everything.
   3D frame. Rendering pauses while the hero is off-screen; everything is disposed on unmount.
 - **The text beats and rail** are a GSAP timeline scrubbed by the same progress (`HomeMotion`).
 
+## First-visit loader
+
+`components/IntroLoader/` (homepage only). `app/layout.tsx` sets `html[data-intro]` before first
+paint: **full** on the first visit of the session (`sessionStorage['pyoor-intro']`) with motion
+allowed, otherwise **fade** (later visits and reduced motion: a 0.3 s CSS fade). Without JS there
+is no loader.
+
+- The gold line's fill is real progress (`lib/loader/progress.ts`): `document.fonts.ready` 20%,
+  three.js 15% + GSAP 15%, the jar GLB's download (GLTFLoader `onProgress`) 50%. Devices without
+  3D report the three.js and model parts as done.
+- Reveal at ≥ 900 ms and 100%, or at 2.5 s regardless (the hero poster covers a jar still loading).
+- Exit, 1.1 s expo.inOut, on the Web Animations API so it never waits for GSAP: the logo flies
+  into the measured header slot (FLIP), the line widens to full width and settles on the hero's
+  ground line (`[data-hero-horizon]`), the curtain lifts (`clip-path`), and the hero intro is
+  released at 0.7 s (`html[data-intro-play]`).
+- The page underneath is server-rendered; the overlay is `aria-hidden` and `<main>` is
+  `aria-busy="true"` until the reveal. A CSS failsafe removes the overlay after 6 s if its JS
+  never runs.
+
+Screenshots: [`docs/images/loader/`](docs/images/loader/).
+
 ## Motion and reduced motion
 
 - `app/layout.tsx` adds `html.motion` before first paint when JS runs and the visitor hasn't asked

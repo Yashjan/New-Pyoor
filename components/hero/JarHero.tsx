@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
 import { SplitText } from '@/components/SplitText/SplitText';
+import { introIsFull, reportLoad } from '@/lib/loader/progress';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
@@ -37,16 +38,22 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
     if (!section || !canvas) return;
-    if (!document.documentElement.classList.contains('motion')) return;
-    const tier = pickQualityTier();
-    if (!tier) return;
+    const tier = document.documentElement.classList.contains('motion') ? pickQualityTier() : null;
+    if (!tier) {
+      // No 3D on this device: nothing for the loader to wait for.
+      reportLoad('three', 1);
+      reportLoad('model', 1);
+      return;
+    }
 
     const controller = new AbortController();
     let dispose: (() => void) | undefined;
 
     // Start after the page has painted and gone idle, so the text and buttons come first.
+    // During the first-visit loader the text is covered anyway, so start straight away.
     const start = async () => {
       const { createJarScene } = await import('./scene/createJarScene');
+      reportLoad('three', 1);
       if (controller.signal.aborted) return;
       try {
         const scene = await createJarScene({
@@ -55,21 +62,24 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
           onFirstFrame: () => setPosterGone(true),
+          onModelProgress: (f) => reportLoad('model', f),
           signal: controller.signal,
         });
         if (controller.signal.aborted) scene.dispose();
         else dispose = scene.dispose;
       } catch (err) {
+        reportLoad('model', 1); // don't hold the loader for a model that failed
         if ((err as Error).name !== 'AbortError') console.error('Jar hero failed to start', err);
       }
     };
-    const idle = window.requestIdleCallback
+    const useIdle = !introIsFull() && !!window.requestIdleCallback;
+    const idle = useIdle
       ? window.requestIdleCallback(() => void start(), { timeout: 1200 })
-      : window.setTimeout(() => void start(), 200);
+      : window.setTimeout(() => void start(), introIsFull() ? 0 : 200);
 
     return () => {
       controller.abort();
-      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      if (useIdle) window.cancelIdleCallback(idle);
       else window.clearTimeout(idle);
       dispose?.();
     };
@@ -143,6 +153,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             <span className={styles.fill} data-rail-fill />
           </span>
         </div>
+        {/* Where the loader's gold line comes to rest: the ground line under the jar. */}
+        <span className={styles.horizon} aria-hidden="true" data-hero-horizon />
         <div className={styles.cue} aria-hidden="true" data-hero-cue>
           Scroll
           <i />

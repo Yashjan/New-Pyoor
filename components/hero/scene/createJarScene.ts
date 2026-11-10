@@ -33,6 +33,8 @@ export interface JarSceneOptions {
   /** Called once, after the first frame is on screen (hide the poster then). */
   onFirstFrame: () => void;
   signal: AbortSignal;
+  /** Download progress of the GLB, 0–1 (feeds the first-visit loader). */
+  onModelProgress?: (fraction: number) => void;
 }
 
 export interface JarScene {
@@ -53,6 +55,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const { canvas, tier, signal } = opts;
   // `?heroStill` freezes the idle float and pointer parallax (for screenshots).
   const still = new URLSearchParams(window.location.search).has('heroStill');
+  // Start the download first so it overlaps the renderer and environment setup below.
+  const modelLoad = loadJarModel(opts.modelUrl, signal, opts.onModelProgress);
+  modelLoad.catch(() => {}); // handled where it is awaited
 
   // ---- renderer, scene, light (from concept.html) ----
   const renderer = new WebGLRenderer({
@@ -99,7 +104,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // ---- the jar ----
   let gltf;
   try {
-    gltf = await loadJarModel(opts.modelUrl, signal);
+    gltf = await modelLoad;
   } catch (err) {
     renderer.dispose();
     pmrem.dispose();

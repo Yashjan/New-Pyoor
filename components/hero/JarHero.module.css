@@ -25,7 +25,8 @@
 
 .gl,
 .rail,
-.cue {
+.cue,
+.horizon {
   display: none;
 }
 
@@ -253,6 +254,17 @@
   }
 }
 
+/* The loader's gold line lands here (the ground line under the jar at p 0). */
+:global(html.motion) .horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 73%;
+  display: block;
+  height: 1px;
+  visibility: hidden;
+}
+
 /* Intro (concept.html): words rise out of their masks, then the lead, buttons and trust line. */
 :global(html.motion) .copy > :global(.py-eyebrow),
 :global(html.motion) .copy > :global(.py-lead),
@@ -279,6 +291,15 @@
 
 :global(html.motion) .h1 :global(.py-ln > span) {
   animation: word-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* First visit: hold the intro under the loader; IntroLoader releases it ~0.7 s into the exit. */
+:global(html[data-intro='full']:not([data-intro-play])) .copy > :global(.py-eyebrow),
+:global(html[data-intro='full']:not([data-intro-play])) .copy > :global(.py-lead),
+:global(html[data-intro='full']:not([data-intro-play])) .cta,
+:global(html[data-intro='full']:not([data-intro-play])) .trust,
+:global(html[data-intro='full']:not([data-intro-play])) .h1 :global(.py-ln > span) {
+  animation-play-state: paused;
 }
 
 @keyframes fade-rise {
@@ -333,5 +354,9 @@
 
   :global(html.motion) .cue {
     display: none;
+  }
+
+  :global(html.motion) .horizon {
+    top: 80%;
   }
 }

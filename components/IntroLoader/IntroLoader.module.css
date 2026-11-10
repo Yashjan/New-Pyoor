@@ -1,0 +1,121 @@
+/*
+ * Hidden unless app/layout.tsx set html[data-intro] (homepage, JS on). Above the header (50),
+ * the bag toast (60) and everything else; never takes pointer events from the page beneath
+ * once it starts leaving.
+ */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  pointer-events: none;
+}
+
+:global(html[data-intro]:not([data-intro-done])) .loader {
+  display: block;
+}
+
+.curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--ivory-100);
+  pointer-events: auto;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.logo {
+  animation: logo-in 0.7s var(--ease-settle) backwards;
+  will-change: transform;
+}
+
+.logo img {
+  display: block;
+  height: 88px;
+  width: auto;
+}
+
+/* Entrance animations use fill-mode backwards and end by 0.85 s, before the earliest exit
+   (900 ms): a filling CSS animation would override the inline styles GSAP tweens. */
+
+/* 1px gold line, at most 320px; its fill's scaleX is the real load progress. */
+.line {
+  position: relative;
+  width: min(320px, 64vw);
+  height: 1px;
+  overflow: hidden;
+  background: var(--hairline);
+  animation: fade-in 0.5s 0.2s var(--ease-settle) backwards;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-line);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease-settle);
+}
+
+.tag {
+  margin: 0;
+  animation: fade-in 0.55s 0.3s var(--ease-settle) backwards;
+}
+
+@keyframes logo-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Later visits and reduced motion: just a 0.3 s fade of a plain ivory screen. No JS needed. */
+:global(html[data-intro='fade']) .center {
+  display: none;
+}
+
+:global(html[data-intro='fade']) .loader {
+  animation: fade-out 0.3s ease both;
+}
+
+/* Failsafe if the loader's JS never runs: get out of the way after 6 s. */
+:global(html[data-intro='full']) .loader:not([data-running]) {
+  animation: fade-out 0.3s 6s ease both;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 860px) {
+  .logo img {
+    height: 64px;
+  }
+}
+
+/* During the full intro the overlay's logo stands in for the header's until it lands on it,
+   and the page can't scroll out from under the curtain. */
+:global(html[data-intro='full']:not([data-intro-done])) {
+  overflow: hidden;
+}
+
+:global(html[data-intro='full']:not([data-intro-done]) [data-header-logo]) {
+  visibility: hidden;
+}

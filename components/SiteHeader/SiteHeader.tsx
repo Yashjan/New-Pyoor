@@ -103,7 +103,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link className={styles.logo} href="/#top" aria-label="Pyoor home">
+        <Link className={styles.logo} href="/#top" aria-label="Pyoor home" data-header-logo>
           <Image
             src="/brand/pyoor-logo.png"
             alt=""
