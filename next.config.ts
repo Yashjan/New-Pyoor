@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Compressed jar models never change in place; filenames change when they are rebuilt.
+        // Compressed jar models: modelUrl() (lib/three/models.ts) adds a content hash to every
+        // URL, so a rebuilt model gets a new URL and this cache can be immutable.
         source: '/models/:file*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },

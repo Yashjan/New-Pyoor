@@ -1,5 +1,5 @@
 import { Group, Vector3, type Mesh, type Object3D } from 'three';
-import { ease, smooth } from './math';
+import { clamp01, ease, smooth } from './math';
 import type { HeroLayout } from './layout';
 
 /** Jar dimensions in metres (12.2 cm tall, 10 cm across). */
@@ -11,13 +11,20 @@ export const TILT = 1.98;
 const PIVOT_DX = -R;
 /** Lowest point of the lip when fully tilted, in jar space. */
 const MOUTH_LOCAL = new Vector3(-R + 0.004, H - 0.016, 0);
+/** Screw thread: 4.5 mm pitch; the cap comes off in 2.5 turns. */
+const THREAD_PITCH = 0.0045;
+const UNSCREW_TURNS = 2.5;
+/** The cap: these nodes turn and lift together. Neck_thread stays on the jar. */
+const LID_PARTS = ['Lid', 'Lid_rim', 'Lid_thread'] as const;
+/** Clear or smoky plastic: no hard shadow. */
+const NO_SHADOW = ['Body', 'Lid', 'Lid_thread', 'Neck_thread'];
 
 export interface JarRig {
   /** Tilts around the jar's bottom-left edge. */
   pivot: Group;
   /** The jar itself, offset inside the pivot. */
   jar: Group;
-  /** Lid + Lid_rim, animated together. */
+  /** Lid + Lid_rim + Lid_thread, animated together. */
   lid: Group;
   saltTop: Object3D;
   /** Salt_top's loaded y (meshopt quantization gives every node a base transform). */
@@ -36,10 +43,10 @@ export function createJarRig(model: Object3D, castShadows: boolean): JarRig {
       const mesh = o as Mesh;
       meshes[mesh.name] = mesh;
       // Clear PET doesn't cast a hard shadow.
-      mesh.castShadow = castShadows && !['Body', 'Lid'].includes(mesh.name);
+      mesh.castShadow = castShadows && !NO_SHADOW.includes(mesh.name);
     }
   });
-  for (const name of ['Body', 'Salt', 'Salt_top', 'Label', 'Lid', 'Lid_rim']) {
+  for (const name of ['Body', 'Salt', 'Salt_top', 'Label', ...LID_PARTS, 'Neck_thread']) {
     if (!meshes[name]) throw new Error(`Jar model is missing node "${name}"`);
   }
 
@@ -51,8 +58,7 @@ export function createJarRig(model: Object3D, castShadows: boolean): JarRig {
   jar.add(lid);
   jar.position.x = -PIVOT_DX;
   pivot.updateMatrixWorld(true);
-  lid.attach(meshes.Lid!);
-  lid.attach(meshes.Lid_rim!);
+  for (const name of LID_PARTS) lid.attach(meshes[name]!);
 
   const saltTop = meshes.Salt_top!;
   return { pivot, jar, lid, saltTop, saltTopY0: saltTop.position.y, meshes };
@@ -93,13 +99,19 @@ export function poseJar(
   rig.jar.rotation.y = rest * (Math.sin(t * 0.35) * 0.22 + pointer.x * 0.35);
   rig.jar.rotation.x = rest * pointer.y * 0.08;
 
-  // Cap: unscrew 1.5 turns while rising, then lift away up and to the right.
+  // Cap: unscrew 2.5 turns counter-clockwise seen from above (+y, the loosening way), riding
+  // up the thread one pitch per turn (11.25 mm), then lift away up and to the right.
+  // Cubic ease-in-out: the cap breaks loose slowly, then spins freely and settles.
   // On phones the flight is shorter so the lid stays in frame as it lifts (HANDOFF to-do).
-  const unscrew = smooth(0.05, 0.15, p);
+  const unscrew = ease(clamp01((p - 0.05) / 0.1));
   const away = smooth(0.15, 0.24, p);
   const fly = layout.portrait ? { x: 0.12, y: 0.2, z: 0.05 } : { x: 0.28, y: 0.42, z: 0.08 };
-  rig.lid.rotation.set(0, -unscrew * Math.PI * 3, -away * 1.1);
-  rig.lid.position.set(away * away * fly.x, unscrew * 0.012 + away * fly.y, away * fly.z);
+  rig.lid.rotation.set(0, unscrew * UNSCREW_TURNS * 2 * Math.PI, -away * 1.1);
+  rig.lid.position.set(
+    away * away * fly.x,
+    unscrew * UNSCREW_TURNS * THREAD_PITCH + away * fly.y,
+    away * fly.z,
+  );
   rig.lid.visible = away < 0.995;
 
   // The salt level sinks as it pours.

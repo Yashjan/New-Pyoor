@@ -21,3 +21,8 @@ npm-debug.log*
 # python (tools/3d)
 __pycache__/
 *.pyc
+
+# one-off 3D update drops (contents live in tools/3d/)
+/3d/
+/pyoor-thread-update/
+/pyoor-salt-update/

@@ -36,15 +36,18 @@ interface Grain {
 /** Progress spent in the air by each grain. */
 const FLIGHT = 0.045;
 
-/** Black-salt colours (greyish mauve) so light glints off the facets. */
-const BASE = new Color('#86696a');
-const DARK = new Color('#5a4446');
-const LIGHT = new Color('#b19393');
+/** Black-salt colours, matched to the product photo: grey-brown with a red-brown minority. */
+const BASE = new Color('#6a5649');
+const DARK = new Color('#3e2a22');
+const LIGHT = new Color('#8c7c74');
+const RED = new Color('#80524a');
+/** Share of grains that lean red-brown. */
+const RED_SHARE = 0.15;
 
 export function createGrainMesh(count: number, castShadow: boolean): InstancedMesh {
   const mesh = new InstancedMesh(
     new IcosahedronGeometry(1, 0),
-    new MeshStandardMaterial({ color: 0xffffff, roughness: 0.34, metalness: 0, flatShading: true }),
+    new MeshStandardMaterial({ color: 0xffffff, roughness: 0.24, metalness: 0, flatShading: true }),
     count,
   );
   mesh.instanceMatrix.setUsage(DynamicDrawUsage);
@@ -59,6 +62,8 @@ export function buildGrains(mesh: InstancedMesh, mouth: Vector3): Grain[] {
   const count = mesh.count;
   const heap = new Vector3(mouth.x - 0.012, 0, mouth.z);
   const grains: Grain[] = [];
+  // Colours come from their own seeded stream so the pour paths don't depend on them.
+  const tint = createRng(29).rnd;
   const c = new Color();
 
   for (let i = 0; i < count; i++) {
@@ -72,7 +77,10 @@ export function buildGrains(mesh: InstancedMesh, mouth: Vector3): Grain[] {
     const ly = hMax * Math.exp(-(r * r) / (2 * 0.019 * 0.019)) + rnd() * 0.0015;
     const sp = 2.2 + rnd() * 6.5; // spread for the salt-flat stage
     const s = 0.0007 + rnd() * 0.0011;
-    c.copy(BASE).lerp(rnd() < 0.5 ? DARK : LIGHT, rnd() * 0.8);
+    c.copy(BASE).lerp(tint() < 0.5 ? DARK : LIGHT, tint() * 0.8);
+    const lean = tint();
+    const redness = 0.4 + tint() * 0.4;
+    if (lean < RED_SHARE) c.lerp(RED, redness);
     mesh.setColorAt(i, c);
     grains.push({
       te,

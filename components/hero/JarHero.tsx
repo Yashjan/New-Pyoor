@@ -4,10 +4,11 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
 import { SplitText } from '@/components/SplitText/SplitText';
+import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
 
-const MODEL_URL = '/models/pyoor-herbal-black-salt.glb';
+const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
 
 /** Hero scroll progress 0–1: how far the pinned 520vh section has been scrolled through. */
 function heroProgress(section: HTMLElement): number {

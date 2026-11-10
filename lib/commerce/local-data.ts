@@ -6,6 +6,7 @@
  */
 import { PRICES_INR } from './pricing';
 import type { Image, Money, Product } from './types';
+import { modelUrl } from '@/lib/three/models';
 
 /** Price for a variant from pricing.ts (null while not set). */
 function priceOf(variantId: string): Money | null {
@@ -64,8 +65,7 @@ export const products: Product[] = [
     ],
     featuredImage: blackSaltPhoto,
     images: [blackSaltPhoto],
-    // model: '/models/pyoor-herbal-black-salt.glb',
-    model: '/models/pyoor-herbal-black-salt.glb',
+    model: modelUrl('pyoor-herbal-black-salt.glb'),
     ingredients: [
       'Sambhar Lake salt',
       'Harad (Terminalia chebula)',
@@ -106,7 +106,7 @@ export const products: Product[] = [
     ],
     featuredImage: null, // [PHOTO TO SHOOT]
     images: [],
-    model: '/models/pyoor-natural-lake-salt.glb',
+    model: modelUrl('pyoor-natural-lake-salt.glb'),
     ingredients: ['Sambhar Lake salt'],
     facts: [
       { label: 'Product', value: 'Natural lake salt (सफ़ेद नमक)' },
@@ -182,7 +182,7 @@ export const products: Product[] = [
     ],
     featuredImage: null,
     images: [],
-    model: '/models/pyoor-himalayan-pink-salt.glb',
+    model: modelUrl('pyoor-himalayan-pink-salt.glb'),
     ingredients: ['[SOURCE UNDER REVIEW]'],
     facts: [{ label: 'Status', value: 'Not for sale: sourcing under review' }],
     tags: ['pink-salt'],
