@@ -32,7 +32,8 @@ export interface ProductVariant {
   id: string;
   title: string; // e.g. "1 kg jar"
   sku: string;
-  /** `null` while the price is not yet confirmed; the UI shows "[PRICE]". */
+  /** `null` while the price is not set: the UI shows "Price coming soon" and the
+   *  variant cannot be added to the cart. */
   price: Money | null;
   availableForSale: boolean;
   weightGrams: number;
@@ -76,19 +77,15 @@ export interface CartLine {
     variantTitle: string;
     product: Pick<Product, 'handle' | 'title' | 'featuredImage'>;
   };
-  unitPrice: Money | null;
-  /** `null` if the unit price is unknown. */
-  lineTotal: Money | null;
+  unitPrice: Money;
+  lineTotal: Money;
 }
 
 export interface Cart {
   id: string;
   lines: CartLine[];
   totalQuantity: number;
-  /** Sum of lines with a known price. */
   subtotal: Money;
-  /** True if any line has no confirmed price yet, so the subtotal is incomplete. */
-  hasUnpricedLines: boolean;
   /** Shopify checkout URL once connected; `null` while checkout is not open. */
   checkoutUrl: string | null;
 }
@@ -102,6 +99,13 @@ export interface GetProductsOptions {
 export interface CatalogProvider {
   getProducts(options?: GetProductsOptions): Promise<Product[]>;
   getProduct(handle: string): Promise<Product | null>;
+}
+
+/** Unpriced or unavailable variants never enter the cart. */
+export function isPurchasable(
+  variant: ProductVariant,
+): variant is ProductVariant & { price: Money } {
+  return variant.availableForSale && variant.price !== null;
 }
 
 /** Cart operations. Called from the browser (local: localStorage; Shopify: Cart API). */

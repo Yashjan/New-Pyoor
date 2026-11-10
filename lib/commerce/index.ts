@@ -8,7 +8,8 @@
  */
 import { localCart } from './local-cart';
 import { localCatalog } from './local-catalog';
-import type { CartProvider, CatalogProvider } from './types';
+import { FREE_SHIPPING_THRESHOLD_INR } from './pricing';
+import type { CartProvider, CatalogProvider, Money } from './types';
 
 const catalog: CatalogProvider = localCatalog;
 const cart: CartProvider = localCart;
@@ -21,5 +22,13 @@ export const addToCart = cart.addToCart;
 export const updateCartLine = cart.updateCartLine;
 export const removeFromCart = cart.removeFromCart;
 
+/** Free-shipping threshold, or `null` while not set (the message is then hidden). */
+export function getFreeShippingThreshold(): Money | null {
+  return FREE_SHIPPING_THRESHOLD_INR == null
+    ? null
+    : { amount: FREE_SHIPPING_THRESHOLD_INR, currencyCode: 'INR' };
+}
+
 export { MAX_LINE_QUANTITY } from './local-cart';
+export { isPurchasable } from './types';
 export type * from './types';

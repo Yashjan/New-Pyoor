@@ -7,7 +7,9 @@ const inr = new Intl.NumberFormat('en-IN', {
   minimumFractionDigits: 0,
 });
 
-/** "₹249", or the visible placeholder "₹[PRICE]" while a price is unconfirmed. */
+export const PRICE_COMING_SOON = 'Price coming soon';
+
+/** "₹249", or "Price coming soon" while a price is not set. */
 export function formatPrice(money: Money | null): string {
-  return money ? inr.format(money.amount) : '₹[PRICE]';
+  return money ? inr.format(money.amount) : PRICE_COMING_SOON;
 }

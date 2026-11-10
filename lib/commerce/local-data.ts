@@ -4,9 +4,14 @@
  * COPY RULES (strict): factual only. Origin, ingredients, process, size, price, taste, use.
  * No health, medicinal or nutritional claims. Unknown values use [BRACKETED] placeholders.
  */
+import { PRICES_INR } from './pricing';
 import type { Image, Money, Product } from './types';
 
-const inr = (amount: number): Money => ({ amount, currencyCode: 'INR' });
+/** Price for a variant from pricing.ts (null while not set). */
+function priceOf(variantId: string): Money | null {
+  const amount = PRICES_INR[variantId];
+  return amount == null ? null : { amount, currencyCode: 'INR' };
+}
 
 const JAR = { title: '1 kg jar', weightGrams: 1000 } as const;
 const PACKED_BY =
@@ -31,7 +36,7 @@ const commonFacts = [
   { label: 'Net weight', value: '1 kg' },
   { label: 'Pack', value: 'Clear PET jar with screw cap' },
   { label: 'Storage', value: 'Store in a cool, dry place. Close the lid after use.' },
-  { label: 'Best before', value: '[SHELF LIFE] from packing' },
+  { label: 'Best before', value: '24 months from manufacture' },
   { label: 'Packed by', value: PACKED_BY },
   { label: 'FSSAI Lic. No.', value: '12224999000443' },
 ];
@@ -45,13 +50,14 @@ export const products: Product[] = [
     summary: 'Sambhar Lake salt with harad, baheda and amla.',
     description:
       'Black salt made from Sambhar Lake salt with harad, baheda and amla, packed at the lake. ' +
-      'Sprinkle it over chaat, fruit, raita and nimbu pani, or use it in cooking.',
+      'Sulphurous and tangy, with the distinct aroma of kala namak. ' +
+      'Made for chaat, raita, fruit, chaas and nimbu pani.',
     published: true,
     variants: [
       {
         id: 'local:variant:herbal-black-salt-1kg',
         sku: 'PYR-HBS-1KG',
-        price: inr(249),
+        price: priceOf('local:variant:herbal-black-salt-1kg'),
         availableForSale: true,
         ...JAR,
       },
@@ -86,13 +92,13 @@ export const products: Product[] = [
     summary: 'Harvested from Sambhar Lake and sun-dried.',
     description:
       'White salt harvested from the salt pans of Sambhar Lake and dried in the sun, then packed at the lake. ' +
-      'For everyday cooking and the table.',
+      'A clean, bright saltiness for everyday cooking: dal, sabzi, rotis and baking.',
     published: true,
     variants: [
       {
         id: 'local:variant:natural-lake-salt-1kg',
         sku: 'PYR-NLS-1KG',
-        price: null, // [PRICE]
+        price: priceOf('local:variant:natural-lake-salt-1kg'),
         availableForSale: true,
         ...JAR,
       },
@@ -108,7 +114,7 @@ export const products: Product[] = [
       { label: 'Iodised', value: '[CONFIRM]' },
       ...commonFacts,
     ],
-    tags: ['lake-salt', 'white-salt'],
+    tags: ['lake-salt', 'white-salt', 'safed-namak'],
     seo: {
       title: 'Natural Lake Salt (सफ़ेद नमक), 1 kg',
       description:
@@ -128,7 +134,7 @@ export const products: Product[] = [
         id: 'local:variant:the-sambhar-pair',
         sku: 'PYR-PAIR-2KG',
         title: '2 × 1 kg jars',
-        price: null, // [PRICE]
+        price: priceOf('local:variant:the-sambhar-pair'),
         availableForSale: true,
         weightGrams: 2000,
       },
@@ -168,7 +174,7 @@ export const products: Product[] = [
       {
         id: 'local:variant:himalayan-pink-salt-1kg',
         sku: 'PYR-HPS-1KG',
-        price: null,
+        price: priceOf('local:variant:himalayan-pink-salt-1kg'),
         availableForSale: false,
         ...JAR,
       },

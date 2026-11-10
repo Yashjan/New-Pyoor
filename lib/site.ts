@@ -18,20 +18,15 @@ export const site = {
       postalCode: '303604',
       country: 'IN',
     },
-    phone: '[PHONE]',
-    email: '[EMAIL]',
+    phone: '+91 75976 15660',
+    email: 'pyoorglobalenterprises@gmail.com',
     fssaiLicence: '12224999000443',
   },
   /** Required by FSSAI for brand names that sound like "pure". Must appear in the footer. */
   brandNameDisclaimer:
     '“Pyoor” is only a brand name and does not represent the true nature of the product.',
-  announcement: [
-    'Free shipping above ₹[THRESHOLD]',
-    'Cash on delivery available',
-    'Packed at Sambhar Lake',
-  ],
   nav: [
-    { label: 'Shop', href: '/#collection' },
+    { label: 'Shop', href: '/#shop' },
     { label: 'Sambhar Lake', href: '/#origin' },
     { label: 'Our Process', href: '/#process' },
     { label: 'Recipes', href: '/#recipes' },

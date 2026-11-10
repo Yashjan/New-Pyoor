@@ -1,5 +1,5 @@
 import { findVariant } from './local-catalog';
-import type { Cart, CartLine, CartProvider, Money } from './types';
+import { isPurchasable, type Cart, type CartLine, type CartProvider, type Money } from './types';
 
 /**
  * Cart persisted in localStorage. Only the minimum is stored (variant id + quantity);
@@ -55,15 +55,17 @@ function write(cart: StoredCart): void {
 
 const clampQty = (q: number) => Math.max(0, Math.min(MAX_LINE_QUANTITY, Math.floor(q)));
 
-function multiply(money: Money | null, quantity: number): Money | null {
-  return money ? { amount: money.amount * quantity, currencyCode: money.currencyCode } : null;
-}
+const multiply = (money: Money, quantity: number): Money => ({
+  amount: money.amount * quantity,
+  currencyCode: money.currencyCode,
+});
 
 function hydrate(stored: StoredCart): Cart {
   const lines: CartLine[] = [];
   for (const line of stored.lines) {
     const match = findVariant(line.variantId);
-    if (!match) continue; // product removed or unpublished since it was added
+    // Drop lines whose product was removed/unpublished or lost its price since being added.
+    if (!match || !isPurchasable(match.variant)) continue;
     const { product, variant } = match;
     lines.push({
       id: line.id,
@@ -87,10 +89,9 @@ function hydrate(stored: StoredCart): Cart {
     lines,
     totalQuantity: lines.reduce((sum, l) => sum + l.quantity, 0),
     subtotal: {
-      amount: lines.reduce((sum, l) => sum + (l.lineTotal?.amount ?? 0), 0),
+      amount: lines.reduce((sum, l) => sum + l.lineTotal.amount, 0),
       currencyCode: 'INR',
     },
-    hasUnpricedLines: lines.some((l) => l.unitPrice === null),
     checkoutUrl: null, // "Checkout opens soon"
   };
 }
@@ -109,7 +110,9 @@ export const localCart: CartProvider = {
   },
 
   async addToCart(variantId, quantity = 1) {
-    if (!findVariant(variantId)) throw new Error(`Unknown variant: ${variantId}`);
+    const match = findVariant(variantId);
+    if (!match) throw new Error(`Unknown variant: ${variantId}`);
+    if (!isPurchasable(match.variant)) throw new Error(`Variant is not for sale yet: ${variantId}`);
     return mutate((cart) => {
       const existing = cart.lines.find((l) => l.variantId === variantId);
       if (existing) existing.quantity = clampQty(existing.quantity + quantity);
