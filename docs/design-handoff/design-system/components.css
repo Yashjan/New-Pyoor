@@ -1,0 +1,33 @@
+/* Pyoor components: CSS only, built on tokens.css. Prefix py-. */
+.py-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 28px;border-radius:var(--radius-pill);font-family:var(--font-sans);font-size:14px;font-weight:600;letter-spacing:.04em;line-height:20px;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:background-color var(--duration-fast) var(--ease-settle),color var(--duration-fast) var(--ease-settle),border-color var(--duration-fast) var(--ease-settle)}
+.py-btn--primary{background:var(--button-bg);color:var(--button-ink)}
+.py-btn--primary:hover{filter:brightness(1.18)}
+.py-btn--secondary{background:transparent;color:var(--ink);border-color:var(--hairline-strong)}
+.py-btn--secondary:hover{border-color:var(--ink)}
+.py-btn:focus-visible,.py-link:focus-visible{outline:2px solid var(--accent-line);outline-offset:3px}
+.py-btn[disabled]{opacity:1;background:var(--surface-sunk);color:var(--text-muted);cursor:not-allowed}
+.py-link{display:inline-flex;align-items:center;min-height:44px;font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent-line),var(--accent-line));background-size:100% 1px;background-position:0 calc(50% + 12px);background-repeat:no-repeat;transition:background-size var(--duration-base) var(--ease-settle)}
+.py-link:hover{background-size:0 1px;background-position:100% calc(50% + 12px)}
+.py-eyebrow{font-family:var(--font-sans);font-size:12px;line-height:16px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-text);margin:0}
+.py-horizon{display:block;height:1px;width:100%;border:0;margin:0;background:var(--accent-line);opacity:.8}
+.py-hindi{font-family:var(--font-deva);color:var(--accent-text)}
+.py-price{font-family:var(--font-sans);font-weight:600;font-size:20px;line-height:28px;color:var(--ink);font-variant-numeric:tabular-nums}
+.py-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--surface-sunk);color:var(--text-muted);font-family:var(--font-sans);font-size:14px;text-align:center;padding:24px;border:1px dashed var(--hairline-strong)}
+.py-feature{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:center;gap:48px;background:var(--surface);color:var(--text)}
+.py-feature__media{display:flex;justify-content:center;align-items:flex-end;background:var(--surface-alt);aspect-ratio:1/1;padding:32px}
+.py-feature__media img{width:min(78%,420px);height:auto}
+.py-feature__body{display:flex;flex-direction:column;gap:16px;max-width:440px}
+.py-feature__name{font-family:var(--font-display);font-weight:500;font-size:44px;line-height:1.05;color:var(--ink);margin:0}
+.py-feature__desc{font-family:var(--font-sans);font-size:16px;line-height:26px;color:var(--text);margin:0}
+.py-feature__meta{font-family:var(--font-sans);font-size:14px;line-height:22px;color:var(--text-muted)}
+.py-feature__buy{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--hairline)}
+@media (max-width:760px){.py-feature{grid-template-columns:1fr;gap:24px}.py-feature__name{font-size:32px;line-height:1.1}}
+.py-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:24px;padding:0 48px;min-height:84px;background:var(--surface);border-bottom:1px solid var(--hairline)}
+.py-header__nav{display:flex;gap:28px;align-items:center;min-height:84px;font-family:var(--font-sans);font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.py-header__nav a{color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.py-header__nav--end{justify-content:flex-end}
+.py-header__crest{display:flex;align-items:center;justify-content:center;padding:18px 16px}
+[data-theme="navy"] .py-header__crest,.py-header__crest--tab{background:var(--crest);border-radius:0 0 var(--radius-crest) var(--radius-crest);padding:10px 18px 12px}
+.py-header__crest img{height:44px;width:auto;display:block}
+.py-bag{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--radius-pill);border:1px solid var(--hairline-strong);color:var(--ink);font-family:var(--font-sans);font-size:13px;font-weight:600;letter-spacing:.06em;background:transparent;cursor:pointer}
+@media (max-width:760px){.py-header{padding:0 20px;min-height:64px}.py-header__nav{display:none}.py-header__crest img{height:34px}}
