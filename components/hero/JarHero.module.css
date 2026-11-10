@@ -1,8 +1,9 @@
 /*
  * Two layouts, keyed on html.motion (set before first paint in app/layout.tsx when JS runs and
  * the visitor hasn't asked for reduced motion):
- *   static  one screen: copy + poster side by side, the three beats stacked below.
- *   motion  the pinned 520vh stage from concept.html: canvas fills the screen, text on top.
+ *   static  the filled SAMBHAR screen, then copy + poster side by side, the beats below.
+ *   motion  the pinned stage: the opening (components/opening, the first 120vh), then the
+ *           520vh jar sequence from concept.html: canvas fills the screen, text on top.
  */
 
 /* ---------------- static (no JS / reduced motion) ---------------- */
@@ -25,8 +26,16 @@
 
 .gl,
 .rail,
-.cue {
+.glow,
+.grain {
   display: none;
+}
+
+/* static: the poster is a grid item of its own */
+.jarLayer,
+.jarMask,
+.jarBack {
+  display: contents;
 }
 
 .copy {
@@ -49,8 +58,6 @@
   gap: 22px;
   flex-wrap: wrap;
   max-width: 520px;
-  padding-top: 18px;
-  border-top: 1px solid var(--hairline);
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -59,14 +66,20 @@
   max-width: 520px;
 }
 
+.copyIn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .copy {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
 }
 
 .poster {
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 2;
   justify-self: center;
   width: min(30vw, 380px);
   height: auto;
@@ -104,23 +117,18 @@
 
   .poster {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
     width: 56vw;
   }
 
   .h1 {
-    font-size: 48px;
-  }
-
-  .copy :global(.py-lead) {
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 44px;
   }
 }
 
-/* ---------------- motion: the pinned 3D sequence ---------------- */
+/* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
-  height: 520vh;
+  height: 640vh; /* the opening's 120vh + the jar sequence's 520vh */
 }
 
 :global(html.motion) .stage {
@@ -134,6 +142,64 @@
   overflow: hidden;
 }
 
+/* the dawn glow: gold-500, at most ~11% in the centre of the opening (opacity from the script) */
+:global(html.motion) .glow {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: radial-gradient(
+    42% 36% at 50% 50%,
+    var(--gold-500) 0%,
+    rgba(168, 130, 63, 0.35) 55%,
+    rgba(168, 130, 63, 0) 100%
+  );
+  opacity: 0;
+}
+
+/* a static grain (±2 levels) over the glow: breaks the 8-bit steps that show as rings */
+:global(html.motion) .grain {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: url('/images/grain.png');
+}
+
+/* The jar (3D or poster), hidden below the opening's bottom edge (16px feather) while the
+   halves are in view. The mask is static, three screens tall with its edge on the seam; the
+   opening moves it down with the bottom half and .jarBack back up (transforms only). Before
+   any script runs, the edge sits at half the height and the jar 30% below it: hidden. */
+:global(html.motion) .jarLayer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 1;
+  overflow: hidden;
+}
+
+:global(html.motion) .jarMask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -100%;
+  display: block;
+  height: 300%;
+  mask-image: linear-gradient(
+    #000 calc(33.333% + var(--seam, 16.667%) - 16px),
+    transparent calc(33.333% + var(--seam, 16.667%))
+  );
+  will-change: transform;
+}
+
+:global(html.motion) .jarBack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 33.333%;
+  display: block;
+  height: 33.334%;
+  will-change: transform;
+}
+
 :global(html.motion) .gl {
   position: absolute;
   inset: 0;
@@ -142,16 +208,18 @@
   height: 100%;
 }
 
-/* The poster sits exactly where the 3D jar renders at the start (measured at 1280–1920 wide:
-   38.4% of the height, centred 72% across and 51% down; the image is 97% jar), so the
-   cross-fade to WebGL has no jump. */
+/* The poster stands in until the first 3D frame, exactly where the 3D jar renders: 39.4% of the
+   height, centred 50% across (62% once it has glided) and 51.1% down. The opening moves it
+   (translate, rotate) with the 3D jar's rise, tilt and glide. */
 :global(html.motion) .poster {
   position: absolute;
-  left: 71.5%;
+  left: 50%;
   top: 51.1%;
   width: auto;
   height: 39.4%;
   transform: translate(-50%, -50%);
+  translate: 0 30vh;
+  transform-origin: 50% 100%;
   transition: opacity var(--duration-slow) var(--ease-settle);
 }
 
@@ -159,12 +227,41 @@
   opacity: 0;
 }
 
+/* the headline column: from 8% of the width to 72px short of the jar, centred on the line */
 :global(html.motion) .copy {
   position: absolute;
   z-index: 3;
-  left: var(--gutter);
+  left: 8vw;
   top: 50%;
-  transform: translateY(-46%);
+  width: min(560px, calc(54vw - 15.2svh - 72px));
+  transform: translateY(-50%);
+}
+
+:global(html.motion) .copyIn {
+  gap: 28px;
+  opacity: 0;
+}
+
+/* keyboard users reach the CTA before it has faded in */
+:global(html.motion) .copyIn:focus-within {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:global(html.motion) .h1 {
+  font-size: clamp(44px, 4.45vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+:global(html.motion) .trust,
+:global(html.motion) .horizonLine {
+  width: 100%;
+  max-width: 520px;
+}
+
+:global(html.motion) .horizonLine {
+  margin-top: -8px;
 }
 
 :global(html.motion) .beat {
@@ -204,6 +301,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
+  opacity: 0;
 }
 
 .track {
@@ -222,151 +320,29 @@
   transform: scaleX(0);
 }
 
-:global(html.motion) .cue {
-  position: absolute;
-  z-index: 3;
-  right: var(--gutter);
-  bottom: 34px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: var(--eyebrow-size);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.cue i {
-  display: block;
-  width: 1px;
-  height: 34px;
-  background: var(--accent-line);
-  transform-origin: top;
-  animation: cue 2.2s var(--ease-settle) infinite;
-}
-
-@keyframes cue {
-  0% {
-    transform: scaleY(0);
-  }
-  50% {
-    transform: scaleY(1);
-    transform-origin: top;
-  }
-  51% {
-    transform-origin: bottom;
-  }
-  100% {
-    transform: scaleY(0);
-    transform-origin: bottom;
-  }
-}
-
-/* Intro (concept.html): words rise out of their masks, then the lead, buttons and trust line. */
-:global(html.motion) .copy > :global(.py-eyebrow),
-:global(html.motion) .copy > :global(.py-lead),
-:global(html.motion) .cta,
-:global(html.motion) .trust,
-:global(html.motion) .horizonLine {
-  animation: fade-rise 0.9s cubic-bezier(0.33, 1, 0.68, 1) both;
-}
-
-:global(html.motion) .copy > :global(.py-eyebrow) {
-  animation-delay: 0.15s;
-}
-
-:global(html.motion) .copy > :global(.py-lead) {
-  animation-delay: 0.55s;
-}
-
-:global(html.motion) .cta {
-  animation-delay: 0.65s;
-}
-
-:global(html.motion) .trust {
-  animation-delay: 0.75s;
-}
-
-:global(html.motion) .horizonLine {
-  animation-delay: 0.8s;
-}
-
-:global(html.motion) .h1 :global(.py-ln > span) {
-  animation: word-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* First visit: hold the intro under Crystal Dawn; it starts as the horizon opens. */
-:global(html[data-intro='full']:not([data-intro-play])) .copy > :global(.py-eyebrow),
-:global(html[data-intro='full']:not([data-intro-play])) .copy > :global(.py-lead),
-:global(html[data-intro='full']:not([data-intro-play])) .cta,
-:global(html[data-intro='full']:not([data-intro-play])) .trust,
-:global(html[data-intro='full']:not([data-intro-play])) .horizonLine,
-:global(html[data-intro='full']:not([data-intro-play])) .h1 :global(.py-ln > span) {
-  animation-play-state: paused;
-}
-
-/*
- * First visit, under Crystal Dawn: the jar waits 40px low and transparent until the opening has
- * passed it, then rises in; the gold Horizon is hidden until the loader's seam line lands on it
- * (one line only), so it doesn't play its own intro.
- */
-:global(html[data-intro='full']) .gl,
-:global(html[data-intro='full']) .poster {
-  transition:
-    opacity 0.9s var(--ease-settle),
-    translate 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-:global(html[data-intro='full']:not([data-jar-in])) .gl,
-:global(html[data-intro='full']:not([data-jar-in])) .poster {
-  opacity: 0;
-  translate: 0 40px;
-}
-
-:global(html[data-intro='full']) .horizonLine {
-  animation: none;
-}
-
-:global(html[data-intro='full']:not([data-horizon-in])) .horizonLine {
-  visibility: hidden;
-}
-
-@keyframes fade-rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-}
-
-@keyframes word-rise {
-  from {
-    transform: translateY(110%);
-  }
-}
-
 @media (max-width: 860px) {
+  /* phones: the headline and CTA sit below the centred jar */
   :global(html.motion) .copy {
-    /* tight enough that the Horizon sits centred between the CTA row and the jar lid
-       with ≥ 24px clear on both sides (at 390 × 844) */
-    top: 76px;
+    left: var(--gutter);
     right: var(--gutter);
-    max-width: none;
-    gap: 14px;
+    top: calc(61.05% + 24px);
+    width: auto;
     transform: none;
   }
 
-  :global(html.motion) .horizonLine {
-    margin-top: 12px;
+  :global(html.motion) .copyIn {
+    gap: 20px;
   }
 
-  :global(html.motion) .trust {
+  :global(html.motion) .trust,
+  :global(html.motion) .horizonLine {
     display: none;
   }
 
-  /* phones (360–430 wide): 21.5% of the height, centred 50% across and 58.4% down */
+  /* phones (360–430 wide): 22.1% of the height, centred 50% across and 50% down */
   :global(html.motion) .poster {
     left: 49.7%;
-    top: 58.4%;
+    top: 50%;
     height: 22.1%;
   }
 
@@ -384,9 +360,5 @@
   :global(html.motion) .b3 {
     top: 92px;
     padding: 0 var(--gutter);
-  }
-
-  :global(html.motion) .cue {
-    display: none;
   }
 }

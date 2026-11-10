@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
+import { OPEN_VH } from '@/lib/motion/opening';
 
 /**
  * The homepage's scroll choreography (concept.html), set up once GSAP has loaded.
@@ -17,7 +18,8 @@ import { loadGsap } from '@/lib/motion/gsap';
  *   [data-float]          product renders float and turn while their panel scrolls past
  *   [data-clip-reveal]    product panels open from an inset clip
  *   [data-crystals-bg]    the crystal texture settles from 1.35× to 1×
- *   [data-hero]           text beats, progress rail and scroll cue, scrubbed by hero progress
+ *   [data-hero]           text beats and progress rail, scrubbed by the jar sequence's progress
+ *                         (after the opening's first OPEN_VH, which components/opening scrubs)
  *   [data-journey-pin]    pinned horizontal chapters from 861px
  */
 export function HomeMotion() {
@@ -100,18 +102,18 @@ export function HomeMotion() {
           );
         }
 
-        // ---- hero beats: a paused timeline whose progress is the hero's scroll progress ----
+        // ---- hero beats: a paused timeline whose progress is the jar sequence's progress ----
         const hero = document.querySelector<HTMLElement>('[data-hero]');
         if (hero) {
           const sel = (s: string) => hero.querySelector(s);
           const beats = gsap.timeline({ paused: true });
           beats
+            // the headline leaves before the camera moves in (on phones the jar grows over it)
             .to(
               sel('[data-hero-copy]'),
-              { autoAlpha: 0, y: -40, duration: 0.08, ease: 'power2.in' },
-              0.03,
+              { autoAlpha: 0, y: -40, duration: 0.06, ease: 'power2.in' },
+              0.01,
             )
-            .to(sel('[data-hero-cue]'), { autoAlpha: 0, duration: 0.04 }, 0.02)
             .fromTo(
               sel('[data-beat="1"]'),
               { autoAlpha: 0, y: 30 },
@@ -138,15 +140,16 @@ export function HomeMotion() {
           const railFill = hero.querySelector<HTMLElement>('[data-rail-fill]');
           ScrollTrigger.create({
             trigger: hero,
-            start: 'top top',
+            start: () => `top+=${Math.round(window.innerHeight * OPEN_VH)} top`,
             end: 'bottom bottom',
             scrub: true,
+            invalidateOnRefresh: true,
             onUpdate: (s) => {
               beats.progress(s.progress);
               // Back before the first beat: drop the inline styles GSAP leaves on the headline
               // block so it rasterises exactly as it did on load (identical reverse frames).
-              if (s.progress < 0.02) {
-                gsap.set([sel('[data-hero-copy]'), sel('[data-hero-cue]')], {
+              if (s.progress < 0.005) {
+                gsap.set(sel('[data-hero-copy]'), {
                   clearProps: 'transform,opacity,visibility',
                 });
               }

@@ -33,7 +33,7 @@ export function SmoothScroll() {
       const tick = (time: number) => lenis.raf(time * 1000);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
-      // Hold scrolling under the first-visit intro; CrystalDawn starts Lenis on reveal.
+      // Hold scrolling under the first-visit opening; SambharOpening starts Lenis after the glint.
       if (introIsFull()) lenis.stop();
       lenisStore.set(lenis);
 

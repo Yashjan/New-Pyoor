@@ -14,6 +14,7 @@ import {
   Vector3,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { openingPose, openingStore } from '@/lib/motion/opening';
 import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
@@ -50,6 +51,8 @@ declare global {
 
 const IVORY = new Color('#f5f1e8');
 const SKY = new Color('#eee9df');
+/** The idle turn while the jar is at rest: ~6° a second. */
+const TURN_RATE = (6 * Math.PI) / 180;
 
 const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
@@ -62,11 +65,15 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   modelLoad.catch(() => {}); // handled where it is awaited
 
   // ---- renderer, scene, light (from concept.html) ----
+  // Transparent: the page's ivory (and the opening's dawn glow) shows behind the jar. The salt
+  // flats' sky is the clear colour, faded in over the ivory (the same mix as before).
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
+    alpha: true,
     powerPreference: 'high-performance',
   });
+  renderer.setClearColor(SKY, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier.maxDpr));
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
@@ -75,8 +82,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   renderer.shadowMap.type = PCFSoftShadowMap;
 
   const scene = new Scene();
-  scene.background = IVORY.clone();
-  scene.fog = new Fog(IVORY.clone(), 2.2, 9);
+  const fogColor = IVORY.clone();
+  scene.fog = new Fog(fogColor, 2.2, 9);
   const pmrem = new PMREMGenerator(renderer);
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
   scene.environment = envRT.texture;
@@ -98,9 +105,15 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   });
   const rim = new DirectionalLight(0xe9c98a, 1.2);
   rim.position.set(-0.8, 0.5, -0.6);
-  scene.add(key, rim, new HemisphereLight(0xffffff, 0xe8dfcd, 0.35));
+  // The opening's rim light: catches the lid's edge from behind as the jar rises (gold-300).
+  const lidRim = new DirectionalLight(0xcda75e, 0);
+  lidRim.position.set(0.25, 0.9, -1);
+  scene.add(key, rim, lidRim, new HemisphereLight(0xffffff, 0xe8dfcd, 0.35));
 
   const ground = createGround();
+  // The jar rises through the floor plane in the opening: the (invisible) shadow floor must not
+  // hide the clear jar below it.
+  ground.shadowMat.depthWrite = false;
   scene.add(ground.contact, ground.shadowFloor, ground.crust, ground.horizon);
 
   // ---- the jar ----
@@ -167,6 +180,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   let sp = opts.getProgress(); // smoothed progress
   let frames = 0;
   let raf = 0;
+  let turn = 0;
   window.__pyoorHero = { p: sp, target: sp, frames };
 
   const frame = () => {
@@ -184,7 +198,19 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     pointer.x += (target.x - pointer.x) * 0.05;
     pointer.y += (target.y - pointer.y) * 0.05;
 
-    poseJar(rig, p, t, pointer, layout);
+    // The opening (components/opening): the sunrise from 30% of the screen height below, the
+    // glide to 62%, the idle turn while at rest (it starts once the jar has begun to rise).
+    const op = openingPose(openingStore.get());
+    const rest = 1 - smooth(0.02, 0.14, p);
+    if (!still && rest >= 1 && op.rise > 0) turn = (turn + dt * TURN_RATE) % (2 * Math.PI);
+    const viewH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 0.62 * layout.camZ;
+    poseJar(rig, p, t, pointer, layout, {
+      rise: op.rise,
+      riseFrom: 0.3 * viewH,
+      glide: op.glide,
+      turn: turn > Math.PI ? turn - 2 * Math.PI : turn,
+    });
+    lidRim.intensity = 2.2 * op.rise * rest;
     // Contact shadow follows the jar's base and fades as the jar tips up off the floor.
     rig.pivot.updateMatrixWorld(true);
     rig.jar.getWorldPosition(jarBase);
@@ -196,13 +222,14 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     const flat = smooth(0.78, 0.93, p);
     ground.crustMat.opacity = flat;
     ground.shadowMat.opacity = 0.12 * (1 - flat);
-    const contactFade = (1 - smooth(0.24, 0.36, p)) * (rig.pivot.visible ? 1 : 0);
+    const contactFade =
+      (1 - smooth(0.24, 0.36, p)) * (rig.pivot.visible ? 1 : 0) * op.rise * op.rise;
     for (const [mat, base] of ground.contactMats) mat.opacity = base * contactFade;
     ground.horizonMat.opacity = smooth(0.86, 0.97, p) * 0.9;
-    (scene.background as Color).copy(IVORY).lerp(SKY, flat);
-    scene.fog!.color.copy(scene.background as Color);
+    renderer.setClearColor(SKY, flat);
+    fogColor.copy(IVORY).lerp(SKY, flat);
 
-    cameraAt(camera, p, layout);
+    cameraAt(camera, p, layout, op.glide);
     renderer.render(scene, camera);
 
     frames++;

@@ -124,7 +124,10 @@ export function SiteHeader() {
             aria-haspopup="dialog"
             onClick={openCart}
           >
-            Bag (<b>{count}</b>)
+            {/* one flex item: the button's gap would otherwise space out "( 0 )" */}
+            <span>
+              Bag (<b>{count}</b>)
+            </span>
             <span className="sr-only">, {count === 1 ? '1 item' : `${count} items`}</span>
           </button>
         </div>

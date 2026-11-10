@@ -4,24 +4,30 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
 import { Horizon } from '@/components/Horizon/Horizon';
-import { SplitText } from '@/components/SplitText/SplitText';
+import { SambharOpening } from '@/components/opening/SambharOpening';
 import { prefetchWithProgress, whenIntroDone } from '@/lib/loader/prefetch';
 import { introIsFull, reportLoad } from '@/lib/loader/progress';
+import { OPEN_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
 
 const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
 
-/** Hero scroll progress 0–1: how far the pinned 520vh section has been scrolled through. */
+/**
+ * The jar sequence's progress 0–1: how far the pinned section has been scrolled through after
+ * the opening (its first OPEN_VH viewport heights, components/opening).
+ */
 function heroProgress(section: HTMLElement): number {
   const rect = section.getBoundingClientRect();
-  const range = rect.height - window.innerHeight;
-  return range > 0 ? Math.min(1, Math.max(0, -rect.top / range)) : 0;
+  const open = window.innerHeight * OPEN_VH;
+  const range = rect.height - window.innerHeight - open;
+  return range > 0 ? Math.min(1, Math.max(0, (-rect.top - open) / range)) : 0;
 }
 
 /**
- * The signature moment (concept.html): the jar floats, the cap unscrews and flies off, the jar
+ * The signature moment (concept.html), after the opening (SAMBHAR engraved, the horizon
+ * opening, the jar rising out of it: components/opening): the jar floats, the cap unscrews and flies off, the jar
  * tips ~113° and pours ~6,000 crystals into a heap, the heap spreads into the salt flats of
  * Sambhar Lake under a gold horizon. Everything is a pure function of scroll progress.
  *
@@ -113,42 +119,47 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
       data-hero
     >
       <div className={styles.stage}>
-        <canvas ref={canvasRef} className={styles.gl} aria-hidden="true" />
-        <Image
-          className={`${styles.poster} ${posterGone ? styles.gone : ''}`}
-          src="/images/renders/jar-black.webp"
-          alt="Pyoor Herbal Black Salt jar"
-          width={1206}
-          height={1570}
-          sizes="(max-width: 860px) 56vw, min(30vw, 380px)"
-          fetchPriority="high"
-          loading="eager"
-        />
+        {/* behind the jar: the dawn glow in the opening, and a fine grain against banding */}
+        <div className={styles.glow} aria-hidden="true" data-opening-glow />
+        <div className={styles.grain} aria-hidden="true" />
+        <div className={styles.jarLayer} data-jar-layer>
+          <div className={styles.jarMask} data-jar-mask>
+            <div className={styles.jarBack} data-jar-back>
+              <canvas ref={canvasRef} className={styles.gl} aria-hidden="true" />
+              <Image
+                className={`${styles.poster} ${posterGone ? styles.gone : ''}`}
+                src="/images/renders/jar-black.webp"
+                alt="Pyoor Herbal Black Salt jar"
+                width={1206}
+                height={1570}
+                sizes="(max-width: 860px) 56vw, min(30vw, 380px)"
+                loading="eager"
+              />
+            </div>
+          </div>
+        </div>
 
+        <SambharOpening />
+
+        {/* the outer block is faded by the jar sequence, the inner one by the opening */}
         <div className={styles.copy} data-hero-copy>
-          <p className="py-eyebrow">Sambhar Lake · Rajasthan</p>
-          <SplitText as="h1" className={`py-display py-d-xl ${styles.h1}`}>
-            Salt, the way the lake makes it.
-          </SplitText>
-          <p className="py-lead">
-            Black salt and lake salt, harvested and crafted on the shores of India’s largest inland
-            salt lake.
-          </p>
-          <div className={styles.cta}>
-            <ButtonLink variant="primary" href="/#shop">
-              {fromPrice ? `Shop the salts — from ${fromPrice}` : 'Shop the salts'}
-            </ButtonLink>
-            <ButtonLink variant="link" href="/#roots">
-              Our story
-            </ButtonLink>
+          <div className={styles.copyIn} data-copy-in>
+            <h1 className={`py-display py-d-l ${styles.h1}`}>Salt, the way the lake makes it.</h1>
+            <div className={styles.cta}>
+              <ButtonLink variant="primary" href="/#shop">
+                {fromPrice ? `Shop the salts — from ${fromPrice}` : 'Shop the salts'}
+              </ButtonLink>
+              <ButtonLink variant="link" href="/#roots">
+                Our story
+              </ButtonLink>
+            </div>
+            <div className={styles.trust}>
+              <span>FSSAI licensed</span>
+              <span>Batch and dates on every jar</span>
+              <span>Cash on delivery</span>
+            </div>
+            <Horizon className={styles.horizonLine} data-hero-horizon />
           </div>
-          <div className={styles.trust}>
-            <span>FSSAI licensed</span>
-            <span>Batch and dates on every jar</span>
-            <span>Cash on delivery</span>
-          </div>
-          {/* The gold thread under the copy: the loader's horizon line lands here. */}
-          <Horizon className={styles.horizonLine} data-hero-horizon />
         </div>
 
         <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
@@ -161,22 +172,18 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         </div>
         <div className={`${styles.beat} ${styles.b3}`} data-beat="3">
           <p className="py-eyebrow">03 · The lake</p>
-          <p className="py-display py-d-xl">Sambhar Lake</p>
+          <p className="py-display py-d-xl">Two salts. One lake.</p>
           <p className="py-lead">
             India’s largest inland salt lake, in the heart of Rajasthan. This is where every jar
             begins.
           </p>
         </div>
 
-        <div className={styles.rail} aria-hidden="true">
+        <div className={styles.rail} aria-hidden="true" data-rail>
           <span data-rail-text>01 / 03</span>
           <span className={styles.track}>
             <span className={styles.fill} data-rail-fill />
           </span>
-        </div>
-        <div className={styles.cue} aria-hidden="true" data-hero-cue>
-          Scroll
-          <i />
         </div>
       </div>
     </section>

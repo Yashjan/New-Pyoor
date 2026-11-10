@@ -59,15 +59,15 @@ export const viewport: Viewport = {
  * - `html.motion` switches on the scroll-driven layouts (pinned hero, horizontal journey).
  *   Without JS, or with prefers-reduced-motion, the class is never added and every section
  *   lays out as a normal static page.
- * - On the homepage, `html[data-intro]` picks the intro (components/loader): "full" on every
- *   load (for now: no once-per-session limit), "reduced" with reduced motion. Without JS there
- *   is no intro at all.
+ * - On the homepage, `html[data-intro]` picks the opening (components/opening): "full" on the
+ *   first visit in a session (or with ?intro=always), "return" afterwards (SAMBHAR starts
+ *   filled). Reduced motion and no JS get no data-intro: the filled word, fades only.
  */
-const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m)d.classList.add('motion');if(location.pathname==='/')d.setAttribute('data-intro',m?'full':'reduced')}catch(e){}`;
+const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname==='/'){var r;try{r=sessionStorage.getItem('pyoor-intro')}catch(e){}d.setAttribute('data-intro',r&&!/[?&]intro=always/.test(location.search)?'return':'full')}}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // The head flags change <html>'s class and data-intro before React hydrates.
+    // The head flags set <html>'s class and data-intro before React hydrates.
     <html
       lang="en-IN"
       className={[cormorant.variable, manrope.variable, tiro.variable].join(' ')}

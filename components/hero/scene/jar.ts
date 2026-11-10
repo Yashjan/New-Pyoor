@@ -62,10 +62,20 @@ export function createJarRig(model: Object3D): JarRig {
   return { pivot, jar, lid, saltTop, saltTopY0: saltTop.position.y, meshes };
 }
 
+/**
+ * The jar's resting x (metres) at progress p. At p = 0 it stands at 62% of the width, where
+ * the opening's glide leaves it (`glide` 0–1: from the centre); as the headline leaves
+ * (p .03–.2) it eases out to its original place beside the old headline column, so the
+ * sequence from p .2 on is exactly as before.
+ */
+export function restX(p: number, layout: HeroLayout, glide = 1): number {
+  return layout.jx * (0.558 + 0.442 * smooth(0.03, 0.2, p)) * glide;
+}
+
 /** Pivot pose for progress p (the tilt). Pure function of p and layout. */
-export function setJar(rig: JarRig, p: number, layout: HeroLayout): void {
+export function setJar(rig: JarRig, p: number, layout: HeroLayout, glide = 1): void {
   const et = ease(smooth(0.24, 0.42, p));
-  const x0 = layout.jx + PIVOT_DX;
+  const x0 = restX(p, layout, glide) + PIVOT_DX;
   rig.pivot.position.set(x0 + (0.12 - x0) * et, 0.12 * et, 0);
   rig.pivot.rotation.set(0, 0, TILT * et);
 }
@@ -77,9 +87,23 @@ export function mouthAt(rig: JarRig, layout: HeroLayout): Vector3 {
   return rig.jar.localToWorld(MOUTH_LOCAL.clone());
 }
 
+/** The opening's part of the pose (components/opening, lib/motion/opening.ts). */
+export interface OpeningJar {
+  /** The sunrise, 0–1 (eased): from `riseFrom` metres below to its place. */
+  rise: number;
+  riseFrom: number;
+  /** The glide from the centre to 62% of the width, 0–1 (eased). */
+  glide: number;
+  /** The idle turn so far (radians, ~6°/s while the jar is at rest). */
+  turn: number;
+}
+
+/** The tilt the jar rises with, straightening as it arrives (2.5°). */
+const RISE_TILT = (2.5 * Math.PI) / 180;
+
 /**
  * Full jar pose for progress p.
- * `t` (seconds) and the pointer only add the idle float and parallax while the jar is at rest
+ * `t` (seconds), the idle turn and the pointer only move the jar while it is at rest
  * (p < .14); past that the pose depends on p alone, so scrolling back reverses it exactly.
  */
 export function poseJar(
@@ -88,13 +112,17 @@ export function poseJar(
   t: number,
   pointer: { x: number; y: number },
   layout: HeroLayout,
+  opening: OpeningJar,
 ): void {
-  setJar(rig, p, layout);
+  setJar(rig, p, layout, opening.glide);
 
-  // Idle float and slow turn before the cap opens.
+  // The opening: the jar rises out of the horizon with a slight tilt that straightens.
+  // Then the idle float and the slow turn, until the cap opens.
   const rest = 1 - smooth(0.02, 0.14, p);
-  rig.jar.position.y = rest * (0.006 + Math.sin(t * 1.1) * 0.004);
-  rig.jar.rotation.y = rest * (Math.sin(t * 0.35) * 0.22 + pointer.x * 0.35);
+  rig.jar.position.y =
+    rest * (0.006 + Math.sin(t * 1.1) * 0.004) - (1 - opening.rise) * opening.riseFrom;
+  rig.jar.rotation.z = -(1 - opening.rise) * RISE_TILT;
+  rig.jar.rotation.y = rest * (opening.turn + pointer.x * 0.35);
   rig.jar.rotation.x = rest * pointer.y * 0.08;
 
   // Cap: unscrew 2.5 turns counter-clockwise seen from above (+y, the loosening way), riding

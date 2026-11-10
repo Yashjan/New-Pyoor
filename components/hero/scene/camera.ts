@@ -2,6 +2,7 @@ import type { PerspectiveCamera } from 'three';
 import { Vector3 } from 'three';
 import { clamp01, ease, smooth } from './math';
 import type { HeroLayout } from './layout';
+import { restX } from './jar';
 
 type Vec3 = readonly [number, number, number];
 
@@ -30,8 +31,16 @@ const cl = new Vector3();
 const A = new Vector3();
 const B = new Vector3();
 
-/** Places the camera for progress p. Pure: the same p and layout give the same camera. */
-export function cameraAt(camera: PerspectiveCamera, p: number, layout: HeroLayout): void {
+/**
+ * Places the camera for progress p. Pure: the same p, layout and glide give the same camera.
+ * `glide` (0–1) is the opening's: the jar and the camera start centred.
+ */
+export function cameraAt(
+  camera: PerspectiveCamera,
+  p: number,
+  layout: HeroLayout,
+  glide = 1,
+): void {
   let i = 0;
   while (i < K.length - 2 && p > K[i + 1]!.p) i++;
   const k0 = K[i]!;
@@ -50,13 +59,15 @@ export function cameraAt(camera: PerspectiveCamera, p: number, layout: HeroLayou
   }
 
   // Follow the jar while it stands to the right of the headline (desktop).
-  const jxShift = layout.jx * (1 - smooth(0.28, 0.44, p));
+  const jxShift = restX(p, layout, glide) * (1 - smooth(0.28, 0.44, p));
   cp.x += jxShift * 0.1;
   cl.x += jxShift * 0.1;
 
-  // Phones: lift the frame while the jar is upright so it clears the headline.
+  // Phones: lift the frame while the jar is upright so it clears the beats' text. At p = 0
+  // the jar stands centred, with the headline below it (the opening's end); the lift eases in
+  // as the headline leaves, so the frames from p .2 on are as before.
   if (layout.camZ > 1) {
-    const lift = 0.045 * (1 - smooth(0.7, 0.9, p));
+    const lift = 0.045 * smooth(0.03, 0.2, p) * (1 - smooth(0.7, 0.9, p));
     cl.y += lift;
     cp.y += lift;
   }
