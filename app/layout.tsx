@@ -81,7 +81,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         tiro.variable,
       ].join(' ')}
     >
-      <body>
+      {/* Browser extensions (e.g. ColorZilla's `cz-shortcut-listen`) add attributes to <body>
+          before React hydrates. This only ignores attribute differences on <body> itself;
+          mismatches anywhere inside it are still reported. */}
+      <body suppressHydrationWarning>
         <a className="skip-link" href="#main">
           Skip to content
         </a>
