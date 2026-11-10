@@ -40,11 +40,15 @@ app/                     routes (App Router)
   globals.css            reset, base typography, focus styles, utilities; imports tokens
   page.tsx               homepage
   product/[handle]/      product detail page (static, one per published product)
-components/              UI components, one folder each with a .module.css   (Step 2)
-  hero/                  JarHero: three.js scene + scroll timeline            (Step 3)
+components/              UI components, one folder each with a .module.css
+  AnnouncementBar/ Header/ Footer/ CartDrawer/ ProductCard/ Button/ …
+  sections/              homepage sections (TextureBand, Collection, Origin, Process, Recipes, TrustRow)
+  hero/                  Hero (copy + poster), RingBadge; JarHero scene arrives in Step 3
+  providers/             CartProvider (cart state + drawer open/close)
+  motion/                RevealOnScroll (GSAP fade-and-rise on enter)
 lib/
-  site.ts                company facts, nav, announcement, FSSAI disclaimer (single source)
-  format.ts              price formatting (₹, or the "[PRICE]" placeholder)
+  site.ts                company facts, nav, FSSAI disclaimer (single source)
+  format.ts              price formatting (₹, or "Price coming soon")
   commerce/              the commerce layer (see below)
   three/                 three.js loaders, quality tiers, helpers               (Step 3)
 styles/tokens.css        design tokens: colours, type scale, spacing, motion, z-index
@@ -72,6 +76,23 @@ legible on ivory (1.75:1); use `--color-gold-dark` for text on light surfaces.**
 Fonts are self-hosted at build time with `next/font/google`: Cormorant Garamond (display), Manrope
 (body), Tiro Devanagari Hindi (Hindi accents, not preloaded).
 
+## Front-end notes
+
+- **Fonts are kept to four files (~147 KB).** The ₹ sign would otherwise pull in the `latin-ext`
+  files of Manrope and Cormorant (~48 KB), so `globals.css` defines `Rupee Sans` / `Rupee Serif`:
+  faces that cover only U+20B9 from fonts already on the device. `HindiText` wraps each Hindi word
+  separately so a space does not pull in Tiro's latin file (~20 KB). Use `<HindiText>` for any
+  Devanagari with spaces.
+- **Scroll reveals:** add `data-reveal` to an element. Content is visible by default; GSAP only hides
+  elements below the fold after it has loaded, so nothing stays hidden if JS fails. Do not put
+  `data-reveal` on an element with a CSS `transform` transition (it fights GSAP): wrap it instead.
+- **Do not use `content-visibility: auto` on page sections.** It lowers layout cost, but ScrollTrigger
+  measures positions from the placeholder heights and reveals then fail to fire. Tested and removed.
+- **`experimental.inlineCss` was tested and rejected:** the CSS is also duplicated in the RSC payload,
+  which took the HTML from 65 KB to 175 KB and made LCP worse.
+- **Modals** (menu, search, cart) use native `<dialog>` through `useModalDialog`, which provides the
+  focus trap, Esc to close and focus return.
+
 ## 3D models
 
 The jars are glTF 2.0 binaries in metres, Y up, label front facing +Z; 12.2 cm tall, 10 cm across.
@@ -84,7 +105,8 @@ npm run models
 ```
 
 Per jar: name textures → `dedup` → `prune` → resize the salt normal + roughness maps to 512 px →
-WebP (normal map q90, others q80) → meshopt. Result: **~420–485 KB per jar** (from 1.5–2.0 MB), budget 600 KB.
+WebP (normal map q90, others q80) → meshopt. Result: **423–551 KB per jar** (from 1.5–2.0 MB), budget 600 KB. The black salt jar keeps its 1024 px
+normal map (`FULL_NORMAL` in `compress.sh`) because the hero shows it up close.
 The script fails if `KHR_materials_transmission`, `KHR_materials_ior` or `KHR_materials_volume` go missing.
 
 Decisions:
@@ -127,12 +149,15 @@ removeFromCart(lineId);
 | File               | Role                                                                                                                                                                   |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `types.ts`         | Backend-agnostic types (`Product`, `ProductVariant`, `Cart`, `Money` …) and the `CatalogProvider` / `CartProvider` interfaces. Shapes mirror Shopify's Storefront API. |
+| `pricing.ts`       | **Prices and the free-shipping threshold: the one place to fill them in.** `null` means not set yet.                                                                   |
 | `local-data.ts`    | Product data. Himalayan Pink Salt is kept with `published: false` (never listed or routable).                                                                          |
 | `local-catalog.ts` | `CatalogProvider` over `local-data.ts`.                                                                                                                                |
 | `local-cart.ts`    | `CartProvider` over `localStorage` (stores only variant id + qty; prices re-resolved on read).                                                                         |
 | `index.ts`         | Picks the providers and re-exports the API.                                                                                                                            |
 
-Prices are `Money | null`; `null` renders as **₹[PRICE]** until confirmed.
+A `null` price shows **Price coming soon** and disables Add to cart: unpriced items never enter the
+cart (`isPurchasable` in `types.ts`, enforced again in `local-cart.ts`). A `null` free-shipping
+threshold hides that message in the announcement bar.
 
 ### Switching to Shopify (later)
 
