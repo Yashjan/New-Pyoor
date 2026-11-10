@@ -4,6 +4,9 @@
  * logo has landed in its slot.
  */
 .root {
+  /* real seconds per story-second, for the CSS phase A and the canvas alike: the designed story
+     is 4.15 s long, so 1.084 plays the whole intro in 4.5 s */
+  --dawn-scale: 1.084;
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -57,7 +60,7 @@
   background: var(--gold-500);
   opacity: 0.88;
   transform-origin: 50% 50%;
-  animation: dawn-hz 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: dawn-hz calc(0.6s * var(--dawn-scale)) cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .seed {
@@ -77,7 +80,8 @@
     rgba(205, 167, 94, 0.07) 40%,
     rgba(205, 167, 94, 0) 100%
   );
-  animation: dawn-seed 0.45s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: dawn-seed calc(0.45s * var(--dawn-scale)) calc(0.15s * var(--dawn-scale))
+    cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes dawn-hz {
