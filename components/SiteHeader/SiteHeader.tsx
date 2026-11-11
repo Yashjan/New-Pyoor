@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCart } from '@/components/providers/CartProvider';
 import { lenisStore } from '@/lib/motion/lenis';
+import { SoundToggle } from './SoundToggle';
 import styles from './SiteHeader.module.css';
 
 const NAV = [
@@ -117,6 +118,7 @@ export function SiteHeader() {
           <Link href="/#recipes" className={styles.endLink}>
             Recipes
           </Link>
+          <SoundToggle className={styles.soundHdr} />
           <button
             type="button"
             key={bump}
@@ -147,6 +149,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
+        <SoundToggle className={styles.soundMenu} />
         <p className="py-eyebrow">Sambhar Lake · Rajasthan</p>
       </div>
     </>
