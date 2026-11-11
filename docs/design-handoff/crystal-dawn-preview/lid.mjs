@@ -1,0 +1,12 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-angle=gl', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars'] });
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+await ctx.addInitScript(() => sessionStorage.setItem('pyoor-intro', '1'));
+const p = await ctx.newPage();
+await p.goto(process.argv[2] + '/?heroStill', { waitUntil: 'load' });
+await p.waitForFunction(() => window.__pyoorHero?.frames > 10);
+await p.waitForTimeout(3000);
+const r = await p.evaluate(() => { const q = (s) => document.querySelector(s).getBoundingClientRect(); return { cta: q('[data-hero-copy] [class*=cta]').bottom, hz: q('[data-hero-horizon]').top }; });
+await p.evaluate(() => document.querySelector('[data-hero-horizon]').style.visibility = 'hidden');
+await p.screenshot({ path: process.argv[3] });
+console.log(JSON.stringify(r)); await b.close();

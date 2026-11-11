@@ -1,0 +1,44 @@
+{
+  "name": "pyoor-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pyoor: salt from Sambhar Lake. Next.js storefront.",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "models": "bash tools/3d/compress.sh",
+    "models:inspect": "bash tools/3d/compress.sh --inspect",
+    "glyphs": "node tools/glyphs/build.mjs",
+    "engravings": "node tools/engravings/build.mjs"
+  },
+  "dependencies": {
+    "gsap": "3.15.1",
+    "lenis": "1.3.27",
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "4.5.1",
+    "@types/node": "20.19.43",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.187.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
+    "eslint-config-prettier": "10.1.8",
+    "opentype.js": "1.3.4",
+    "paper": "0.12.18",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,7 @@
+/* Shared section shell (concept.html "section.blk"). */
+.blk {
+  position: relative;
+  padding: clamp(88px, 12vw, 168px) var(--gutter);
+  background: var(--surface);
+  color: var(--text);
+}

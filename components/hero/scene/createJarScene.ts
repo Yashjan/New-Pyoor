@@ -1,0 +1,347 @@
+import {
+  ACESFilmicToneMapping,
+  Clock,
+  Color,
+  DirectionalLight,
+  Fog,
+  HemisphereLight,
+  PCFSoftShadowMap,
+  PerspectiveCamera,
+  PMREMGenerator,
+  Scene,
+  SRGBColorSpace,
+  WebGLRenderer,
+  Vector3,
+  BufferGeometry,
+  Float32BufferAttribute,
+  Line,
+  LineBasicMaterial,
+} from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
+import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
+import { loadJarModel } from '@/lib/three/loaders';
+import type { QualityTier } from '@/lib/three/quality';
+import { cameraAt } from './camera';
+import { createPour, type Pour } from './grains';
+import { createContact, createGround } from './ground';
+import { createJarRig, poseCap, poseJar } from './jar';
+import { FLIGHT, capRest, pouredAt, R } from '@/lib/motion/pour';
+import { jarStartX } from '@/lib/motion/heroCamera';
+import { layoutFor, type HeroLayout } from './layout';
+import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
+import { smooth } from './math';
+
+export interface JarSceneOptions {
+  canvas: HTMLCanvasElement;
+  tier: QualityTier;
+  modelUrl: string;
+  /** Hero scroll progress, 0–1. Read every frame. */
+  getProgress: () => number;
+  /** Called once, after the first frame is on screen (hide the poster then). */
+  onFirstFrame: () => void;
+  signal: AbortSignal;
+  /** Download progress of the GLB, 0–1 (feeds the first-visit loader). */
+  onModelProgress?: (fraction: number) => void;
+}
+
+export interface JarScene {
+  dispose(): void;
+}
+
+declare global {
+  interface Window {
+    /** Read-only state for automated screenshots and debugging. */
+    __pyoorHero?: { p: number; target: number; frames: number };
+  }
+}
+
+const IVORY = new Color('#f5f1e8');
+const SKY = new Color('#eee9df');
+const KEY_COLOR = new Color(0xfff0dc);
+const KEY_WARM = new Color('#f3c9a8');
+const HEMI_GROUND = new Color(0xe8dfcd);
+const HEMI_PINK = new Color('#e7a6a0');
+/** The idle turn while the jar is at rest: ~6° a second. */
+const TURN_RATE = (6 * Math.PI) / 180;
+
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
+  const { canvas, tier, signal } = opts;
+  // `?heroStill` freezes the idle float and pointer parallax (for screenshots).
+  const still = new URLSearchParams(window.location.search).has('heroStill');
+  // Start the download first so it overlaps the renderer and environment setup below.
+  const modelLoad = loadJarModel(opts.modelUrl, signal, opts.onModelProgress);
+  modelLoad.catch(() => {}); // handled where it is awaited
+
+  // ---- renderer, scene, light (from concept.html) ----
+  // Transparent: the page's ivory (and the opening's dawn glow) shows behind the jar. The salt
+  // flats' sky is the clear colour, faded in over the ivory (the same mix as before).
+  const renderer = new WebGLRenderer({
+    canvas,
+    antialias: true,
+    alpha: true,
+    powerPreference: 'high-performance',
+  });
+  renderer.setClearColor(SKY, 0);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier.maxDpr));
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1;
+  renderer.outputColorSpace = SRGBColorSpace;
+  renderer.shadowMap.enabled = tier.shadows;
+  renderer.shadowMap.type = PCFSoftShadowMap;
+
+  const scene = new Scene();
+  const fogColor = IVORY.clone();
+  scene.fog = new Fog(fogColor, 2.2, 9);
+  const pmrem = new PMREMGenerator(renderer);
+  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+  scene.environment = envRT.texture;
+
+  const camera = new PerspectiveCamera(30, 1, 0.01, 40);
+  const key = new DirectionalLight(0xfff0dc, 2.4);
+  key.position.set(0.6, 1.2, 0.8);
+  key.castShadow = tier.shadows;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.radius = 5;
+  key.shadow.bias = -0.0004;
+  Object.assign(key.shadow.camera, {
+    left: -0.5,
+    right: 0.5,
+    top: 0.5,
+    bottom: -0.5,
+    near: 0.1,
+    far: 4,
+  });
+  const rim = new DirectionalLight(0xe9c98a, 1.2);
+  rim.position.set(-0.8, 0.5, -0.6);
+  // The opening's rim light: catches the lid's edge from behind as the jar rises (gold-300).
+  const lidRim = new DirectionalLight(0xcda75e, 0);
+  lidRim.position.set(0.25, 0.9, -1);
+  const hemi = new HemisphereLight(0xffffff, 0xe8dfcd, 0.35);
+  // The pour's dusk light: low, warm, from the upper right, so falling grains catch glints.
+  const dusk = new DirectionalLight(0xffc27a, 1.5);
+  dusk.position.set(0.9, 0.28, 0.5);
+  scene.add(key, rim, lidRim, hemi, dusk);
+
+  const ground = createGround();
+  // The jar rises through the floor plane in the opening: the (invisible) shadow floor must not
+  // hide the clear jar below it.
+  ground.shadowMat.depthWrite = false;
+  scene.add(ground.contact, ground.shadowFloor, ground.crust);
+  // Soft contact shadows under the resting cap and the mound.
+  const capShadow = createContact();
+  capShadow.group.scale.set(0.95, 1, 0.95);
+  const moundShadow = createContact();
+  scene.add(capShadow.group, moundShadow.group);
+  // The gold horizon: a 1px line on the ground through the jar's base (and the mound's), so on
+  // screen it runs exactly at their foot; the jar, its salt and the mound hide it where they stand.
+  const horizonLine = new Line(
+    new BufferGeometry().setAttribute(
+      'position',
+      new Float32BufferAttribute([-4, 0.0003, 0, 4, 0.0003, 0], 3),
+    ),
+    new LineBasicMaterial({ color: 0xa8823f, toneMapped: false, fog: false }),
+  );
+  scene.add(horizonLine);
+
+  // ---- the salt pans (behind ?saltPans until approved) ----
+  const pans = new URLSearchParams(window.location.search).has('saltPans')
+    ? createSaltPans(
+        tier.name === 'high',
+        Math.round(canvas.clientWidth * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
+        Math.round(canvas.clientHeight * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
+      )
+    : null;
+  if (pans) {
+    scene.add(pans.group);
+    for (const light of [key, rim, hemi]) light.layers.enable(REFLECT_LAYER);
+    ground.crust.visible = false;
+    ground.horizon.visible = false;
+    camera.far = 120;
+    camera.near = 0.04; // enough depth precision for the thin bunds, far away
+  }
+
+  // ---- the jar ----
+  // Setup runs while the first-visit intro is on screen: yield a frame between the heavy steps
+  // so their costs don't stack into one long stall.
+  await nextFrame();
+  let gltf;
+  try {
+    gltf = await modelLoad;
+  } catch (err) {
+    renderer.dispose();
+    pmrem.dispose();
+    envRT.dispose();
+    throw err;
+  }
+  const rig = createJarRig(gltf.scene);
+  scene.add(rig.pivot, rig.lid);
+
+  // the pour: twice the old count, capped by the tier (precomputed, deterministic)
+  let layout: HeroLayout = layoutFor(canvas.clientWidth || 1, canvas.clientHeight || 1);
+  let pour: Pour = createPour(tier.grains, jarStartX(layout), tier.shadows);
+  const addPour = () => scene.add(pour.grains, pour.dust, pour.mound);
+  addPour();
+
+  const resize = () => {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    const next = layoutFor(w, h);
+    if (next.portrait !== layout.portrait) {
+      // the jar starts elsewhere, so the pour (and its mound) is rebuilt from there
+      scene.remove(pour.grains, pour.dust, pour.mound);
+      pour.dispose();
+      pour = createPour(tier.grains, jarStartX(next), tier.shadows);
+      addPour();
+    }
+    layout = next;
+  };
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  resize();
+
+  // ---- pointer parallax (only matters while the jar is at rest) ----
+  const pointer = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  const onPointer = (e: PointerEvent) => {
+    target.x = e.clientX / window.innerWidth - 0.5;
+    target.y = e.clientY / window.innerHeight - 0.5;
+  };
+  if (!still) window.addEventListener('pointermove', onPointer, { passive: true });
+
+  // ---- pause while the hero is off-screen ----
+  let visible = true;
+  const io = new IntersectionObserver((entries) => {
+    visible = entries[0]?.isIntersecting ?? true;
+  });
+  io.observe(canvas);
+
+  // ---- loop ----
+  const clock = new Clock();
+  const jarBase = new Vector3();
+  let sp = opts.getProgress(); // smoothed progress
+  let frames = 0;
+  let raf = 0;
+  let turn = 0;
+  window.__pyoorHero = { p: sp, target: sp, frames };
+
+  const frame = () => {
+    raf = requestAnimationFrame(frame);
+    // Paused behind the panorama, but the first frame renders anyway (invisible there): the
+    // textures upload and the pipelines warm up during the Journey, not at the reveal.
+    if (!visible || (journeyStore.covered && frames > 0)) {
+      clock.getDelta(); // don't let time pile up while paused
+      return;
+    }
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = still ? 0 : clock.elapsedTime;
+    const goal = opts.getProgress();
+    sp += (goal - sp) * Math.min(1, dt * 7);
+    if (Math.abs(goal - sp) < 1e-5) sp = goal; // settle exactly, so frames repeat exactly
+    const p = sp;
+    // while the Journey lines its engraving up on the jar, the jar holds still
+    const calm = journeyStore.calm;
+    pointer.x += (target.x * (1 - calm) - pointer.x) * 0.05;
+    pointer.y += (target.y * (1 - calm) - pointer.y) * 0.05;
+
+    // The opening (components/opening): the sunrise from 30% of the screen height below, the
+    // glide to 62%, the idle turn while at rest (it starts once the jar has begun to rise).
+    const op = openingPose(openingStore.get());
+    const rest = 1 - smooth(0.02, 0.14, p);
+    if (!still && rest >= 1 && op.rise > 0) turn = (turn + dt * TURN_RATE) % (2 * Math.PI);
+    const viewH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 0.62 * (layout.portrait ? 0.92 : 1);
+    poseJar(
+      rig,
+      p,
+      t,
+      pointer,
+      layout,
+      {
+        rise: op.rise,
+        riseFrom: 0.3 * viewH,
+        glide: op.glide,
+        turn: turn > Math.PI ? turn - 2 * Math.PI : turn,
+      },
+      1 - calm,
+    );
+    poseCap(rig, p, layout, op.glide);
+    lidRim.intensity = 2.2 * op.rise * rest;
+    pour.update(p);
+
+    // Contact shadows: the jar's follows its base and fades as it lifts off to pour (and back
+    // as it settles); the cap's as it lands; the mound's grows with it.
+    rig.pivot.updateMatrixWorld(true);
+    rig.jar.getWorldPosition(jarBase);
+    ground.contact.position.set(jarBase.x, 0, jarBase.z);
+    const lifted = 1 - smooth(0.002, 0.03, jarBase.y);
+    for (const [mat, base] of ground.contactMats) mat.opacity = base * lifted * op.rise * op.rise;
+    const rest0 = capRest(jarStartX(layout, op.glide));
+    capShadow.group.position.set(rest0[0] - R * 0.15, 0, rest0[2]);
+    capShadow.set(smooth(0.2, 0.25, p) * 0.9);
+    const poured = pouredAt(p - FLIGHT);
+    moundShadow.group.position.set(pour.mx, 0, 0);
+    const ms = 0.25 + 1.15 * Math.cbrt(poured);
+    moundShadow.group.scale.set(ms, 1, ms);
+    moundShadow.set(Math.sqrt(poured));
+    ground.shadowMat.opacity = 0.12;
+    renderer.setClearColor(SKY, 0);
+    if (pans) {
+      pans.update(p);
+      if (pans.group.visible) fogColor.copy(pans.horizon);
+      const blush = blushAt(p);
+      key.color.copy(KEY_COLOR).lerp(KEY_WARM, Math.pow(blush, 0.7));
+      hemi.groundColor.copy(HEMI_GROUND).lerp(HEMI_PINK, blush);
+      hemi.intensity = 0.35 + 0.35 * blush;
+    }
+
+    cameraAt(camera, p, layout, op.glide);
+    if (pans) {
+      camera.updateMatrixWorld();
+      pans.renderReflection(renderer, scene, camera);
+    }
+    renderer.render(scene, camera);
+
+    frames++;
+    window.__pyoorHero = { p, target: goal, frames };
+    if (frames === 1) opts.onFirstFrame();
+  };
+  // Compile every material before the first frame, in parallel where the driver supports it
+  // (KHR_parallel_shader_compile), instead of blocking the page for ~0.2–0.7 s on first render.
+  await nextFrame();
+  try {
+    await renderer.compileAsync(scene, camera);
+  } catch {
+    // older drivers: the first render compiles them instead
+  }
+  if (signal.aborted) {
+    disposeObject(scene);
+    envRT.dispose();
+    pmrem.dispose();
+    renderer.dispose();
+    throw new DOMException('Aborted', 'AbortError');
+  }
+  raf = requestAnimationFrame(frame);
+
+  return {
+    dispose() {
+      cancelAnimationFrame(raf);
+      pans?.dispose();
+      ro.disconnect();
+      io.disconnect();
+      window.removeEventListener('pointermove', onPointer);
+      pour.dispose();
+      disposeObject(scene);
+      disposeMaterial(ground.crustMat);
+      envRT.dispose();
+      pmrem.dispose();
+      renderer.dispose();
+      delete window.__pyoorHero;
+    },
+  };
+}

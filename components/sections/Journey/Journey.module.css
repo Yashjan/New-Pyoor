@@ -1,0 +1,438 @@
+/*
+ * "A day at Sambhar". Two layouts, keyed on html.motion:
+ *   static  (reduced motion, no JS) five scenes stacked, fully drawn, as plain images
+ *   motion  an overlay in the hero's pinned stage; the script pans the three layers
+ */
+
+/* ---------------- static ---------------- */
+.journey {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.veil,
+.handoff {
+  display: none;
+}
+
+.scenes {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 6vw, 72px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* the scene's slice of each layer, centred; the query units size the layers to the frame */
+.frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 820 / 512;
+  container-type: size;
+}
+
+.frame img {
+  position: absolute;
+  top: 0;
+  left: calc(50cqw - var(--c) * 100cqh);
+  width: calc(var(--w) * 100cqh); /* known up front, or lazy loading never sees it on screen */
+  max-width: none;
+  height: 100cqh;
+}
+
+.frameWash {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: var(--gold-500);
+}
+
+.frameSun {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 18.75cqh;
+  height: 18.75cqh;
+  background: radial-gradient(closest-side, var(--ivory-100) 80%, rgba(245, 241, 232, 0) 100%);
+  transform: translate(-50%, -50%);
+}
+
+.frameSun svg {
+  width: 66.7%;
+  height: 66.7%;
+}
+
+/* dawn and dusk: half-sunk into the horizon */
+.sunk {
+  clip-path: inset(0 0 50% 0);
+}
+
+.sun svg,
+.frameSun svg {
+  display: block;
+  overflow: visible;
+}
+
+.sun circle,
+.frameSun circle {
+  fill: var(--ivory-100);
+  stroke: var(--gold-500);
+  stroke-width: 0.75px;
+  vector-effect: non-scaling-stroke;
+}
+
+.sun path,
+.frameSun path {
+  fill: none;
+  stroke: var(--gold-500);
+  stroke-width: 0.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.caption p {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4vw, 56px);
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+  color: var(--accent-line);
+}
+
+@media (max-width: 699px) {
+  .frame {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* ---------------- motion: pinned in the hero's stage ---------------- */
+:global(html.motion) .journey {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+:global(html.motion) .veil {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--ivory-100);
+  opacity: 0;
+}
+
+.wash {
+  position: absolute;
+  inset: 0;
+  background: var(--gold-500);
+  opacity: 0.04;
+}
+
+.art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--art-top, 0);
+  height: var(--art-h, 100%);
+  overflow: hidden;
+  /* the near water thins out behind the caption */
+  mask-image: radial-gradient(640px 310px at 0 100%, transparent 62%, #000 100%);
+}
+
+.layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.layer :global(svg) {
+  display: block;
+  max-width: none; /* the layers are far wider than the screen */
+}
+
+.layer :global(path) {
+  stroke-width: calc(var(--u, 1) * 0.75);
+}
+
+.layer :global(path.p) {
+  fill: var(--ivory-100);
+  stroke: none;
+}
+
+.layer :global(path.a) {
+  stroke-width: calc(var(--u, 1) * 0.5);
+}
+
+.layer :global(path.b) {
+  stroke-width: var(--u, 1);
+}
+
+.layer :global(path.c) {
+  stroke-width: calc(var(--u, 1) * 1.25);
+}
+
+.layer :global(path.d) {
+  stroke-width: calc(var(--u, 1) * 1.4);
+}
+
+/* ---------------- living details (Living.tsx) ---------------- */
+/* placed in plate units: in motion, x --k; in a still frame, in the frame's height */
+.live {
+  position: absolute;
+  left: calc(var(--x) * var(--k, 1) * 1px);
+  top: calc(var(--y) * var(--k, 1) * 1px);
+  width: calc(var(--w) * var(--k, 1) * 1px);
+  height: calc(var(--h) * var(--k, 1) * 1px);
+  display: block;
+  overflow: visible;
+  max-width: none;
+}
+
+:global(html.motion) .layer .live[data-live] {
+  visibility: hidden; /* until its scene has drawn itself */
+}
+
+.frame .live {
+  z-index: 1;
+  left: calc(50cqw + (var(--x) - var(--cc)) * 100cqh / 512);
+  top: calc(var(--y) * 100cqh / 512);
+  width: calc(var(--w) * 100cqh / 512);
+  height: calc(var(--h) * 100cqh / 512);
+}
+
+.frame .live :global(path) {
+  stroke-width: 0.75px;
+  vector-effect: non-scaling-stroke;
+}
+
+.frame .live :global(path.a) {
+  stroke-width: 0.5px;
+}
+
+.frame .live :global(path.b) {
+  stroke-width: 1px;
+}
+
+.frame .live :global(path.c) {
+  stroke-width: 1.25px;
+}
+
+.live :global(path.p) {
+  fill: var(--ivory-100);
+  stroke: none;
+}
+
+.live :global(path.f) {
+  fill: var(--gold-500);
+  stroke: none;
+}
+
+/* the water through the sluice: dashes, slid by the scroll */
+.flow path {
+  stroke-dasharray: 6 9;
+  stroke-dashoffset: var(--off, 0);
+}
+
+.evap :global(path) {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.evap :global(path.f) {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.frame .evap :global(path[data-dash]) {
+  display: none; /* a still frame shows the end: the water gone, the crystals left */
+}
+
+.frame .evap :global(path.f) {
+  opacity: 1;
+  transform: none;
+}
+
+.ring {
+  transform-box: fill-box;
+  opacity: 0;
+}
+
+.glint {
+  opacity: 0;
+}
+
+/* 05's jar: drawn in with its scene; in step 2 it glides onto the 3D jar (transform) */
+:global(html.motion) .layer .jar {
+  visibility: hidden;
+  transform-origin: 0 0;
+}
+
+/* step 2 on phones: the 3D jar can stand outside the scene's band */
+.journey[data-step] .art {
+  overflow: visible;
+}
+
+/* step 2: what lies under the panorama stays out of sight until the hand-over */
+:global([data-hero][data-step] [data-copy-in]),
+:global([data-hero][data-step] [data-rail]) {
+  opacity: var(--step-copy, 0) !important;
+}
+
+/* reduced motion: the engraved jar crossfades to the jar itself, once, as it comes into view */
+.frameJar {
+  position: absolute;
+  z-index: 1;
+  left: calc(50cqw + (var(--x) - var(--cc)) * 100cqh / 512);
+  top: calc(var(--y) * 100cqh / 512);
+  width: auto;
+  max-width: none;
+  height: calc(var(--h) * 100cqh / 512);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.jarIn .frameJar {
+  opacity: 1;
+}
+
+.frame .jar {
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.jarIn .jar {
+  opacity: 0;
+}
+
+/* glint arms: finer than any burin weight */
+.live .hair {
+  stroke-width: calc(var(--u, 1) * 0.3);
+}
+
+.frame .live .hair {
+  stroke-width: 0.3px;
+}
+
+/* the furrows behind the rake: gold-500 at 70% */
+.furrow {
+  stroke: var(--gold-500);
+  stroke-opacity: 0.7;
+}
+
+/* the reflection travels with the worker (--dx, in plate units) */
+.mover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateX(calc(var(--dx, 0) * var(--k, 1) * 1px));
+}
+
+.frame .mover {
+  z-index: 1;
+  transform: translateX(calc(var(--dx, 0) * 100cqh / 512));
+}
+
+.flock {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.wing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.wing + .wing {
+  opacity: 0;
+}
+
+@media (max-width: 699px) {
+  .live[data-half],
+  .live :global([data-half]) {
+    display: none; /* phones: half the glints, crystals and flamingos */
+  }
+}
+
+/* the sun, and around it open sky: a paper-bright halo, 1.5x its diameter, that covers only
+   the sky layer (it sits beneath the far layer, so mounds and the horizon stay drawn) */
+.sun {
+  position: absolute;
+  left: 0;
+  top: calc(-1 * var(--art-top, 0px));
+  display: grid;
+  place-items: center;
+  width: calc(96px * var(--k, 1));
+  height: calc(96px * var(--k, 1));
+  background: radial-gradient(closest-side, var(--ivory-100) 80%, rgba(245, 241, 232, 0) 100%);
+  will-change: transform;
+}
+
+.sun svg {
+  width: 66.7%;
+  height: 66.7%;
+}
+
+/* the gold line, from under the word to the panorama's horizon */
+:global(html.motion) .handoff {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: block;
+  height: 1px;
+  background: var(--gold-500);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+:global(html.motion) .scenes {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+:global(html.motion) .scene {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 40px;
+  width: min(440px, calc(100% - 2 * var(--gutter)));
+  opacity: 0;
+}
+
+:global(html.motion) .frame {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .art {
+    mask-image: none;
+  }
+
+  /* one scene at a time, the caption below it */
+  :global(html.motion) .scene {
+    top: calc(var(--art-top) + var(--art-h) + 14px); /* directly under the scene */
+    bottom: auto;
+  }
+}

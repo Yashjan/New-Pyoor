@@ -1,0 +1,265 @@
+/*
+ * "Sambhar is engraved" (SambharOpening.tsx).
+ *
+ * States, from html (app/layout.tsx):
+ *   no html.motion          no JS or reduced motion: the filled word, one static screen, fades only
+ *   [data-intro='full']     first visit: the engraving. CSS starts it at first paint on a 2.4 s
+ *                           clock; with [data-opening-js] the component drives it from real
+ *                           load progress. Without JS a failsafe fills it and shows the header.
+ *
+ * Geometry: the word's ink is 78% of the width (phones: the width less 24px each side) and the
+ * seam (where the word splits) sits on --seam (a whole pixel at half the height). The word box is shifted up by
+ * the line's position within it (--line-frac), so the line runs 300/1000 em above the baseline.
+ */
+
+.opening {
+  --word-w: 78vw;
+  --seam: 50%;
+  position: relative;
+  grid-column: 1 / -1;
+  height: 72vh;
+  height: 72svh;
+  min-height: 380px;
+  pointer-events: none;
+}
+
+@media (max-width: 699px) {
+  .opening {
+    --word-w: clamp(200px, calc(100vw - 48px), 651px); /* 24px clear each side */
+  }
+}
+
+.half,
+.halfIn {
+  position: absolute;
+  inset: 0;
+}
+
+/* static: one copy of the word, unclipped */
+.half[data-half='bottom'] {
+  display: none;
+}
+
+.box {
+  position: absolute;
+  left: 50%;
+  top: var(--seam);
+  width: var(--word-w);
+  transform: translate(-50%, calc(var(--line-frac) * -100%));
+}
+
+.word {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--aspect);
+  overflow: visible;
+}
+
+.ink {
+  fill: var(--navy-800);
+}
+
+.strokes path {
+  fill: none;
+  stroke: var(--gold-500);
+  /* a fixed width on screen at any size; the dashes are then in screen px (--len, pre-paint) */
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--len, 0) var(--len, 0);
+  stroke-dashoffset: var(--len, 0);
+  opacity: 0;
+}
+
+@media (max-width: 699px) {
+  .strokes path {
+    stroke-width: 1.25px;
+  }
+}
+
+.tips circle {
+  opacity: 0;
+}
+
+/* सांभर: Tiro 20px, gold-700, 30px above the cap line */
+.hindi {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--seam) - var(--word-w) * var(--cap-w) - 54px);
+  margin: 0;
+  font-family: var(--font-deva);
+  font-size: 20px;
+  line-height: 24px;
+  text-align: center;
+  color: var(--gold-700);
+}
+
+.body {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: calc(var(--seam) + var(--word-w) * var(--base-w) + 40px);
+  max-width: 36ch;
+  margin: 0 auto;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.cue {
+  display: none;
+}
+
+/* reduced motion and no JS: fades only */
+:global(html:not(.motion)) .opening > * {
+  animation: fade 0.6s var(--ease-settle) both;
+}
+
+/* ---------------- motion: inside the hero's pinned stage ---------------- */
+:global(html.motion) .opening {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  height: auto;
+  min-height: 0;
+}
+
+:global(html.motion) .half[data-half='bottom'] {
+  display: block;
+}
+
+/* Static clips; the script only moves .halfIn. The top half: cut at the seam (moving with
+   it) and, on the outer layer, at the header's bottom edge (fixed to the screen). */
+:global(html.motion) .half[data-half='top'] {
+  clip-path: inset(var(--hb, 0px) 0 0 0);
+}
+
+:global(html.motion) .half[data-half='top'] .halfIn {
+  clip-path: inset(0 0 calc(100% - var(--seam)) 0);
+}
+
+:global(html.motion) .half[data-half='bottom'] .halfIn {
+  clip-path: inset(var(--seam) 0 0 0);
+}
+
+:global(html.motion) .halfIn {
+  will-change: transform;
+}
+
+/* the jar's mask (components/hero), once the halves have gone */
+.unmasked {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+:global(html.motion) .cue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--eyebrow-size);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+:global(html.motion) .cue i {
+  display: block;
+  width: 1px;
+  height: 34px;
+  background: var(--accent-line);
+  transform-origin: top;
+  animation: cue 2.2s var(--ease-settle) infinite;
+}
+
+/* ---- first visit, before the script: the engraving on its 2.4 s clock ---- */
+:global(html[data-intro='full']:not([data-intro-done])) .ink {
+  opacity: 0;
+}
+
+:global(html[data-intro='full']:not([data-intro-done])) .body,
+:global(html[data-intro='full']:not([data-intro-done])) .cue {
+  opacity: 0;
+}
+
+:global(html[data-intro='full']:not([data-opening-js])) .strokes path {
+  animation: engrave linear both;
+}
+
+:global(html[data-intro='full']:not([data-opening-js])) .hindi {
+  animation: fade 2.1s linear both;
+}
+
+/* failsafe without the script: the ink, then the outline out, then the small line and cue */
+:global(html[data-intro='full']:not([data-opening-js])) .ink {
+  animation: fade 0.8s 2.5s var(--ease-settle) both;
+}
+
+:global(html[data-intro='full']:not([data-opening-js])) .strokes {
+  animation: fade-out 0.5s 3s both;
+}
+
+:global(html[data-intro='full']:not([data-opening-js])) .body {
+  animation: fade 0.6s 3.6s var(--ease-settle) both;
+}
+
+:global(html[data-intro='full']:not([data-opening-js])) .cue {
+  animation: fade 0.6s 4s var(--ease-settle) both;
+}
+
+/* the script drives the hairlines from here (inline styles) */
+:global(html[data-opening-js]) .strokes path {
+  animation: none;
+}
+
+@keyframes engrave {
+  0% {
+    stroke-dashoffset: var(--len, 0);
+    opacity: 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes cue {
+  0% {
+    transform: scaleY(0);
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}

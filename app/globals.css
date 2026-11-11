@@ -1,0 +1,243 @@
+@import '../styles/tokens.css';
+
+/* ---------- reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--ivory-100);
+  /* Keep the scrollbar's space even while scrolling is locked (the opening, the bag), so the
+     page never changes width and nothing jumps sideways when the lock is released. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Every focusable element: a 2px gold ring offset 3px (brand book §11). */
+:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 3px;
+}
+
+/* ---------- Lenis (smooth scroll) ---------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden; /* not clip: hidden keeps the reserved scrollbar gutter */
+}
+
+/* Homepage first visit (components/opening): the header comes in after SAMBHAR is inked.
+   The script fades it; without the script a failsafe shows it after 3.6 s. */
+html[data-intro='full']:not([data-header-in]) [data-site-header] > * {
+  opacity: 0;
+}
+
+html[data-intro='full']:not([data-opening-js]):not([data-header-in]) [data-site-header] > * {
+  animation: py-intro-fade 0.6s 3.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes py-intro-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Lock page scroll while a modal (bag) is open. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* ---------- utilities ---------- */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-3) var(--space-4);
+  background: var(--navy-800);
+  color: var(--ivory-100);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.py-wrap {
+  max-width: var(--container-max);
+  margin-inline: auto;
+}
+
+/* ---------- type (brand book §4) ---------- */
+.py-eyebrow {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--eyebrow-size);
+  line-height: var(--eyebrow-leading);
+  font-weight: 600;
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.py-display {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+
+.py-d-xl {
+  font-size: var(--d-xl);
+  line-height: var(--display-xl-leading);
+}
+
+.py-d-l {
+  font-size: var(--d-l);
+  line-height: var(--display-l-leading);
+}
+
+.py-d-m {
+  font-size: var(--d-m);
+  line-height: var(--display-m-leading);
+}
+
+.py-d-s {
+  font-size: var(--display-s-size);
+  line-height: var(--display-s-leading);
+}
+
+.py-italic {
+  font-style: italic;
+}
+
+.py-lead {
+  margin: 0;
+  max-width: 44ch;
+  font-size: var(--body-l-size);
+  line-height: var(--body-l-leading);
+  color: var(--text);
+}
+
+.py-hindi {
+  font-family: var(--font-deva);
+  color: var(--accent-text);
+}
+
+.py-price {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--price-size);
+  line-height: var(--price-leading);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Split headings: each word sits in a mask so it can rise into view (brand book §9). */
+.py-ln {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+  vertical-align: top;
+}
+
+.py-ln > span {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Devanagari words (see components/HindiText). */
+.py-deva {
+  font-family: var(--font-deva);
+  letter-spacing: 0;
+}

@@ -1,0 +1,156 @@
+/*
+ * Pyoor design tokens: "Label True". Ported from docs/design-handoff/design-system/tokens.json.
+ * Don't invent values here; change tokens.json first, then mirror it.
+ *
+ * Ivory is the default theme. A section with data-theme="navy" flips every semantic token.
+ * Contrast (from the brand book): navy on ivory 13.8:1, slate-600 6.4:1, slate-500 5.5:1,
+ * gold-700 5.5:1; mist-300 on navy 7.9:1, gold-300 on navy 6.9:1.
+ * gold-500 on ivory is 3.1:1: lines and text 24px+ only. Small gold text uses --accent-text.
+ */
+:root {
+  /* ---- raw palette ---- */
+  --ivory-100: #f5f1e8;
+  --ivory-200: #ece5d6;
+  --ivory-300: #e0d6c2;
+  --navy-800: #18214a;
+  --navy-900: #121a3b;
+  --slate-600: #4f5670;
+  --slate-500: #5a6077;
+  --mist-300: #b3b8cc;
+  --gold-500: #a8823f;
+  --gold-700: #7a5c26;
+  --gold-300: #cda75e;
+  /* logo-green #208820 is reference only: never used in UI. */
+
+  /* ---- semantic (ivory) ---- */
+  --surface: var(--ivory-100);
+  --surface-alt: var(--ivory-200);
+  --surface-sunk: var(--ivory-300);
+  --ink: var(--navy-800);
+  --text: var(--slate-600);
+  --text-muted: var(--slate-500);
+  --accent-line: var(--gold-500);
+  --accent-text: var(--gold-700);
+  --button-bg: var(--navy-800);
+  --button-ink: var(--ivory-100);
+  --hairline: rgba(24, 33, 74, 0.14);
+  --hairline-strong: rgba(24, 33, 74, 0.32);
+  --crest: var(--ivory-100);
+  --danger: #9e3b2c;
+  --success: #2f6b3a;
+  --shadow-drawer: 0 24px 64px rgba(18, 26, 59, 0.18);
+  --shadow-none: none;
+
+  /* ---- type families ---- (next/font injects --font-cormorant / --font-manrope / --font-tiro) */
+  --font-display:
+    var(--font-cormorant), 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-manrope), Manrope, 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-deva: var(--font-tiro), 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', serif;
+
+  /* ---- type styles (desktop sizes from tokens.json) ---- */
+  --display-xl-size: 96px;
+  --display-xl-leading: 0.95;
+  --display-xl-tracking: -0.015em;
+  --display-l-size: 64px;
+  --display-l-leading: 1;
+  --display-l-tracking: -0.01em;
+  --display-m-size: 44px;
+  --display-m-leading: 1.05;
+  --display-m-tracking: -0.005em;
+  --display-s-size: 32px;
+  --display-s-leading: 1.1;
+  --display-italic-size: 32px;
+  --display-italic-leading: 1.2;
+  --display-weight: 500;
+
+  --body-l-size: 18px;
+  --body-l-leading: 30px;
+  --body-size: 16px;
+  --body-leading: 26px;
+  --body-s-size: 14px;
+  --body-s-leading: 22px;
+  --eyebrow-size: 12px;
+  --eyebrow-leading: 16px;
+  --eyebrow-tracking: 0.22em;
+  --nav-size: 13px;
+  --nav-leading: 20px;
+  --nav-tracking: 0.1em;
+  --button-size: 14px;
+  --button-leading: 20px;
+  --button-tracking: 0.04em;
+  --price-size: 20px;
+  --price-leading: 28px;
+  --hindi-l-size: 24px;
+  --hindi-l-leading: 34px;
+  --hindi-size: 17px;
+  --hindi-leading: 26px;
+
+  /*
+   * Fluid display ramp used by the approved prototype (concept.html). Each clamp stays inside
+   * the token scale's intent: display-xl ≈ 96px on desktop and steps down to display-l-ish on
+   * phones, never below Cormorant's 28px floor.
+   */
+  --d-xl: clamp(56px, 7.4vw, 108px);
+  --d-l: clamp(44px, 5.4vw, 76px);
+  --d-m: clamp(34px, 3.6vw, 48px);
+
+  /* ---- spacing (8px rhythm) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-12: 192px;
+
+  /* ---- radius ---- */
+  --radius-none: 0;
+  --radius-s: 4px;
+  --radius-crest: 18px;
+  --radius-pill: 999px;
+
+  /* ---- layout ---- */
+  --container-max: 1280px;
+  --measure: 62ch;
+  --gutter-mobile: 20px;
+  --gutter-desktop: 48px;
+  --gutter: clamp(var(--gutter-mobile), 4vw, var(--gutter-desktop));
+  --header-height: 84px;
+  --header-height-mobile: 64px;
+  --touch-min: 44px;
+
+  /* ---- timing ---- */
+  --duration-fast: 180ms;
+  --duration-base: 450ms;
+  --duration-slow: 900ms;
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}
+
+/* Navy sections: every semantic token flips. */
+[data-theme='navy'] {
+  --surface: var(--navy-800);
+  --surface-alt: var(--navy-900);
+  --surface-sunk: #0c1230;
+  --ink: var(--ivory-100);
+  --text: var(--mist-300);
+  --text-muted: #9aa0b8;
+  --accent-line: var(--gold-300);
+  --accent-text: var(--gold-300);
+  --button-bg: var(--gold-300);
+  --button-ink: var(--navy-800);
+  --hairline: rgba(205, 167, 94, 0.28);
+  --hairline-strong: rgba(205, 167, 94, 0.5);
+  --crest: var(--ivory-100);
+  --danger: #e59a8a;
+  --success: #9fd0a6;
+  --shadow-drawer: 0 24px 64px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}

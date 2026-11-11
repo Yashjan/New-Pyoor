@@ -1,12 +1,14 @@
 """Build Pyoor 1 kg PET jar models as GLB (glTF 2.0).
-Requires: pip install numpy pillow pygltflib
 
 Units: metres, Y up, label front panel faces +Z.
 Parts (separate nodes so a developer can swap textures/materials):
   Body  - clear PET shell (KHR_materials_transmission + ior + volume)
   Salt  - salt fill visible through the jar
   Label - wrap-around label with the real artwork
-  Lid   - dark ribbed screw lid
+  Lid   - smoky screw cap (Lid_rim edge band, Lid_thread inside)
+  Neck_thread - the jar's screw thread (stays with Body)
+
+Requires: pip install numpy pillow pygltflib
 """
 import io, math, sys, os
 import numpy as np
@@ -17,8 +19,12 @@ SEG = 128  # around-the-jar segments
 
 # ---------- dimensions (measured: 12.2 cm tall incl. cap, 10 cm diameter) ----------
 R_BODY = 0.050        # outer radius of the jar wall (10 cm diameter)
-H_BODY = 0.1065       # body top (hidden under the cap)
-R_NECK = 0.0488       # threaded neck under the cap
+H_BODY = 0.1200       # rim of the jar mouth (inside the cap)
+R_NECK = 0.0478       # threaded neck under the cap
+NECK_WALL = 0.0012    # PET wall thickness at the mouth
+THREAD_PITCH = 0.0045 # 4.5 mm per turn
+THREAD_TURNS = 2.25
+THREAD_Y0 = 0.1050    # where the jar thread starts
 NECK_Y = 0.1015
 LABEL_Y0 = 0.020      # label bottom, 2.0 cm from the base (from photo)
 LABEL_Y1 = 0.0933     # label top, 9.3 cm (from photo)
@@ -80,7 +86,12 @@ def lathe(profile, **kw):
 # ---------------------------- parts ----------------------------------------
 def body():
     # outer profile, listed top -> bottom so faces point outward
-    prof = [(R_NECK, H_BODY), (R_NECK, NECK_Y), (R_BODY - 0.0006, NECK_Y - 0.0012),
+    ri = R_NECK - NECK_WALL
+    prof = [(ri, H_BODY - 0.006), (ri, H_BODY - 0.0006), (ri + 0.0003, H_BODY),
+            (R_NECK - 0.0003, H_BODY), (R_NECK, H_BODY - 0.0006),            # rounded lip
+            (R_NECK, NECK_Y + 0.0022), (R_NECK + 0.0011, NECK_Y + 0.0016),   # shoulder bead
+            (R_NECK + 0.0011, NECK_Y + 0.0008), (R_NECK, NECK_Y + 0.0002),
+            (R_NECK, NECK_Y), (R_BODY - 0.0006, NECK_Y - 0.0012),
             (R_BODY, NECK_Y - 0.003), (R_BODY, 0.06), (R_BODY, 0.006),
             (R_BODY - 0.0012, 0.0018), (R_BODY - 0.004, 0.0004), (0.040, 0.0004), (0.0, 0.0012)]
     return lathe(prof)
@@ -130,6 +141,45 @@ def label():
         return (R_LABEL * math.sin(t), y, R_LABEL * math.cos(t))
     # artwork front panel (LABEL_FRONT_U) centred on +Z
     return grid_mesh(f, rows, u_offset=LABEL_FRONT_U - 0.5, theta_span=span, closed=False)
+
+
+def helix_thread(r, y0, turns, pitch, height, width, inward=False, seg_per_turn=96):
+    """A screw-thread ridge swept along a helix. height = radial size, width = vertical size.
+    The ends taper to nothing, like a moulded thread run-out."""
+    n = int(turns * seg_per_turn) + 1
+    sgn = -1.0 if inward else 1.0
+    prof = [(0.0, -width / 2), (height, -width * 0.18), (height, width * 0.18), (0.0, width / 2)]
+    if inward:
+        prof = prof[::-1]
+    pos, uv = [], []
+    for k in range(n):
+        t = k / (n - 1)
+        th = t * turns * 2 * math.pi
+        taper = min(1.0, t / 0.06, (1 - t) / 0.06)
+        yc = y0 + pitch * th / (2 * math.pi)
+        for dr, dy in prof:
+            rr = r + sgn * dr * taper
+            pos.append((rr * math.sin(th), yc + dy * max(taper, 0.35), rr * math.cos(th)))
+            uv.append((t, 0.0))
+    pos = np.array(pos, np.float32); uv = np.array(uv, np.float32)
+    m = len(prof); idx = []
+    for k in range(n - 1):
+        for j in range(m - 1):
+            a = k * m + j; b = a + m
+            idx += [(a, a + 1, b), (a + 1, b + 1, b)]
+    idx = np.array(idx, np.uint32)
+    nrm = compute_normals(pos, idx, 0)
+    return pos, nrm, uv, idx
+
+
+def neck_thread():
+    return helix_thread(R_NECK, THREAD_Y0, THREAD_TURNS, THREAD_PITCH, 0.0009, 0.0019)
+
+
+def lid_thread():
+    # inside the cap, half a pitch above the jar thread so the two interlock when closed
+    return helix_thread(R_LID - LID_T, THREAD_Y0 + THREAD_PITCH / 2, THREAD_TURNS - 0.25,
+                        THREAD_PITCH, 0.0008, 0.0017, inward=True)
 
 
 def lid():
@@ -248,14 +298,16 @@ def build(label_path, salt_name, out_path):
     m_salt = w.material("Salt_crystals", tex=t_alb, normal=t_nrm, nscale=1.0, mr=t_mr, roughness=1.0)
     m_label = w.material("Label", tex=t_label, roughness=0.38, double=True)
     # smoky transparent cap: tinted by thickness, like the real jar
-    m_lid = w.material("Lid_smoky_PET", color=[0.78, 0.78, 0.80, 1.0], roughness=0.05, transmission=1.0,
-                       thickness=0.0016, att_dist=0.006, att_color=[0.40, 0.40, 0.42], double=True)
+    m_lid = w.material("Lid_smoky_PET", color=[0.70, 0.70, 0.72, 1.0], roughness=0.05, transmission=1.0,
+                       thickness=0.0016, att_dist=0.004, att_color=[0.33, 0.33, 0.35], double=True)
     m_rim = w.material("Lid_rim", color=[0.07, 0.07, 0.08, 1.0], roughness=0.12)
     w.mesh("Salt", salt(), m_salt)
     w.mesh("Salt_top", salt_top(), m_salt)
     w.mesh("Label", label(), m_label)
     w.mesh("Lid", lid(), m_lid)
     w.mesh("Lid_rim", lid_rim(), m_rim)
+    w.mesh("Lid_thread", lid_thread(), m_lid)
+    w.mesh("Neck_thread", neck_thread(), m_body)
     w.mesh("Body", body(), m_body)
     w.save(out_path)
 

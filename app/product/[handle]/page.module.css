@@ -1,0 +1,19 @@
+.main {
+  min-height: 70vh;
+  padding: calc(var(--header-height) + var(--space-9)) var(--gutter) var(--space-10);
+}
+
+.main :global(.py-wrap) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.hindi {
+  font-size: var(--hindi-l-size);
+  line-height: var(--hindi-l-leading);
+}
+
+.meta {
+  color: var(--text-muted);
+}

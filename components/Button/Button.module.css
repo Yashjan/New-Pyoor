@@ -1,0 +1,74 @@
+/* From design-system/components.css (.py-btn, .py-link); 50px tall like the prototype. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 0 30px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: var(--button-size);
+  font-weight: 600;
+  line-height: var(--button-leading);
+  letter-spacing: var(--button-tracking);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    filter var(--duration-fast) var(--ease-settle),
+    background-color var(--duration-fast) var(--ease-settle),
+    border-color var(--duration-fast) var(--ease-settle);
+}
+
+.primary {
+  background: var(--button-bg);
+  color: var(--button-ink);
+}
+
+.primary:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--hairline-strong);
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.btn:disabled {
+  background: var(--surface-sunk);
+  border-color: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+  filter: none;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  font-family: var(--font-sans);
+  font-size: var(--body-s-size);
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  background: linear-gradient(var(--accent-line), var(--accent-line)) 0 calc(50% + 12px) / 100% 1px
+    no-repeat;
+  transition:
+    background-size var(--duration-base) var(--ease-settle),
+    background-position 0s;
+}
+
+.link:hover {
+  background-size: 0 1px;
+  background-position: 100% calc(50% + 12px);
+}

@@ -1,0 +1,400 @@
+/*
+ * Two layouts, keyed on html.motion (set before first paint in app/layout.tsx when JS runs and
+ * the visitor hasn't asked for reduced motion):
+ *   static  the filled SAMBHAR screen, then copy + poster side by side, the beats below.
+ *   motion  the pinned stage: the opening (components/opening, the first 120vh), then the
+ *           520vh jar sequence from concept.html: canvas fills the screen, text on top.
+ */
+
+/* ---------------- static (no JS / reduced motion) ---------------- */
+.hero {
+  position: relative;
+  background: var(--ivory-100);
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-7) clamp(32px, 6vw, 96px);
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-8);
+  background: var(--ivory-100);
+}
+
+/* the header's Journey link: below the SAMBHAR screen, or once the handover is done */
+.journeyAnchor {
+  position: absolute;
+  top: 72vh;
+}
+
+:global(html.motion) .journeyAnchor {
+  top: 50vh;
+}
+
+.gl,
+.rail,
+.glow,
+.grain {
+  display: none;
+}
+
+/* static: the poster is a grid item of its own */
+.jarLayer,
+.jarMask,
+.jarBack {
+  display: contents;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 620px;
+}
+
+.cta {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+.trust {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  max-width: 520px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.horizonLine {
+  max-width: 520px;
+}
+
+.copyIn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.copy {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.poster {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: center;
+  width: min(30vw, 380px);
+  height: auto;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+/* reduced motion: the pour's end, over the closed jar, crossfaded in (JarHero.tsx) */
+.posterFinal {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: center;
+  justify-self: center;
+  width: min(48vw, 640px);
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.poured .posterFinal {
+  opacity: 1;
+}
+
+.poured .poster {
+  opacity: 0;
+}
+
+:global(html.motion) .posterFinal {
+  display: none;
+}
+
+.beat {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
+}
+
+.beat p {
+  margin: 0;
+}
+
+.b3 {
+  grid-column: 1 / -1;
+  max-width: 900px;
+  margin: 0 auto;
+  align-items: center;
+  text-align: center;
+}
+
+.b3 :global(.py-lead) {
+  max-width: 40ch;
+}
+
+@media (max-width: 860px) {
+  .stage {
+    grid-template-columns: 1fr;
+    padding-top: calc(var(--header-height-mobile) + var(--space-5));
+  }
+
+  .poster {
+    grid-column: 1;
+    grid-row: 4;
+    width: 56vw;
+  }
+
+  .h1 {
+    font-size: 44px;
+  }
+}
+
+/* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
+:global(html.motion) .hero {
+  height: 900vh; /* the Journey's 500vh (the opening runs behind it), the pour's 300vh, the pinned screen */
+}
+
+:global(html.motion) .stage {
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 100vh;
+  height: 100svh;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* the dawn glow: gold-500, at most ~11% in the centre of the opening (opacity from the script) */
+:global(html.motion) .glow {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: radial-gradient(
+    42% 36% at 50% 50%,
+    var(--gold-500) 0%,
+    rgba(168, 130, 63, 0.35) 55%,
+    rgba(168, 130, 63, 0) 100%
+  );
+  opacity: 0;
+}
+
+/* a static grain (±2 levels) over the glow: breaks the 8-bit steps that show as rings */
+:global(html.motion) .grain {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: url('../../public/images/grain.png');
+}
+
+/* The jar (3D or poster), hidden below the opening's bottom edge (16px feather) while the
+   halves are in view. The mask is static, three screens tall with its edge on the seam; the
+   opening moves it down with the bottom half and .jarBack back up (transforms only). Before
+   any script runs, the edge sits at half the height and the jar 30% below it: hidden. */
+:global(html.motion) .jarLayer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 1;
+  overflow: hidden;
+}
+
+:global(html.motion) .jarMask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -100%;
+  display: block;
+  height: 300%;
+  mask-image: linear-gradient(
+    #000 calc(33.333% + var(--seam, 16.667%) - 16px),
+    transparent calc(33.333% + var(--seam, 16.667%))
+  );
+  will-change: transform;
+}
+
+:global(html.motion) .jarBack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 33.333%;
+  display: block;
+  height: 33.334%;
+  will-change: transform;
+}
+
+:global(html.motion) .gl {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The poster stands in until the first 3D frame, exactly where the 3D jar renders: 39.4% of the
+   height, centred 50% across (62% once it has glided) and 51.1% down. The opening moves it
+   (translate, rotate) with the 3D jar's rise, tilt and glide. */
+:global(html.motion) .poster {
+  position: absolute;
+  left: 50%;
+  top: 51.1%;
+  width: auto;
+  height: 39.4%;
+  transform: translate(-50%, -50%);
+  translate: 0 30vh;
+  transform-origin: 50% 100%;
+  transition: opacity var(--duration-slow) var(--ease-settle);
+}
+
+:global(html.motion) .gone {
+  opacity: 0;
+}
+
+/* the headline column: from 8% of the width to 72px short of the jar, centred on the line */
+:global(html.motion) .copy {
+  position: absolute;
+  z-index: 3;
+  left: 8vw;
+  top: 50%;
+  width: min(560px, calc(54vw - 15.2svh - 72px));
+  transform: translateY(-50%);
+}
+
+:global(html.motion) .copyIn {
+  gap: 28px;
+  opacity: 0;
+}
+
+/* keyboard users reach the CTA before it has faded in */
+:global(html.motion) .copyIn:focus-within {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:global(html.motion) .h1 {
+  font-size: clamp(44px, 4.45vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+:global(html.motion) .trust,
+:global(html.motion) .horizonLine {
+  width: 100%;
+  max-width: 520px;
+}
+
+:global(html.motion) .horizonLine {
+  margin-top: -8px;
+}
+
+:global(html.motion) .beat {
+  position: absolute;
+  z-index: 3;
+  opacity: 0;
+  visibility: hidden;
+}
+
+:global(html.motion) .b1 {
+  left: var(--gutter);
+  bottom: 16%;
+}
+
+:global(html.motion) .b2 {
+  right: var(--gutter);
+  top: 30%;
+  align-items: flex-end;
+  text-align: right;
+}
+
+:global(html.motion) .b3 {
+  left: 0;
+  right: 0;
+  top: 16%;
+}
+
+:global(html.motion) .rail {
+  position: absolute;
+  z-index: 3;
+  left: var(--gutter);
+  bottom: 34px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: var(--eyebrow-size);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0;
+}
+
+.track {
+  position: relative;
+  width: 120px;
+  height: 1px;
+  overflow: hidden;
+  background: var(--hairline-strong);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-line);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+@media (max-width: 860px) {
+  /* phones: the headline and CTA sit below the centred jar */
+  :global(html.motion) .copy {
+    left: var(--gutter);
+    right: var(--gutter);
+    top: calc(61.05% + 24px);
+    width: auto;
+    transform: none;
+  }
+
+  :global(html.motion) .copyIn {
+    gap: 20px;
+  }
+
+  :global(html.motion) .trust,
+  :global(html.motion) .horizonLine {
+    display: none;
+  }
+
+  /* phones (360–430 wide): 22.1% of the height, centred 50% across and 50% down */
+  :global(html.motion) .poster {
+    left: 49.7%;
+    top: 50%;
+    height: 22.1%;
+  }
+
+  :global(html.motion) .b1,
+  :global(html.motion) .b2 {
+    top: auto;
+    bottom: 84px;
+    left: var(--gutter);
+    right: var(--gutter);
+    max-width: none;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  :global(html.motion) .b3 {
+    top: 92px;
+    padding: 0 var(--gutter);
+  }
+}
