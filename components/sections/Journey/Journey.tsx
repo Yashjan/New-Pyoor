@@ -8,6 +8,7 @@ import { whenEngraved, whenIntroDone } from '@/lib/loader/prefetch';
 import { LIVE, PANORAMA } from './panorama';
 import { LiveLayer, createLiving } from './Living';
 import styles from './Journey.module.css';
+import { asset } from '@/lib/basePath';
 
 const SCENES = [
   {
@@ -451,7 +452,9 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     await whenIntroDone(controller.signal);
     const texts = await Promise.all(
       LAYERS.map((l) =>
-        fetch(`/engravings/journey-${l}.svg`, { signal: controller.signal }).then((r) => r.text()),
+        fetch(asset(`/engravings/journey-${l}.svg`), { signal: controller.signal }).then((r) =>
+          r.text(),
+        ),
       ),
     );
     if (cancelled) return;
@@ -573,7 +576,7 @@ export function Journey() {
                 // eslint-disable-next-line @next/next/no-img-element -- SVG drawings, nothing to optimise
                 <img
                   key={l}
-                  src={`/engravings/journey-${l}.svg`}
+                  src={asset(`/engravings/journey-${l}.svg`)}
                   alt=""
                   loading="lazy"
                   style={
@@ -591,7 +594,7 @@ export function Journey() {
                 // eslint-disable-next-line @next/next/no-img-element -- a still, sized by the frame
                 <img
                   className={styles.frameJar}
-                  src="/images/renders/jar-black.webp"
+                  src={asset('/images/renders/jar-black.webp')}
                   alt=""
                   loading="lazy"
                   style={

@@ -9,6 +9,7 @@
  */
 import { JOURNEY, JOURNEY_VH, SEQUENCE_START_VH, STEP, clamp01 } from '@/lib/motion/opening';
 import { pourRate } from '@/lib/motion/pour';
+import { asset } from '@/lib/basePath';
 
 export type SoundName =
   'wind-loop' | 'water-loop' | 'pour-loop' | 'rake' | 'jar-tone' | 'cap-clicks';
@@ -122,7 +123,7 @@ async function load() {
   const decoded = await Promise.all(
     FILES.map(async (name) => {
       try {
-        const res = await fetch(`/sounds/${name}.mp3`);
+        const res = await fetch(asset(`/sounds/${name}.mp3`));
         if (!res.ok) throw new Error(`${res.status}`);
         return [name, await c.decodeAudioData(await res.arrayBuffer())] as const;
       } catch (err) {

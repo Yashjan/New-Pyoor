@@ -7,6 +7,7 @@ import { useCart } from '@/components/providers/CartProvider';
 import { lenisStore } from '@/lib/motion/lenis';
 import { SoundToggle } from './SoundToggle';
 import styles from './SiteHeader.module.css';
+import { asset } from '@/lib/basePath';
 
 const NAV = [
   { href: '/#shop', label: 'Shop' },
@@ -106,7 +107,7 @@ export function SiteHeader() {
         </nav>
         <Link className={styles.logo} href="/#top" aria-label="Pyoor home" data-header-logo>
           <Image
-            src="/brand/pyoor-logo.png"
+            src={asset('/brand/pyoor-logo.png')}
             alt=""
             width={629}
             height={264}

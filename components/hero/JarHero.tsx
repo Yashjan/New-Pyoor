@@ -12,6 +12,7 @@ import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
+import { asset } from '@/lib/basePath';
 
 const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
 
@@ -154,7 +155,7 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
               <canvas ref={canvasRef} className={styles.gl} aria-hidden="true" />
               <Image
                 className={`${styles.poster} ${posterGone ? styles.gone : ''}`}
-                src="/images/renders/jar-black.webp"
+                src={asset('/images/renders/jar-black.webp')}
                 alt="Pyoor Herbal Black Salt jar"
                 width={1206}
                 height={1570}
@@ -164,7 +165,7 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
               {/* reduced motion: no pour; the closed jar crossfades to its end (jar, cap, mound) */}
               <Image
                 className={styles.posterFinal}
-                src="/images/renders/jar-pour-final.webp"
+                src={asset('/images/renders/jar-pour-final.webp')}
                 alt=""
                 width={2320}
                 height={980}

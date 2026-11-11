@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { site } from '@/lib/site';
 import styles from './Footer.module.css';
 import { NewsletterForm } from './NewsletterForm';
+import { asset } from '@/lib/basePath';
 
 /** Navy footer with the logo on its ivory crest (concept.html). Copy is the prototype's. */
 export function Footer() {
@@ -11,7 +12,13 @@ export function Footer() {
     <footer className={styles.footer} data-theme="navy">
       <div className={styles.top}>
         <Link className={styles.crest} href="/#top" aria-label="Back to top">
-          <Image src="/brand/pyoor-logo.png" alt="" width={629} height={264} sizes="110px" />
+          <Image
+            src={asset('/brand/pyoor-logo.png')}
+            alt=""
+            width={629}
+            height={264}
+            sizes="110px"
+          />
         </Link>
       </div>
       <div className={styles.grid}>

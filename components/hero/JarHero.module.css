@@ -197,7 +197,7 @@
   position: absolute;
   inset: 0;
   display: block;
-  background: url('/images/grain.png');
+  background: url('../../public/images/grain.png');
 }
 
 /* The jar (3D or poster), hidden below the opening's bottom edge (16px feather) while the

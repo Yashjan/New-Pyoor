@@ -7,6 +7,7 @@
 import { PRICES_INR } from './pricing';
 import type { Image, Money, Product } from './types';
 import { modelUrl } from '@/lib/three/models';
+import { asset } from '@/lib/basePath';
 
 /** Price for a variant from pricing.ts (null while not set). */
 function priceOf(variantId: string): Money | null {
@@ -19,14 +20,14 @@ const PACKED_BY =
   'Pyoor Global Enterprises, 58-R Shiv Vihar Colony, Phulera Road, Sambhar Lake, Jaipur, Rajasthan 303604';
 
 const blackSaltPhoto: Image = {
-  url: '/images/jar-black-salt-photo.jpg',
+  url: asset('/images/jar-black-salt-photo.jpg'),
   alt: 'Pyoor Herbal Black Salt in a 1 kg clear jar',
   width: 1400,
   height: 1867,
 };
 
 const pairPhoto: Image = {
-  url: '/images/jars-dusk.jpg',
+  url: asset('/images/jars-dusk.jpg'),
   alt: 'Pyoor Herbal Black Salt and Natural Lake Salt jars side by side at dusk',
   width: 1400,
   height: 1405,

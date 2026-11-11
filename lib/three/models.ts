@@ -2,6 +2,8 @@
 // Content hashes of public/models/*.glb: they version the URLs, because the models are
 // served with an immutable cache header and a rebuild keeps the same filenames.
 
+import { asset } from '@/lib/basePath';
+
 const HASHES: Record<string, string> = {
   'pyoor-herbal-black-salt.glb': '3c85b27407',
   'pyoor-himalayan-pink-salt.glb': '270ea54f07',
@@ -12,5 +14,5 @@ const HASHES: Record<string, string> = {
 export function modelUrl(file: string): string {
   const hash = HASHES[file];
   if (!hash) throw new Error(`Unknown model "${file}": run npm run models`);
-  return `/models/${file}?v=${hash}`;
+  return asset(`/models/${file}?v=${hash}`);
 }

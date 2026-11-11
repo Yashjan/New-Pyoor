@@ -4,6 +4,7 @@ import { SplitText } from '@/components/SplitText/SplitText';
 import type { Product } from '@/lib/commerce';
 import shell from '../section.module.css';
 import styles from './Salts.module.css';
+import { asset } from '@/lib/basePath';
 
 /** The two launch salts, one at a time, alternating sides. */
 export function Salts({ black, lake }: { black: Product | null; lake: Product | null }) {
@@ -22,7 +23,7 @@ export function Salts({ black, lake }: { black: Product | null; lake: Product | 
             <ProductFeature
               product={black}
               render={{
-                src: '/images/renders/jar-black.webp',
+                src: asset('/images/renders/jar-black.webp'),
                 alt: 'Pyoor Herbal Black Salt, 1 kg jar',
               }}
               tag="Herbal black salt"
@@ -35,7 +36,7 @@ export function Salts({ black, lake }: { black: Product | null; lake: Product | 
               reverse
               product={lake}
               render={{
-                src: '/images/renders/jar-lake.webp',
+                src: asset('/images/renders/jar-lake.webp'),
                 alt: 'Pyoor Natural Lake Salt, 1 kg jar',
               }}
               tag="Natural lake salt"

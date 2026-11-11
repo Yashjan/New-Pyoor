@@ -10,7 +10,7 @@
 .bg {
   position: absolute;
   inset: -10%;
-  background: url('/images/textures/crystals.jpg') center / 520px repeat;
+  background: url('../../../public/images/textures/crystals.jpg') center / 520px repeat;
   opacity: 0.55;
   will-change: transform;
 }
