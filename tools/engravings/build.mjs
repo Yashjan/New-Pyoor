@@ -10,6 +10,7 @@ import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Plate, curve, rect, clamp, lerp, inside, H } from './engrave.mjs';
+import { CAM, projectJar } from './jar3d.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '../../public/engravings');
@@ -656,6 +657,10 @@ function jar(P, cx) {
   }
   P.block(hp);
   P.paper(hp);
+  // The jar itself is now drawn from the 3D model (jarLive). These strokes keep the plate's
+  // random stream as approved and are left out; their blocks are released again.
+  const free = P.blocks();
+  P.at('drop');
   // the smooth cap, two fine grooves
   const capPoly = [
     ...curve(
@@ -816,6 +821,8 @@ function jar(P, cx) {
   }
   P.block([...body, body[0]]);
   P.paper([...body, body[0]]);
+  P.release(free);
+  P.at(4);
   return { crest, foot, jw, sc };
 }
 
@@ -1142,6 +1149,95 @@ function birdsLive(c0) {
   };
 }
 
+/**
+ * 05: the jar, from the 3D model and the hero camera's first frame (jar3d.mjs), standing on its
+ * heap: outline, cap rim, groove and bottom, shoulder, label edges (an inset hairline inside
+ * them), base. Its own overlay, so it can glide to where the 3D jar appears (Journey step 2).
+ */
+function jarLive(cx, foot) {
+  const J = projectJar();
+  const ys = J.outline.map((q) => q[1]);
+  const top = Math.min(...ys);
+  const bottom = Math.max(...ys);
+  const kp = 333 / (bottom - top); // the same height as the approved plate's jar
+  const ax = J.anchors.base[0];
+  const map = ([x, y]) => [cx + (x - ax) * kp, foot + (y - bottom) * kp];
+  const outline = J.outline.map(map);
+  const E = Object.fromEntries(Object.entries(J.edges).map(([k, v]) => [k, v.map(map)]));
+  const xs = outline.map((q) => q[0]);
+  const jw = (Math.max(...xs) - Math.min(...xs)) / 2;
+  const jc = (Math.max(...xs) + Math.min(...xs)) / 2;
+  const Pj = Plate(707, { vignette: false, width: L.far.width });
+  const band = (a, b) => [...a, ...[...b].reverse(), a[0]];
+
+  Pj.paper([...outline, outline[0]]);
+  Pj.line([...outline, outline[0]], { w: 1.4, t: 2, amp: 0.08, taper: false, swell: true });
+  Pj.line(E.capRim, { w: 0.75, t: 3, amp: 0.05, taper: 'ends' });
+  Pj.line(E.capGroove, { w: 0.5, t: 3, amp: 0.05, taper: 'ends' });
+  Pj.line(E.capBottom, { w: 1, t: 2, amp: 0.05, taper: false });
+  Pj.line(E.shoulder, { w: 0.75, t: 3, amp: 0.05, taper: 'ends' });
+  Pj.line(E.labelTop, { w: 1, t: 3, amp: 0.05, taper: false });
+  Pj.line(E.labelBottom, { w: 1, t: 3, amp: 0.05, taper: false });
+  Pj.line(E.base, { w: 0.75, t: 4, amp: 0.1, taper: 'ends' });
+  // the label's hairline border, 9 units inside its edges
+  const inset = (arc, dy) =>
+    arc.filter(([x]) => x > jc - jw + 9 && x < jc + jw - 9).map(([x, y]) => [x, y + dy]);
+  const iTop = inset(E.labelTop, 9);
+  const iBot = inset(E.labelBottom, -9);
+  Pj.line([...iTop, ...[...iBot].reverse(), iTop[0]], { w: 0.5, t: 4, amp: 0.05, taper: false });
+
+  // tone, as the approved plate: the cap and label shaded on the right, glass lightly hatched
+  const cap = band(E.capRim, E.capBottom);
+  Pj.hatch(cap, {
+    angle: 90,
+    gap: 2,
+    t: 3,
+    shade: (x) => (x - (jc + jw * 0.6)) / 44 + 0.08,
+    over: (x) => x > jc + jw - 16,
+  });
+  Pj.hatch(cap, { angle: 90, gap: 2.6, t: 3, shade: (x) => (jc - jw * 0.84 - x) / 24 });
+  const lab = band(E.labelTop, E.labelBottom);
+  Pj.hatch(lab, {
+    angle: 90,
+    gap: 2,
+    t: 5,
+    shade: (x) => (x - (jc + jw * 0.69)) / 38 + 0.05,
+    over: (x) => x > jc + jw - 14,
+  });
+  Pj.hatch(lab, { angle: 90, gap: 2.6, t: 5, shade: (x) => (jc - jw * 0.85 - x) / 22 });
+  for (const g of [band(E.shoulder, E.labelTop), band(E.labelBottom, E.base)]) {
+    Pj.hatch(g, {
+      angle: 0,
+      gap: 2.9,
+      t: 5,
+      max: 3.5,
+      jitter: 0.9,
+      shared: true,
+      shade: () => Pj.rnd() * 0.42,
+    });
+    Pj.hatch(g, {
+      angle: 60,
+      gap: 2.4,
+      t: 5,
+      shared: true,
+      shade: (x) => (x - (jc + jw * 0.62)) / 46,
+    });
+  }
+  const r2 = (q) => q.map((v) => Math.round(v * 10) / 10);
+  return {
+    outline,
+    live: {
+      layer: 'far',
+      s: 4,
+      box: bbox(outline, 6),
+      html: inner(Pj),
+      // where the page aligns it with the 3D jar (the same points projected live)
+      anchors: { base: r2(map(J.anchors.base)), top: r2(map(J.anchors.top)) },
+      model: { jarX: CAM.jarX, jarY: CAM.jarY, top: Math.round(J.heights.lidY1 * 1e5) / 1e5 },
+    },
+  };
+}
+
 /** The near layer's pans, one block per scene: double bunds, brine, a patchwork of toned pans. */
 function nearPans(P, skip, evap) {
   const T = 7;
@@ -1280,7 +1376,11 @@ function buildFar() {
   const C = L.far.centers;
   // the jar, on its heap, at dusk
   P.at(4);
-  LIVE.glints = glintsLive(jar(P, C[4] + JAR_DX), C[4] + JAR_DX);
+  const heap = jar(P, C[4] + JAR_DX);
+  LIVE.glints = glintsLive(heap, C[4] + JAR_DX);
+  const J = jarLive(C[4] + JAR_DX, heap.foot);
+  P.block([...J.outline, J.outline[0]]); // what stands behind the jar stops at its outline
+  LIVE.jar = J.live;
   LIVE.birds = birdsLive(C[0]);
   // far mounds per scene: [dx, base y, radius, height]
   const groups = [
@@ -1363,7 +1463,7 @@ function buildFar() {
     }
   }
   P.within(null);
-  return P.svg(STYLE);
+  return drop(P.svg(STYLE));
 }
 
 /** A sky for each hour: no repeated band. Neighbours fade into each other. */

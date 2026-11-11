@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
+import { POUR_END, POUR_START } from '@/lib/motion/pour';
 
 /**
  * The homepage's scroll choreography (concept.html), set up once GSAP has loaded.
@@ -101,7 +102,9 @@ export function HomeMotion() {
           );
         }
 
-        // ---- hero beats: a paused timeline whose progress is the jar sequence's progress ----
+        // ---- hero beats: a paused timeline whose progress is the pour's progress ----
+        // (lib/motion/pour.ts): the first line while the cap comes off, the second as the
+        // stream starts, the third on the finished mound
         const hero = document.querySelector<HTMLElement>('[data-hero]');
         if (hero) {
           const sel = (s: string) => hero.querySelector(s);
@@ -116,24 +119,24 @@ export function HomeMotion() {
             .fromTo(
               sel('[data-beat="1"]'),
               { autoAlpha: 0, y: 30 },
-              { autoAlpha: 1, y: 0, duration: 0.05 },
-              0.1,
+              { autoAlpha: 1, y: 0, duration: 0.04 },
+              0.06,
             )
-            .to(sel('[data-beat="1"]'), { autoAlpha: 0, y: -30, duration: 0.05 }, 0.27)
+            .to(sel('[data-beat="1"]'), { autoAlpha: 0, y: -30, duration: 0.04 }, 0.25)
             .fromTo(
               sel('[data-beat="2"]'),
               { autoAlpha: 0, y: 30 },
-              { autoAlpha: 1, y: 0, duration: 0.06 },
-              0.46,
+              { autoAlpha: 1, y: 0, duration: 0.05 },
+              POUR_START,
             )
-            .to(sel('[data-beat="2"]'), { autoAlpha: 0, y: -30, duration: 0.06 }, 0.66)
+            .to(sel('[data-beat="2"]'), { autoAlpha: 0, y: -30, duration: 0.04 }, POUR_END)
             .fromTo(
               sel('[data-beat="3"]'),
               { autoAlpha: 0, y: 40 },
-              { autoAlpha: 1, y: 0, duration: 0.07 },
-              0.87,
+              { autoAlpha: 1, y: 0, duration: 0.03 },
+              0.955, // once the jar has landed: the hold
             )
-            .to({}, { duration: 0.02 }, 0.98);
+            .to({}, { duration: 0.01 }, 0.99);
 
           const railText = sel('[data-rail-text]');
           const railFill = hero.querySelector<HTMLElement>('[data-rail-fill]');
@@ -155,7 +158,7 @@ export function HomeMotion() {
               if (railFill) railFill.style.transform = `scaleX(${s.progress})`;
               if (railText)
                 railText.textContent =
-                  (s.progress < 0.4 ? '01' : s.progress < 0.8 ? '02' : '03') + ' / 03';
+                  (s.progress < POUR_START ? '01' : s.progress < 0.88 ? '02' : '03') + ' / 03';
             },
           });
         }

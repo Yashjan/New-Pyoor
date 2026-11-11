@@ -10,19 +10,38 @@ export const OPEN_VH = 1.2;
 
 /**
  * The Journey panorama (components/sections/Journey) comes straight after the SAMBHAR screen:
- * 50vh to hand over, 250vh of panorama, then 100vh in which it lifts away like a released pin.
- * The opening's split runs unseen behind it, so what the panorama uncovers is the jar beside
- * its headline; the jar sequence follows from there.
+ * 50vh to hand over, 250vh of panorama, then 200vh of step 2, in which the engraved jar becomes
+ * the 3D jar (the landscape un-draws, the engraving glides onto the 3D jar, which is revealed
+ * under it). The opening's split runs unseen behind it; the jar sequence follows from there.
  */
-export const JOURNEY_VH = 4;
+export const JOURNEY_VH = 5;
 /** Where the panorama's phases end, as fractions of the Journey's scroll. */
 export const JOURNEY = { in: 0.5 / JOURNEY_VH, out: 3 / JOURNEY_VH } as const;
+/**
+ * Step 2's phases, as fractions of its scroll: the landscape withdraws into the horizon (slowly:
+ * lines withdrawing, not a fade), the engraving glides onto the 3D jar, the paper goes, the 3D
+ * jar is revealed from the bottom up, the gold lines fade, and the jar sequence takes over.
+ */
+export const STEP = {
+  undraw: [0, 0.5],
+  caption: [0, 0.4],
+  glide: [0.35, 0.6],
+  paper: [0.5, 0.6],
+  reveal: [0.6, 0.86],
+  lines: [0.8, 0.92],
+  hand: [0.92, 1],
+} as const;
+
 /** Where the opening starts (behind the panorama: it is three-quarters done as it lifts). */
 export const OPEN_START_VH = 2.15;
 /** Where the jar sequence starts: once the panorama has gone. */
 export const SEQUENCE_START_VH = JOURNEY_VH;
-/** True while the panorama fully covers the stage: the 3D scene needn't render behind it. */
-export const journeyStore = { covered: false };
+/**
+ * covered: the panorama fully covers the stage (the 3D scene needn't render behind it).
+ * calm: 0–1, holds the jar still (no idle float, no pointer tilt) while step 2 lines the
+ * engraving up on it; 0 from the first frame of the jar sequence on.
+ */
+export const journeyStore = { covered: false, calm: 0 };
 
 let progress = 0;
 

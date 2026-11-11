@@ -1,34 +1,65 @@
-import { Group, Vector3, type Mesh, type Object3D } from 'three';
-import { clamp01, ease, smooth } from './math';
+import {
+  Color,
+  Group,
+  Matrix4,
+  MeshPhysicalMaterial,
+  Quaternion,
+  Vector3,
+  type Mesh,
+  type Object3D,
+} from 'three';
+import {
+  CAP_C,
+  CAP_RISE,
+  CAP_TILT,
+  CAP_TURNS,
+  H,
+  R,
+  capAwayAt,
+  capRest,
+  pivotAt,
+  tiltAt,
+  unscrewAt,
+} from '@/lib/motion/pour';
+import { jarStartX } from '@/lib/motion/heroCamera';
+import { smooth } from './math';
 import type { HeroLayout } from './layout';
 
-/** Jar dimensions in metres (12.2 cm tall, 10 cm across). */
-export const R = 0.05;
-export const H = 0.122;
-/** ~113°: how far the jar tips to pour. */
-export const TILT = 1.98;
-/** The pivot sits on the left edge of the base, so the jar tips around it. */
-const PIVOT_DX = -R;
-/** Lowest point of the lip when fully tilted, in jar space. */
-const MOUTH_LOCAL = new Vector3(-R + 0.004, H - 0.016, 0);
-/** Screw thread: 4.5 mm pitch; the cap comes off in 2.5 turns. */
-const THREAD_PITCH = 0.0045;
-const UNSCREW_TURNS = 2.5;
+export { H, R };
 /** The cap: these nodes turn and lift together. Neck_thread stays on the jar. */
 const LID_PARTS = ['Lid', 'Lid_rim', 'Lid_thread'] as const;
-/** The jar casts no realtime shadow: a soft contact ellipse (ground.ts) sits under it. */
 
 export interface JarRig {
   /** Tilts around the jar's bottom-left edge. */
   pivot: Group;
   /** The jar itself, offset inside the pivot. */
   jar: Group;
-  /** Lid + Lid_rim + Lid_thread, animated together. */
+  /** Lid + Lid_rim + Lid_thread: its own object in the scene (poseCap sets its matrix). */
   lid: Group;
   saltTop: Object3D;
   /** Salt_top's loaded y (meshopt quantization gives every node a base transform). */
   saltTopY0: number;
   meshes: Record<string, Mesh>;
+}
+
+/** Clear PET for the open neck and the body: no white, a faint warm grey in the plastic. */
+function clearPet(old: MeshPhysicalMaterial | undefined) {
+  const m = new MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0,
+    roughness: 0.06,
+    transmission: 1,
+    ior: 1.57,
+    thickness: 0.0015,
+    attenuationColor: new Color('#d9d2c7'),
+    attenuationDistance: 0.06,
+    specularIntensity: 1,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.06,
+  });
+  m.envMapIntensity = 1.1;
+  old?.dispose();
+  return m;
 }
 
 /**
@@ -47,6 +78,8 @@ export function createJarRig(model: Object3D): JarRig {
   for (const name of ['Body', 'Salt', 'Salt_top', 'Label', ...LID_PARTS, 'Neck_thread']) {
     if (!meshes[name]) throw new Error(`Jar model is missing node "${name}"`);
   }
+  for (const name of ['Body', 'Neck_thread'] as const)
+    meshes[name]!.material = clearPet(meshes[name]!.material as MeshPhysicalMaterial);
 
   const pivot = new Group();
   const jar = new Group();
@@ -54,37 +87,15 @@ export function createJarRig(model: Object3D): JarRig {
   pivot.add(jar);
   jar.add(model);
   jar.add(lid);
-  jar.position.x = -PIVOT_DX;
+  jar.position.x = R; // the pivot is the base's left edge
   pivot.updateMatrixWorld(true);
   for (const name of LID_PARTS) lid.attach(meshes[name]!);
+  // the cap's parts, relative to the jar's frame: the lid group's matrix is set per frame
+  jar.remove(lid);
+  lid.matrixAutoUpdate = false;
 
   const saltTop = meshes.Salt_top!;
   return { pivot, jar, lid, saltTop, saltTopY0: saltTop.position.y, meshes };
-}
-
-/**
- * The jar's resting x (metres) at progress p. At p = 0 it stands at 62% of the width, where
- * the opening's glide leaves it (`glide` 0–1: from the centre); as the headline leaves
- * (p .03–.2) it eases out to its original place beside the old headline column, so the
- * sequence from p .2 on is exactly as before.
- */
-export function restX(p: number, layout: HeroLayout, glide = 1): number {
-  return layout.jx * (0.558 + 0.442 * smooth(0.03, 0.2, p)) * glide;
-}
-
-/** Pivot pose for progress p (the tilt). Pure function of p and layout. */
-export function setJar(rig: JarRig, p: number, layout: HeroLayout, glide = 1): void {
-  const et = ease(smooth(0.24, 0.42, p));
-  const x0 = restX(p, layout, glide) + PIVOT_DX;
-  rig.pivot.position.set(x0 + (0.12 - x0) * et, 0.12 * et, 0);
-  rig.pivot.rotation.set(0, 0, TILT * et);
-}
-
-/** World position of the mouth when fully tilted: where the grains leave the jar. */
-export function mouthAt(rig: JarRig, layout: HeroLayout): Vector3 {
-  setJar(rig, 1, layout);
-  rig.pivot.updateMatrixWorld(true);
-  return rig.jar.localToWorld(MOUTH_LOCAL.clone());
 }
 
 /** The opening's part of the pose (components/opening, lib/motion/opening.ts). */
@@ -102,9 +113,9 @@ export interface OpeningJar {
 const RISE_TILT = (2.5 * Math.PI) / 180;
 
 /**
- * Full jar pose for progress p.
- * `t` (seconds), the idle turn and the pointer only move the jar while it is at rest
- * (p < .14); past that the pose depends on p alone, so scrolling back reverses it exactly.
+ * The jar's pose for progress p (lib/motion/pour.ts). `t` (seconds), the idle turn and the
+ * pointer only move it while at rest (p < .14); past that the pose depends on p alone, so
+ * scrolling back reverses it exactly. The label faces the camera throughout the pour.
  */
 export function poseJar(
   rig: JarRig,
@@ -113,39 +124,73 @@ export function poseJar(
   pointer: { x: number; y: number },
   layout: HeroLayout,
   opening: OpeningJar,
+  /** 0–1: the idle float's amplitude (held at 0 while the Journey hands over). */
+  float = 1,
 ): void {
-  setJar(rig, p, layout, opening.glide);
+  const [px, py] = pivotAt(p, jarStartX(layout, opening.glide));
+  rig.pivot.position.set(px, py, 0);
+  rig.pivot.rotation.set(0, 0, tiltAt(p));
 
-  // The opening: the jar rises out of the horizon with a slight tilt that straightens.
-  // Then the idle float and the slow turn, until the cap opens.
   const rest = 1 - smooth(0.02, 0.14, p);
   rig.jar.position.y =
-    rest * (0.006 + Math.sin(t * 1.1) * 0.004) - (1 - opening.rise) * opening.riseFrom;
+    rest * (0.006 + Math.sin(t * 1.1) * 0.004 * float) - (1 - opening.rise) * opening.riseFrom;
   rig.jar.rotation.z = -(1 - opening.rise) * RISE_TILT;
   rig.jar.rotation.y = rest * (opening.turn + pointer.x * 0.35);
   rig.jar.rotation.x = rest * pointer.y * 0.08;
 
-  // Cap: unscrew 2.5 turns counter-clockwise seen from above (+y, the loosening way), riding
-  // up the thread one pitch per turn (11.25 mm), then lift away up and to the right.
-  // Cubic ease-in-out: the cap breaks loose slowly, then spins freely and settles.
-  // On phones the flight is shorter so the lid stays in frame as it lifts (HANDOFF to-do).
-  const unscrew = ease(clamp01((p - 0.05) / 0.1));
-  const away = smooth(0.15, 0.24, p);
-  const fly = layout.portrait ? { x: 0.12, y: 0.2, z: 0.05 } : { x: 0.28, y: 0.42, z: 0.08 };
-  rig.lid.rotation.set(0, unscrew * UNSCREW_TURNS * 2 * Math.PI, -away * 1.1);
-  rig.lid.position.set(
-    away * away * fly.x,
-    unscrew * UNSCREW_TURNS * THREAD_PITCH + away * fly.y,
-    away * fly.z,
-  );
-  rig.lid.visible = away < 0.995;
+  // the salt level sinks as it pours
+  rig.saltTop.position.y = rig.saltTopY0 - smooth(0.36, 0.84, p) * 0.06;
+}
 
-  // The salt level sinks as it pours.
-  rig.saltTop.position.y = rig.saltTopY0 - smooth(0.45, 0.72, p) * 0.05;
+const capCentre = new Vector3();
+const restCentre = new Vector3();
+const a = new Vector3();
+const b = new Vector3();
+const c = new Vector3();
+const jarQ = new Quaternion();
+const q0 = new Quaternion();
+const q1 = new Quaternion();
+const qSpin = new Quaternion();
+const qTilt = new Quaternion();
+const yAxis = new Vector3(0, 1, 0);
+const zAxis = new Vector3(0, 0, 1);
+const fromJar = new Matrix4().makeTranslation(0, -CAP_C, 0);
+const m4 = new Matrix4();
+const one = new Vector3(1, 1, 1);
 
-  // Salt flats: the jar rises out of view.
-  const exit = smooth(0.74, 0.86, p);
-  rig.pivot.position.y += exit * 0.6;
-  rig.pivot.position.x += exit * 0.25;
-  rig.pivot.visible = exit < 0.995;
+/**
+ * The cap: unscrews on the jar (positive turns about y, up the thread), then lifts ~1.2 jar
+ * heights and glides down to rest beside the jar, right and a little behind, leaning 12°. It
+ * stays there for the rest of the scene. Call after poseJar (it reads the jar's world matrix).
+ */
+export function poseCap(rig: JarRig, p: number, layout: HeroLayout, glide: number): void {
+  const x0 = jarStartX(layout, glide);
+  const u = unscrewAt(p);
+  const k = capAwayAt(p);
+  const spin = u * CAP_TURNS * 2 * Math.PI;
+  rig.pivot.updateMatrixWorld(true);
+  rig.jar.getWorldQuaternion(jarQ);
+  capCentre.set(0, CAP_C + u * CAP_RISE, 0).applyMatrix4(rig.jar.matrixWorld);
+  qSpin.setFromAxisAngle(yAxis, spin);
+  q0.copy(jarQ).multiply(qSpin);
+  if (k > 0) {
+    // off: one arc, up ~1.2 jar heights, across and down to its resting place
+    const rest = capRest(x0);
+    restCentre.set(rest[0], rest[1], rest[2]);
+    a.copy(capCentre).add(c.set(0.012, 1.2 * H, 0));
+    b.copy(restCentre).add(c.set(0, 0.09, 0));
+    const s = 1 - k;
+    capCentre
+      .multiplyScalar(s * s * s)
+      .add(c.copy(a).multiplyScalar(3 * s * s * k))
+      .add(c.copy(b).multiplyScalar(3 * s * k * k))
+      .add(c.copy(restCentre).multiplyScalar(k * k * k));
+    qTilt.setFromAxisAngle(zAxis, -CAP_TILT);
+    q1.copy(qTilt).multiply(qSpin.setFromAxisAngle(yAxis, spin + 0.6));
+    q0.slerp(q1, k);
+  }
+  // the parts sit in the jar's own frame: map its cap centre onto the cap's centre
+  m4.compose(capCentre, q0, one).multiply(fromJar);
+  rig.lid.matrix.copy(m4);
+  rig.lid.matrixWorldNeedsUpdate = true;
 }

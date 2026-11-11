@@ -12,6 +12,10 @@ import {
   SRGBColorSpace,
   WebGLRenderer,
   Vector3,
+  BufferGeometry,
+  Float32BufferAttribute,
+  Line,
+  LineBasicMaterial,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
@@ -19,9 +23,11 @@ import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
 import { cameraAt } from './camera';
-import { buildGrains, createGrainMesh, updateGrains } from './grains';
-import { createGround } from './ground';
-import { createJarRig, mouthAt, poseJar } from './jar';
+import { createPour, type Pour } from './grains';
+import { createContact, createGround } from './ground';
+import { createJarRig, poseCap, poseJar } from './jar';
+import { FLIGHT, capRest, pouredAt, R } from '@/lib/motion/pour';
+import { jarStartX } from '@/lib/motion/heroCamera';
 import { layoutFor, type HeroLayout } from './layout';
 import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
 import { smooth } from './math';
@@ -114,13 +120,31 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const lidRim = new DirectionalLight(0xcda75e, 0);
   lidRim.position.set(0.25, 0.9, -1);
   const hemi = new HemisphereLight(0xffffff, 0xe8dfcd, 0.35);
-  scene.add(key, rim, lidRim, hemi);
+  // The pour's dusk light: low, warm, from the upper right, so falling grains catch glints.
+  const dusk = new DirectionalLight(0xffc27a, 1.5);
+  dusk.position.set(0.9, 0.28, 0.5);
+  scene.add(key, rim, lidRim, hemi, dusk);
 
   const ground = createGround();
   // The jar rises through the floor plane in the opening: the (invisible) shadow floor must not
   // hide the clear jar below it.
   ground.shadowMat.depthWrite = false;
-  scene.add(ground.contact, ground.shadowFloor, ground.crust, ground.horizon);
+  scene.add(ground.contact, ground.shadowFloor, ground.crust);
+  // Soft contact shadows under the resting cap and the mound.
+  const capShadow = createContact();
+  capShadow.group.scale.set(0.95, 1, 0.95);
+  const moundShadow = createContact();
+  scene.add(capShadow.group, moundShadow.group);
+  // The gold horizon: a 1px line on the ground through the jar's base (and the mound's), so on
+  // screen it runs exactly at their foot; the jar, its salt and the mound hide it where they stand.
+  const horizonLine = new Line(
+    new BufferGeometry().setAttribute(
+      'position',
+      new Float32BufferAttribute([-4, 0.0003, 0, 4, 0.0003, 0], 3),
+    ),
+    new LineBasicMaterial({ color: 0xa8823f, toneMapped: false, fog: false }),
+  );
+  scene.add(horizonLine);
 
   // ---- the salt pans (behind ?saltPans until approved) ----
   const pans = new URLSearchParams(window.location.search).has('saltPans')
@@ -153,14 +177,13 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     throw err;
   }
   const rig = createJarRig(gltf.scene);
-  scene.add(rig.pivot);
+  scene.add(rig.pivot, rig.lid);
 
-  const grainMesh = createGrainMesh(tier.grains, tier.shadows);
-  scene.add(grainMesh);
-
+  // the pour: twice the old count, capped by the tier (precomputed, deterministic)
   let layout: HeroLayout = layoutFor(canvas.clientWidth || 1, canvas.clientHeight || 1);
-  let mouth: Vector3 = mouthAt(rig, layout);
-  let grains = buildGrains(grainMesh, mouth);
+  let pour: Pour = createPour(tier.grains, jarStartX(layout), tier.shadows);
+  const addPour = () => scene.add(pour.grains, pour.dust, pour.mound);
+  addPour();
 
   const resize = () => {
     const w = canvas.clientWidth;
@@ -171,9 +194,11 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     camera.updateProjectionMatrix();
     const next = layoutFor(w, h);
     if (next.portrait !== layout.portrait) {
-      layout = next;
-      mouth = mouthAt(rig, layout); // the jar moves, so the pour starts from a new mouth
-      grains = buildGrains(grainMesh, mouth);
+      // the jar starts elsewhere, so the pour (and its mound) is rebuilt from there
+      scene.remove(pour.grains, pour.dust, pour.mound);
+      pour.dispose();
+      pour = createPour(tier.grains, jarStartX(next), tier.shadows);
+      addPour();
     }
     layout = next;
   };
@@ -208,7 +233,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
 
   const frame = () => {
     raf = requestAnimationFrame(frame);
-    if (!visible || journeyStore.covered) {
+    // Paused behind the panorama, but the first frame renders anyway (invisible there): the
+    // textures upload and the pipelines warm up during the Journey, not at the reveal.
+    if (!visible || (journeyStore.covered && frames > 0)) {
       clock.getDelta(); // don't let time pile up while paused
       return;
     }
@@ -218,39 +245,52 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     sp += (goal - sp) * Math.min(1, dt * 7);
     if (Math.abs(goal - sp) < 1e-5) sp = goal; // settle exactly, so frames repeat exactly
     const p = sp;
-    pointer.x += (target.x - pointer.x) * 0.05;
-    pointer.y += (target.y - pointer.y) * 0.05;
+    // while the Journey lines its engraving up on the jar, the jar holds still
+    const calm = journeyStore.calm;
+    pointer.x += (target.x * (1 - calm) - pointer.x) * 0.05;
+    pointer.y += (target.y * (1 - calm) - pointer.y) * 0.05;
 
     // The opening (components/opening): the sunrise from 30% of the screen height below, the
     // glide to 62%, the idle turn while at rest (it starts once the jar has begun to rise).
     const op = openingPose(openingStore.get());
     const rest = 1 - smooth(0.02, 0.14, p);
     if (!still && rest >= 1 && op.rise > 0) turn = (turn + dt * TURN_RATE) % (2 * Math.PI);
-    const viewH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 0.62 * layout.camZ;
-    poseJar(rig, p, t, pointer, layout, {
-      rise: op.rise,
-      riseFrom: 0.3 * viewH,
-      glide: op.glide,
-      turn: turn > Math.PI ? turn - 2 * Math.PI : turn,
-    });
+    const viewH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 0.62 * (layout.portrait ? 0.92 : 1);
+    poseJar(
+      rig,
+      p,
+      t,
+      pointer,
+      layout,
+      {
+        rise: op.rise,
+        riseFrom: 0.3 * viewH,
+        glide: op.glide,
+        turn: turn > Math.PI ? turn - 2 * Math.PI : turn,
+      },
+      1 - calm,
+    );
+    poseCap(rig, p, layout, op.glide);
     lidRim.intensity = 2.2 * op.rise * rest;
-    // Contact shadow follows the jar's base and fades as the jar tips up off the floor.
+    pour.update(p);
+
+    // Contact shadows: the jar's follows its base and fades as it lifts off to pour (and back
+    // as it settles); the cap's as it lands; the mound's grows with it.
     rig.pivot.updateMatrixWorld(true);
     rig.jar.getWorldPosition(jarBase);
-    ground.contact.position.x = jarBase.x;
-    ground.contact.position.z = jarBase.z;
-    updateGrains(grainMesh, grains, mouth, p);
-
-    // Salt flats: the crust fades in, the sky warms, the gold horizon appears.
-    const flat = smooth(0.78, 0.93, p);
-    ground.crustMat.opacity = flat;
-    ground.shadowMat.opacity = 0.12 * (1 - flat);
-    const contactFade =
-      (1 - smooth(0.24, 0.36, p)) * (rig.pivot.visible ? 1 : 0) * op.rise * op.rise;
-    for (const [mat, base] of ground.contactMats) mat.opacity = base * contactFade;
-    ground.horizonMat.opacity = smooth(0.86, 0.97, p) * 0.9;
-    renderer.setClearColor(SKY, flat);
-    fogColor.copy(IVORY).lerp(SKY, flat);
+    ground.contact.position.set(jarBase.x, 0, jarBase.z);
+    const lifted = 1 - smooth(0.002, 0.03, jarBase.y);
+    for (const [mat, base] of ground.contactMats) mat.opacity = base * lifted * op.rise * op.rise;
+    const rest0 = capRest(jarStartX(layout, op.glide));
+    capShadow.group.position.set(rest0[0] - R * 0.15, 0, rest0[2]);
+    capShadow.set(smooth(0.2, 0.25, p) * 0.9);
+    const poured = pouredAt(p - FLIGHT);
+    moundShadow.group.position.set(pour.mx, 0, 0);
+    const ms = 0.25 + 1.15 * Math.cbrt(poured);
+    moundShadow.group.scale.set(ms, 1, ms);
+    moundShadow.set(Math.sqrt(poured));
+    ground.shadowMat.opacity = 0.12;
+    renderer.setClearColor(SKY, 0);
     if (pans) {
       pans.update(p);
       if (pans.group.visible) fogColor.copy(pans.horizon);
@@ -260,7 +300,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       hemi.intensity = 0.35 + 0.35 * blush;
     }
 
-    cameraAt(camera, p, layout, op.glide, !!pans);
+    cameraAt(camera, p, layout, op.glide);
     if (pans) {
       camera.updateMatrixWorld();
       pans.renderReflection(renderer, scene, camera);
@@ -295,6 +335,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       ro.disconnect();
       io.disconnect();
       window.removeEventListener('pointermove', onPointer);
+      pour.dispose();
       disposeObject(scene);
       disposeMaterial(ground.crustMat);
       envRT.dispose();

@@ -32,6 +32,7 @@ const D = LIVE as unknown as {
   };
   shimmer: { s: number; box: Box; paper: string; a: string; b: string };
   glints: { s: number; pts: [number, number, number][] };
+  jar: { s: number; box: Box; html: string };
   birds: {
     s: number;
     x: number;
@@ -223,6 +224,19 @@ export function LiveLayer({ layer, scene }: { layer: Layer; scene?: number }) {
         </div>,
       );
   }
+
+  // 05: the jar, from the 3D model (it glides onto the 3D jar in step 2: Journey.tsx)
+  if (layer === 'far' && show(D.jar.s))
+    out.push(
+      <svg
+        key="jar"
+        className={`${cls} ${styles.jar}`}
+        data-jar=""
+        style={place(D.jar.box, cc)}
+        {...svgProps(D.jar.box)}
+        dangerouslySetInnerHTML={{ __html: D.jar.html }}
+      />,
+    );
 
   if (layer === 'far' && !still) {
     D.glints.pts.forEach(([x, y, r], i) => {
@@ -601,7 +615,7 @@ export function createLiving(journey: HTMLElement) {
     reveal(scene: number, delay: number) {
       later(() => {
         live.forEach((el) => {
-          if (Number(el.getAttribute('data-live-s')) === scene) el.style.visibility = 'visible';
+          if (Number(el.getAttribute('data-live-s')) === scene) el.style.visibility = 'inherit'; // and hidden with the panorama
         });
         revealed[scene] = true;
         update();

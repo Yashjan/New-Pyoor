@@ -280,6 +280,49 @@
   opacity: 0;
 }
 
+/* 05's jar: drawn in with its scene; in step 2 it glides onto the 3D jar (transform) */
+:global(html.motion) .layer .jar {
+  visibility: hidden;
+  transform-origin: 0 0;
+}
+
+/* step 2 on phones: the 3D jar can stand outside the scene's band */
+.journey[data-step] .art {
+  overflow: visible;
+}
+
+/* step 2: what lies under the panorama stays out of sight until the hand-over */
+:global([data-hero][data-step] [data-copy-in]),
+:global([data-hero][data-step] [data-rail]) {
+  opacity: var(--step-copy, 0) !important;
+}
+
+/* reduced motion: the engraved jar crossfades to the jar itself, once, as it comes into view */
+.frameJar {
+  position: absolute;
+  z-index: 1;
+  left: calc(50cqw + (var(--x) - var(--cc)) * 100cqh / 512);
+  top: calc(var(--y) * 100cqh / 512);
+  width: auto;
+  max-width: none;
+  height: calc(var(--h) * 100cqh / 512);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.jarIn .frameJar {
+  opacity: 1;
+}
+
+.frame .jar {
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.jarIn .jar {
+  opacity: 0;
+}
+
 /* glint arms: finer than any burin weight */
 .live .hair {
   stroke-width: calc(var(--u, 1) * 0.3);

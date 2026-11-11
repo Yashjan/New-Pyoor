@@ -103,13 +103,12 @@ const CORE_STOPS = [
 ] as const;
 
 /**
- * The jar's contact shadow, the grains' shadows on the floor, the salt flats (fade in at the
- * end) and the gold horizon line.
+ * A soft contact shadow, two layers: a tight navy core and a wide ambient ellipse (sized for the
+ * 10 cm jar; scale the group for other things). `set(o)` fades it, 0–1.
  */
-export function createGround() {
-  // Two layers under the 10 cm jar: a tight navy core at the base and a wide ambient ellipse.
-  const contact = new Group();
-  const contactMats: [MeshBasicMaterial, number][] = [];
+export function createContact() {
+  const group = new Group();
+  const mats: [MeshBasicMaterial, number][] = [];
   const layer = (
     stops: readonly (readonly [number, number])[],
     opacity: number,
@@ -130,11 +129,28 @@ export function createGround() {
     m.position.y = y;
     m.scale.set(w, d, 1);
     m.renderOrder = 1;
-    contact.add(m);
-    contactMats.push([mat, opacity]);
+    group.add(m);
+    mats.push([mat, opacity]);
   };
   layer(AMBIENT_STOPS, 0.08, 0.2, 0.12, 0.0004); // soft ambient, 20 × 12 cm
   layer(CORE_STOPS, 0.16, 0.11, 0.0198, 0.0006); // contact core: 1.1 × base, depth 0.18 × width
+  return {
+    group,
+    mats,
+    set(o: number) {
+      for (const [mat, base] of mats) mat.opacity = base * o;
+    },
+  };
+}
+
+/**
+ * The jar's contact shadow, the grains' shadows on the floor, the salt flats (behind the
+ * ?saltPans flag) and the gold horizon line.
+ */
+export function createGround() {
+  const jarContact = createContact();
+  const contact = jarContact.group;
+  const contactMats = jarContact.mats;
 
   // Realtime shadows are only cast by the pour grains (the heap); tinted navy, not grey.
   const shadowFloor = new Mesh(

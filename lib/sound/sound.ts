@@ -7,18 +7,14 @@
  * the opening and the jar sequence use): loops simply track it, one-shots fire only while
  * scrolling forward. Every gain change ramps over at least 0.4 s.
  */
-import {
-  JOURNEY,
-  JOURNEY_VH,
-  OPEN_START_VH,
-  OPEN_VH,
-  SEQUENCE_START_VH,
-  clamp01,
-  openingPose,
-} from '@/lib/motion/opening';
+import { JOURNEY, JOURNEY_VH, SEQUENCE_START_VH, STEP, clamp01 } from '@/lib/motion/opening';
+import { pourRate } from '@/lib/motion/pour';
 
-export type SoundName = 'wind-loop' | 'water-loop' | 'rake' | 'jar-tone' | 'cap-clicks';
-const FILES: SoundName[] = ['wind-loop', 'water-loop', 'rake', 'jar-tone', 'cap-clicks'];
+export type SoundName =
+  'wind-loop' | 'water-loop' | 'pour-loop' | 'rake' | 'jar-tone' | 'cap-clicks';
+type Loop = 'wind-loop' | 'water-loop' | 'pour-loop';
+const LOOPS: readonly Loop[] = ['wind-loop', 'water-loop', 'pour-loop'];
+const FILES: SoundName[] = [...LOOPS, 'rake', 'jar-tone', 'cap-clicks'];
 const ONE_SHOT_GAIN: Partial<Record<SoundName, number>> = {
   rake: 0.45,
   'jar-tone': 0.55,
@@ -37,7 +33,7 @@ let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let buffers: Partial<Record<SoundName, AudioBuffer>> | null = null;
 let loading: Promise<void> | null = null;
-const loops: Partial<Record<'wind-loop' | 'water-loop', GainNode>> = {};
+const loops: Partial<Record<Loop, GainNode>> = {};
 let suspendTimer = 0;
 let frame = 0;
 
@@ -59,7 +55,7 @@ function emit() {
 /* ---------------- the mix, from the scroll position ---------------- */
 const prev = { pan: NaN, rise: NaN, p: NaN };
 let lastRake = -Infinity;
-const targets = { wind: -1, water: -1 };
+const targets: Record<Loop, number> = { 'wind-loop': -1, 'water-loop': -1, 'pour-loop': -1 };
 
 function mix() {
   frame = 0;
@@ -67,22 +63,26 @@ function mix() {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   let wind = 0;
   let water = 0;
+  let pouring = 0;
   if (hero) {
     const vh = window.innerHeight;
     const y = -hero.getBoundingClientRect().top;
     const s = clamp01(y / (vh * JOURNEY_VH));
     const inP = phase(s, 0, JOURNEY.in);
     const pan = phase(s, JOURNEY.in, JOURNEY.out);
-    const rise = openingPose(clamp01((y - vh * OPEN_START_VH) / (vh * OPEN_VH))).rise;
+    // step 2 (the end of the Journey): the 3D jar revealed under the engraving
+    const rise = phase(phase(s, JOURNEY.out, 1), ...STEP.reveal);
     const seqAt = vh * SEQUENCE_START_VH;
     const range = hero.offsetHeight - vh - seqAt;
     const p = range > 0 ? clamp01((y - seqAt) / range) : 0;
 
-    // wind: from the SAMBHAR handoff through the Journey, down to 0.12 as the jar rises,
-    // gone once the jar sequence starts
+    // wind: from the SAMBHAR handoff through the Journey, down to 0.12 as the 3D jar is
+    // revealed (step 2), gone once the jar sequence starts
     if (s > 0 && y < seqAt) wind = inP * (0.35 + (0.12 - 0.35) * rise);
     // water: scene 01, gone halfway to scene 02
     if (s > 0 && s < 1) water = inP * 0.4 * (1 - clamp01((pan * 4) / 0.5));
+    // the pour: follows the stream (0 -> 0.45 -> 0), silent once it stops or scrolls back
+    if (y >= seqAt) pouring = 0.45 * pourRate(p);
 
     // one-shots: forward only
     if (!Number.isNaN(prev.pan)) {
@@ -92,19 +92,22 @@ function mix() {
         play('rake');
       }
       if (prev.rise < 0.5 && rise >= 0.5) play('jar-tone');
-      if (prev.p < 0.05 && p >= 0.05) play('cap-clicks');
+      if (prev.p < 0.005 && p >= 0.005) play('cap-clicks'); // the cap starts to turn
     }
     prev.pan = pan;
     prev.rise = rise;
     prev.p = p;
   }
-  if (Math.abs(wind - targets.wind) > 0.004 && loops['wind-loop']) {
-    targets.wind = wind;
-    ramp(loops['wind-loop'].gain, wind);
-  }
-  if (Math.abs(water - targets.water) > 0.004 && loops['water-loop']) {
-    targets.water = water;
-    ramp(loops['water-loop'].gain, water);
+  const want: Record<Loop, number> = {
+    'wind-loop': wind,
+    'water-loop': water,
+    'pour-loop': pouring,
+  };
+  for (const name of LOOPS) {
+    const g = loops[name];
+    if (!g || Math.abs(want[name] - targets[name]) <= 0.004) continue;
+    targets[name] = want[name];
+    ramp(g.gain, want[name]);
   }
 }
 
@@ -115,19 +118,27 @@ const schedule = () => {
 /* ---------------- the engine ---------------- */
 async function load() {
   const c = ctx!;
+  // each file on its own: one that's missing or broken mustn't silence the rest
   const decoded = await Promise.all(
     FILES.map(async (name) => {
-      const res = await fetch(`/sounds/${name}.mp3`);
-      return [name, await c.decodeAudioData(await res.arrayBuffer())] as const;
+      try {
+        const res = await fetch(`/sounds/${name}.mp3`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        return [name, await c.decodeAudioData(await res.arrayBuffer())] as const;
+      } catch (err) {
+        console.error(`Sound "${name}" failed to load`, err);
+        return [name, null] as const;
+      }
     }),
   );
-  buffers = Object.fromEntries(decoded);
-  for (const name of ['wind-loop', 'water-loop'] as const) {
+  buffers = Object.fromEntries(decoded.filter(([, b]) => b)) as typeof buffers;
+  for (const name of LOOPS) {
+    if (!buffers![name]) continue;
     const g = c.createGain();
     g.gain.value = 0;
     g.connect(master!);
     const src = c.createBufferSource();
-    src.buffer = buffers[name]!;
+    src.buffer = buffers![name]!;
     src.loop = true;
     src.connect(g);
     src.start();

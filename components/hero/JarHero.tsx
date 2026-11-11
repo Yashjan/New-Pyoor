@@ -43,6 +43,22 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [posterGone, setPosterGone] = useState(false);
 
+  // Reduced motion: when the beats come into view, the closed jar crossfades (0.6 s) to the
+  // pour's last frame.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || document.documentElement.classList.contains('motion')) return;
+    const beat = section.querySelector('[data-beat="2"]');
+    if (!beat) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      section.classList.add(styles.poured!);
+      io.disconnect();
+    });
+    io.observe(beat);
+    return () => io.disconnect();
+  }, []);
+
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
@@ -144,6 +160,16 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
                 height={1570}
                 sizes="(max-width: 860px) 56vw, min(30vw, 380px)"
                 loading="eager"
+              />
+              {/* reduced motion: no pour; the closed jar crossfades to its end (jar, cap, mound) */}
+              <Image
+                className={styles.posterFinal}
+                src="/images/renders/jar-pour-final.webp"
+                alt=""
+                width={2320}
+                height={980}
+                sizes="(max-width: 860px) 90vw, 50vw"
+                loading="lazy"
               />
             </div>
           </div>
