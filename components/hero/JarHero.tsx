@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
 import { Horizon } from '@/components/Horizon/Horizon';
 import { SambharOpening } from '@/components/opening/SambharOpening';
+import { Journey } from '@/components/sections/Journey/Journey';
 import { prefetchWithProgress, whenIntroDone } from '@/lib/loader/prefetch';
 import { introIsFull, reportLoad } from '@/lib/loader/progress';
-import { OPEN_VH } from '@/lib/motion/opening';
+import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
@@ -16,11 +17,11 @@ const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
 
 /**
  * The jar sequence's progress 0–1: how far the pinned section has been scrolled through after
- * the opening (its first OPEN_VH viewport heights, components/opening).
+ * the Journey panorama and the opening (the first SEQUENCE_START_VH viewport heights).
  */
 function heroProgress(section: HTMLElement): number {
   const rect = section.getBoundingClientRect();
-  const open = window.innerHeight * OPEN_VH;
+  const open = window.innerHeight * SEQUENCE_START_VH;
   const range = rect.height - window.innerHeight - open;
   return range > 0 ? Math.min(1, Math.max(0, (-rect.top - open) / range)) : 0;
 }
@@ -62,14 +63,17 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     // intro's real progress), but build the scene only after the reveal, so its heavy setup
     // (context, environment, shader compile) never stalls the intro. The poster, placed where
     // the 3D jar renders, stands in until then.
+    // During the engraving only downloads happen: the GLB into the HTTP cache. three.js isn't
+    // even imported (parsing and running it would stall the main thread), so it doesn't hold
+    // the loader either.
     const intro = introIsFull();
-    if (intro)
+    if (intro) {
+      reportLoad('three', 1);
       void prefetchWithProgress(MODEL_URL, (f) => reportLoad('model', f), controller.signal).catch(
         () => reportLoad('model', 1),
       );
+    }
     const start = async () => {
-      const { createJarScene } = await import('./scene/createJarScene');
-      reportLoad('three', 1);
       if (intro) {
         await whenIntroDone(controller.signal);
         // let the hero's own intro play first, then build in the next idle moment
@@ -79,6 +83,9 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             : window.setTimeout(resolve, 1200),
         );
       }
+      if (controller.signal.aborted) return;
+      const { createJarScene } = await import('./scene/createJarScene');
+      reportLoad('three', 1);
       if (controller.signal.aborted) return;
       try {
         const scene = await createJarScene({
@@ -118,6 +125,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
       aria-label="Pyoor Herbal Black Salt"
       data-hero
     >
+      {/* where the header's Journey link lands */}
+      <span id="journey" className={styles.journeyAnchor} />
       {/* --seam is set on the stage before hydration (SambharOpening's pre-paint script) */}
       <div className={styles.stage} suppressHydrationWarning>
         {/* behind the jar: the dawn glow in the opening, and a fine grain against banding */}
@@ -141,6 +150,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         </div>
 
         <SambharOpening />
+
+        <Journey />
 
         {/* the outer block is faded by the jar sequence, the inner one by the opening */}
         <div className={styles.copy} data-hero-copy>

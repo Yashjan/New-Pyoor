@@ -24,6 +24,16 @@
   background: var(--ivory-100);
 }
 
+/* the header's Journey link: below the SAMBHAR screen, or once the handover is done */
+.journeyAnchor {
+  position: absolute;
+  top: 72vh;
+}
+
+:global(html.motion) .journeyAnchor {
+  top: 50vh;
+}
+
 .gl,
 .rail,
 .glow,
@@ -74,12 +84,12 @@
 
 .copy {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
 }
 
 .poster {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 3;
   justify-self: center;
   width: min(30vw, 380px);
   height: auto;
@@ -117,7 +127,7 @@
 
   .poster {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 4;
     width: 56vw;
   }
 
@@ -128,7 +138,7 @@
 
 /* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
-  height: 640vh; /* the opening's 120vh + the jar sequence's 520vh */
+  height: 920vh; /* the Journey's 400vh (the opening runs behind it) + the jar sequence's 520vh */
 }
 
 :global(html.motion) .stage {

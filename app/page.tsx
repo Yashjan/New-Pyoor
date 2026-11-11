@@ -1,7 +1,6 @@
 import { JarHero } from '@/components/hero/JarHero';
 import { HomeMotion } from '@/components/motion/HomeMotion';
 import { Crystals } from '@/components/sections/Crystals/Crystals';
-import { Journey } from '@/components/sections/Journey/Journey';
 import { Recipes } from '@/components/sections/Recipes/Recipes';
 import { Roots } from '@/components/sections/Roots/Roots';
 import { Salts } from '@/components/sections/Salts/Salts';
@@ -27,7 +26,6 @@ export default async function HomePage() {
       <main id="main" suppressHydrationWarning>
         <JarHero fromPrice={lowest ? formatPrice(lowest) : null} />
         <Roots />
-        <Journey />
         <Salts black={black} lake={lake} />
         <Crystals />
         <Recipes />

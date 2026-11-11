@@ -26,21 +26,28 @@ export async function prefetchWithProgress(
   onProgress(1);
 }
 
-/** Resolves once the first-visit intro has finished (at once if there is none). */
-export function whenIntroDone(signal?: AbortSignal): Promise<void> {
+/** Resolves once html carries `attr` (at once if there is no first-visit intro). */
+function whenFlag(attr: string, signal?: AbortSignal): Promise<void> {
   const html = document.documentElement;
-  if (!html.dataset.intro || html.hasAttribute('data-intro-done')) return Promise.resolve();
+  if (!html.dataset.intro || html.hasAttribute(attr) || html.hasAttribute('data-intro-done'))
+    return Promise.resolve();
   return new Promise((resolve) => {
     const mo = new MutationObserver(() => {
-      if (html.hasAttribute('data-intro-done')) {
+      if (html.hasAttribute(attr) || html.hasAttribute('data-intro-done')) {
         mo.disconnect();
         resolve();
       }
     });
-    mo.observe(html, { attributes: true, attributeFilter: ['data-intro-done'] });
+    mo.observe(html, { attributes: true, attributeFilter: [attr, 'data-intro-done'] });
     signal?.addEventListener('abort', () => {
       mo.disconnect();
       resolve();
     });
   });
 }
+
+/** Resolves once the first-visit intro has finished (at once if there is none). */
+export const whenIntroDone = (signal?: AbortSignal) => whenFlag('data-intro-done', signal);
+
+/** Resolves once SAMBHAR has finished engraving (at once if there is no intro). */
+export const whenEngraved = (signal?: AbortSignal) => whenFlag('data-engraved', signal);

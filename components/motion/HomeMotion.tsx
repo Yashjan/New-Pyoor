@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
-import { OPEN_VH } from '@/lib/motion/opening';
+import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 
 /**
  * The homepage's scroll choreography (concept.html), set up once GSAP has loaded.
@@ -19,8 +19,7 @@ import { OPEN_VH } from '@/lib/motion/opening';
  *   [data-clip-reveal]    product panels open from an inset clip
  *   [data-crystals-bg]    the crystal texture settles from 1.35× to 1×
  *   [data-hero]           text beats and progress rail, scrubbed by the jar sequence's progress
- *                         (after the opening's first OPEN_VH, which components/opening scrubs)
- *   [data-journey-pin]    pinned horizontal chapters from 861px
+ *                         (after the Journey and the opening: SEQUENCE_START_VH)
  */
 export function HomeMotion() {
   useEffect(() => {
@@ -140,7 +139,7 @@ export function HomeMotion() {
           const railFill = hero.querySelector<HTMLElement>('[data-rail-fill]');
           ScrollTrigger.create({
             trigger: hero,
-            start: () => `top+=${Math.round(window.innerHeight * OPEN_VH)} top`,
+            start: () => `top+=${Math.round(window.innerHeight * SEQUENCE_START_VH)} top`,
             end: 'bottom bottom',
             scrub: true,
             invalidateOnRefresh: true,
@@ -162,31 +161,6 @@ export function HomeMotion() {
         }
       });
 
-      // ---- journey: pinned and scrolled sideways on wide screens ----
-      const mm = gsap.matchMedia();
-      mm.add('(min-width: 861px)', () => {
-        const pin = document.querySelector<HTMLElement>('[data-journey-pin]');
-        const track = document.querySelector<HTMLElement>('[data-journey-track]');
-        const bar = document.querySelector<HTMLElement>('[data-journey-progress]');
-        if (!pin || !track) return;
-        const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-        gsap.to(track, {
-          x: () => -dist(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: pin,
-            start: 'top top',
-            end: () => '+=' + dist(),
-            pin: true,
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-            onUpdate: (s) => {
-              if (bar) bar.style.transform = `scaleX(${s.progress})`;
-            },
-          },
-        });
-      });
-
       // Fonts and images change layout: re-measure once everything has loaded.
       const refresh = () => ScrollTrigger.refresh();
       if (document.readyState === 'complete') refresh();
@@ -195,7 +169,6 @@ export function HomeMotion() {
 
       cleanup = () => {
         window.removeEventListener('load', refresh);
-        mm.revert();
         ctx.revert();
       };
     });

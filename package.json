@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "models": "bash tools/3d/compress.sh",
     "models:inspect": "bash tools/3d/compress.sh --inspect",
-    "glyphs": "node tools/glyphs/build.mjs"
+    "glyphs": "node tools/glyphs/build.mjs",
+    "engravings": "node tools/engravings/build.mjs"
   },
   "dependencies": {
     "gsap": "3.15.1",

@@ -14,7 +14,7 @@ import {
   Vector3,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { openingPose, openingStore } from '@/lib/motion/opening';
+import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
 import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
@@ -23,6 +23,7 @@ import { buildGrains, createGrainMesh, updateGrains } from './grains';
 import { createGround } from './ground';
 import { createJarRig, mouthAt, poseJar } from './jar';
 import { layoutFor, type HeroLayout } from './layout';
+import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
 import { smooth } from './math';
 
 export interface JarSceneOptions {
@@ -51,6 +52,10 @@ declare global {
 
 const IVORY = new Color('#f5f1e8');
 const SKY = new Color('#eee9df');
+const KEY_COLOR = new Color(0xfff0dc);
+const KEY_WARM = new Color('#f3c9a8');
+const HEMI_GROUND = new Color(0xe8dfcd);
+const HEMI_PINK = new Color('#e7a6a0');
 /** The idle turn while the jar is at rest: ~6° a second. */
 const TURN_RATE = (6 * Math.PI) / 180;
 
@@ -108,13 +113,31 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // The opening's rim light: catches the lid's edge from behind as the jar rises (gold-300).
   const lidRim = new DirectionalLight(0xcda75e, 0);
   lidRim.position.set(0.25, 0.9, -1);
-  scene.add(key, rim, lidRim, new HemisphereLight(0xffffff, 0xe8dfcd, 0.35));
+  const hemi = new HemisphereLight(0xffffff, 0xe8dfcd, 0.35);
+  scene.add(key, rim, lidRim, hemi);
 
   const ground = createGround();
   // The jar rises through the floor plane in the opening: the (invisible) shadow floor must not
   // hide the clear jar below it.
   ground.shadowMat.depthWrite = false;
   scene.add(ground.contact, ground.shadowFloor, ground.crust, ground.horizon);
+
+  // ---- the salt pans (behind ?saltPans until approved) ----
+  const pans = new URLSearchParams(window.location.search).has('saltPans')
+    ? createSaltPans(
+        tier.name === 'high',
+        Math.round(canvas.clientWidth * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
+        Math.round(canvas.clientHeight * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
+      )
+    : null;
+  if (pans) {
+    scene.add(pans.group);
+    for (const light of [key, rim, hemi]) light.layers.enable(REFLECT_LAYER);
+    ground.crust.visible = false;
+    ground.horizon.visible = false;
+    camera.far = 120;
+    camera.near = 0.04; // enough depth precision for the thin bunds, far away
+  }
 
   // ---- the jar ----
   // Setup runs while the first-visit intro is on screen: yield a frame between the heavy steps
@@ -185,7 +208,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
 
   const frame = () => {
     raf = requestAnimationFrame(frame);
-    if (!visible) {
+    if (!visible || journeyStore.covered) {
       clock.getDelta(); // don't let time pile up while paused
       return;
     }
@@ -228,8 +251,20 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     ground.horizonMat.opacity = smooth(0.86, 0.97, p) * 0.9;
     renderer.setClearColor(SKY, flat);
     fogColor.copy(IVORY).lerp(SKY, flat);
+    if (pans) {
+      pans.update(p);
+      if (pans.group.visible) fogColor.copy(pans.horizon);
+      const blush = blushAt(p);
+      key.color.copy(KEY_COLOR).lerp(KEY_WARM, Math.pow(blush, 0.7));
+      hemi.groundColor.copy(HEMI_GROUND).lerp(HEMI_PINK, blush);
+      hemi.intensity = 0.35 + 0.35 * blush;
+    }
 
-    cameraAt(camera, p, layout, op.glide);
+    cameraAt(camera, p, layout, op.glide, !!pans);
+    if (pans) {
+      camera.updateMatrixWorld();
+      pans.renderReflection(renderer, scene, camera);
+    }
     renderer.render(scene, camera);
 
     frames++;
@@ -256,6 +291,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   return {
     dispose() {
       cancelAnimationFrame(raf);
+      pans?.dispose();
       ro.disconnect();
       io.disconnect();
       window.removeEventListener('pointermove', onPointer);

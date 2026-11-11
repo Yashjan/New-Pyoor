@@ -8,6 +8,22 @@
 /** Scroll distance of the opening, in viewport heights, before the jar sequence starts. */
 export const OPEN_VH = 1.2;
 
+/**
+ * The Journey panorama (components/sections/Journey) comes straight after the SAMBHAR screen:
+ * 50vh to hand over, 250vh of panorama, then 100vh in which it lifts away like a released pin.
+ * The opening's split runs unseen behind it, so what the panorama uncovers is the jar beside
+ * its headline; the jar sequence follows from there.
+ */
+export const JOURNEY_VH = 4;
+/** Where the panorama's phases end, as fractions of the Journey's scroll. */
+export const JOURNEY = { in: 0.5 / JOURNEY_VH, out: 3 / JOURNEY_VH } as const;
+/** Where the opening starts (behind the panorama: it is three-quarters done as it lifts). */
+export const OPEN_START_VH = 2.15;
+/** Where the jar sequence starts: once the panorama has gone. */
+export const SEQUENCE_START_VH = JOURNEY_VH;
+/** True while the panorama fully covers the stage: the 3D scene needn't render behind it. */
+export const journeyStore = { covered: false };
+
 let progress = 0;
 
 /** The opening's scrubbed progress, 0–1 (written by SambharOpening, read by the jar scene). */

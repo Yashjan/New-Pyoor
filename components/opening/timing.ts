@@ -20,11 +20,17 @@ export function letterDraw(i: number, e: number): { outer: number; counter: numb
 }
 
 /**
- * The engraving takes 1.2 s at the fastest and 3 s at the most: it follows the real load
- * progress, spring-smoothed and speed-capped, and never falls behind a 3 s clock.
+ * The engraving draws on time alone: one steady pass of 2.4 s, ease-in-out. Load progress only
+ * decides when the loader ends (the finished word is held, shimmering, for at most HOLD_MAX).
  */
-export const ENGRAVE_MIN = 1.2;
-export const ENGRAVE_MAX = 3;
+export const ENGRAVE = 2.4;
+export const HOLD_MAX = 4;
+const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+/** Engraving progress at t seconds. */
+export const clockProgress = (t: number) => inOut(clamp01(t / ENGRAVE));
+/** The inverse: when the engraving reaches progress e (seconds). */
+export const clockTime = (e: number) =>
+  ENGRAVE * (e < 0.5 ? Math.cbrt(e / 4) : 1 - Math.cbrt(2 * (1 - e)) / 2);
 
 /**
  * After the engraving, in seconds (one thing at a time, overlapping by at most 30%):

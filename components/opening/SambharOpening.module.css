@@ -3,11 +3,11 @@
  *
  * States, from html (app/layout.tsx):
  *   no html.motion          no JS or reduced motion: the filled word, one static screen, fades only
- *   [data-intro='full']     first visit: the engraving. CSS starts it at first paint on a 3 s
+ *   [data-intro='full']     first visit: the engraving. CSS starts it at first paint on a 2.4 s
  *                           clock; with [data-opening-js] the component drives it from real
  *                           load progress. Without JS a failsafe fills it and shows the header.
  *
- * Geometry: the word's ink is 78% of the width (phones: the width less 16px gutters) and the
+ * Geometry: the word's ink is 78% of the width (phones: the width less 24px each side) and the
  * seam (where the word splits) sits on --seam (a whole pixel at half the height). The word box is shifted up by
  * the line's position within it (--line-frac), so the line runs 300/1000 em above the baseline.
  */
@@ -15,7 +15,6 @@
 .opening {
   --word-w: 78vw;
   --seam: 50%;
-  --sw: 4;
   position: relative;
   grid-column: 1 / -1;
   height: 72vh;
@@ -26,7 +25,7 @@
 
 @media (max-width: 699px) {
   .opening {
-    --word-w: calc(100vw - 32px);
+    --word-w: clamp(200px, calc(100vw - 48px), 651px); /* 24px clear each side */
   }
 }
 
@@ -64,12 +63,20 @@
 .strokes path {
   fill: none;
   stroke: var(--gold-500);
-  stroke-width: var(--sw);
+  /* a fixed width on screen at any size; the dashes are then in screen px (--len, pre-paint) */
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: 1;
+  stroke-dasharray: var(--len, 0) var(--len, 0);
+  stroke-dashoffset: var(--len, 0);
   opacity: 0;
+}
+
+@media (max-width: 699px) {
+  .strokes path {
+    stroke-width: 1.25px;
+  }
 }
 
 .tips circle {
@@ -171,7 +178,7 @@
   animation: cue 2.2s var(--ease-settle) infinite;
 }
 
-/* ---- first visit, before the script: the engraving on its 3 s clock ---- */
+/* ---- first visit, before the script: the engraving on its 2.4 s clock ---- */
 :global(html[data-intro='full']:not([data-intro-done])) .ink {
   opacity: 0;
 }
@@ -191,19 +198,19 @@
 
 /* failsafe without the script: the ink, then the outline out, then the small line and cue */
 :global(html[data-intro='full']:not([data-opening-js])) .ink {
-  animation: fade 0.8s 3.1s var(--ease-settle) both;
+  animation: fade 0.8s 2.5s var(--ease-settle) both;
 }
 
 :global(html[data-intro='full']:not([data-opening-js])) .strokes {
-  animation: fade-out 0.5s 3.6s both;
+  animation: fade-out 0.5s 3s both;
 }
 
 :global(html[data-intro='full']:not([data-opening-js])) .body {
-  animation: fade 0.6s 4.2s var(--ease-settle) both;
+  animation: fade 0.6s 3.6s var(--ease-settle) both;
 }
 
 :global(html[data-intro='full']:not([data-opening-js])) .cue {
-  animation: fade 0.6s 4.6s var(--ease-settle) both;
+  animation: fade 0.6s 4s var(--ease-settle) both;
 }
 
 /* the script drives the hairlines from here (inline styles) */
@@ -213,7 +220,7 @@
 
 @keyframes engrave {
   0% {
-    stroke-dashoffset: 1;
+    stroke-dashoffset: var(--len, 0);
     opacity: 0;
   }
   1% {

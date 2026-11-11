@@ -4,17 +4,24 @@ import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { loadProgress, onLoadProgress, reportLoad } from '@/lib/loader/progress';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
-import { OPEN_VH, clamp01, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
+import {
+  OPEN_START_VH,
+  OPEN_VH,
+  clamp01,
+  expoOut,
+  openingPose,
+  openingStore,
+} from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
   AFTER,
   COUNTER_START,
   DONE_AT,
-  ENGRAVE_MAX,
-  ENGRAVE_MIN,
+  HOLD_MAX,
   UNLOCK_AT,
   WINDOW,
-  letterDraw,
+  clockProgress,
+  clockTime,
   letterStart,
   phase,
 } from './timing';
@@ -22,13 +29,31 @@ import styles from './SambharOpening.module.css';
 
 const [VX, VY, VW, VH] = SAMBHAR.viewBox;
 
+/** The document timeline's time (the current frame's), or now. */
+const frameTime = () => {
+  const t = document.timeline?.currentTime;
+  return typeof t === 'number' ? t : performance.now();
+};
+
 /** React dev mounts effects twice: the intro's clock survives the remount. */
 let introClock: number | null = null;
+
+/** Each contour's index in the word (the outer contour, then its counters), for --len. */
+const FIRST = SAMBHAR.letters.reduce<number[]>(
+  (acc, l, i) => [
+    ...acc,
+    (acc[i - 1] ?? 0) + (i ? 1 + SAMBHAR.letters[i - 1]!.counters.length : 0),
+  ],
+  [],
+);
 let pendingFinish = 0;
 
-/** Phones: SAMBHAR spans the width less 16px gutters; wider screens: 78% of the width. */
+/**
+ * Phones: SAMBHAR spans the width less 24px margins each side (clamped like the CSS); wider
+ * screens: 78% of the width.
+ */
 const PHONE = 700;
-const inkWidth = (w: number) => (w < PHONE ? w - 32 : 0.78 * w);
+const inkWidth = (w: number) => (w < PHONE ? Math.min(651, Math.max(200, w - 48)) : 0.78 * w);
 
 /** The word's geometry as fractions of its width (the CSS lays it out from these). */
 const GEO = {
@@ -40,11 +65,20 @@ const GEO = {
 } as CSSProperties;
 
 /**
- * Runs as the markup is parsed, before first paint: the hairline width in font units (1 CSS px,
- * 0.75 on phones) and the seam (where the word splits, on a whole pixel at half the height), so the
- * CSS engraving can start at once, before any script has loaded.
+ * Runs as the markup is parsed, before first paint: each hairline's length on screen (the strokes
+ * are non-scaling, so their dashes are in screen pixels) and the seam (where the word splits, on a
+ * whole pixel at half the height), so the CSS engraving can start at once, before any script.
  */
-const PRE = `(function(r){var w=innerWidth,s=(w<${PHONE}?w-32:.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px';r.style.setProperty('--sw',((w<${PHONE}?.75:1)/s).toFixed(3));r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
+// The lengths go into a <style> in <head>, not onto the paths: React owns the paths' attributes,
+// and changing them before hydration is a hydration mismatch. The engraving's start time is kept
+// on window, so a remount (or a client re-render) continues on the same clock.
+const PRE = `(function(r){window.__sambharT0=window.__sambharT0||performance.now();var w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px',c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
+
+/** The CSS engraving's timing for a contour drawn over [a, a + w] of the progress, on the clock. */
+const timed = (a: number, w: number) => ({
+  animationDelay: `${clockTime(a).toFixed(3)}s`,
+  animationDuration: `${(clockTime(a + w) - clockTime(a)).toFixed(3)}s`,
+});
 
 /** One copy of the word: the ink (masked from the line outward), the hairlines and their tips. */
 function Word() {
@@ -105,24 +139,18 @@ function Word() {
           <g key={i}>
             <path
               d={l.outer}
-              pathLength={1}
               data-contour={i}
-              style={{
-                animationDelay: `${(letterStart(i) * ENGRAVE_MAX).toFixed(3)}s`,
-                animationDuration: `${(WINDOW * ENGRAVE_MAX).toFixed(3)}s`,
-              }}
+              data-c={FIRST[i]}
+              style={timed(letterStart(i), WINDOW)}
             />
             {l.counters.map((c, k) => (
               <path
                 key={k}
                 d={c}
-                pathLength={1}
                 data-contour={i}
+                data-c={FIRST[i]! + 1 + k}
                 data-counter=""
-                style={{
-                  animationDelay: `${((letterStart(i) + COUNTER_START * WINDOW) * ENGRAVE_MAX).toFixed(3)}s`,
-                  animationDuration: `${((1 - COUNTER_START) * WINDOW * ENGRAVE_MAX).toFixed(3)}s`,
-                }}
+                style={timed(letterStart(i) + COUNTER_START * WINDOW, (1 - COUNTER_START) * WINDOW)}
               />
             ))}
           </g>
@@ -140,8 +168,8 @@ function Word() {
 /**
  * "Sambhar is engraved": the homepage's opening, inside the hero's pinned stage.
  *
- *   A  SAMBHAR engraves in gold hairlines, letter by letter, as the page really loads (fonts
- *      20%, three.js + GSAP 30%, the jar 50%). Then the navy ink spreads outward from the
+ *   A  SAMBHAR engraves in gold hairlines, letter by letter, in one 2.4 s pass; if the page
+ *      isn't ready yet, the word holds, shimmering, for up to 4 s. Then the navy ink spreads from the
  *      seam, the outline fades, and the header, the small line and the scroll cue come in.
  *   B  Scrolling opens the horizon: the word splits along the seam, the halves part and drift
  *      out (the top half under the header), the gap glowing faintly gold.
@@ -179,12 +207,21 @@ export function SambharOpening() {
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     const words = [...root.querySelectorAll<SVGSVGElement>('svg')];
     const contours = words.map((w) =>
-      [...w.querySelectorAll<SVGPathElement>('[data-contour]')].map((p) => ({
-        el: p,
-        letter: Number(p.dataset.contour),
-        counter: p.hasAttribute('data-counter'),
-        len: p.getTotalLength(),
-      })),
+      [...w.querySelectorAll<SVGPathElement>('[data-contour]')].map((p) => {
+        const letter = Number(p.dataset.contour);
+        const counter = p.hasAttribute('data-counter');
+        // the same start and end times as the CSS engraving (timed()), linear in between, so
+        // the script takes over exactly where the CSS has drawn to
+        const from = letterStart(letter) + (counter ? COUNTER_START * WINDOW : 0);
+        return {
+          el: p,
+          letter,
+          len: p.getTotalLength(), // font units
+          t0: clockTime(from),
+          t1: clockTime(letterStart(letter) + WINDOW),
+          floor: 0, // how far it has been drawn (on screen, by the CSS or the script)
+        };
+      }),
     );
     const tips = words.map((w) => [...w.querySelectorAll<SVGCircleElement>('[data-tips] circle')]);
     const bands = words.map((w) => w.querySelector<SVGLinearGradientElement>('[data-ink-band]')!);
@@ -204,7 +241,9 @@ export function SambharOpening() {
       seam = Math.round(H / 2);
       unit = inkWidth(W) / VW;
       hb = header?.getBoundingClientRect().bottom ?? 0;
-      root.style.setProperty('--sw', ((W < PHONE ? 0.75 : 1) / unit).toFixed(3));
+      // the hairlines are non-scaling: their dashes are measured on screen
+      for (const cs of contours)
+        for (const k of cs) k.el.style.setProperty('--len', (k.len * unit).toFixed(2));
       root.style.setProperty('--seam', `${seam}px`);
       root.style.setProperty('--hb', `${hb}px`);
       stage.style.setProperty('--seam', `${seam}px`);
@@ -212,14 +251,15 @@ export function SambharOpening() {
     measure();
 
     // ---- A: the engraving and what follows it ----
-    const setEngrave = (e: number) => {
+    /** The pen at t seconds into the engraving (Infinity: finished). */
+    const setEngrave = (t: number) => {
       for (let w = 0; w < words.length; w++) {
         const cs = contours[w]!;
         for (let c = 0; c < cs.length; c++) {
           const k = cs[c]!;
-          const d = letterDraw(k.letter, e);
-          const a = k.counter ? d.counter : d.outer;
-          k.el.style.strokeDashoffset = String(1 - a);
+          const a = Math.max(k.floor, clamp01((t - k.t0) / (k.t1 - k.t0)));
+          k.floor = a; // a hairline only ever grows
+          k.el.style.strokeDashoffset = (k.len * unit * (1 - a)).toFixed(2);
           k.el.style.opacity = a > 0 ? '1' : '0'; // no round-cap dot before a contour starts
           // The tip: a soft gold head on the pen, fading as the letter completes.
           const tip = tips[w]![c]!;
@@ -234,11 +274,22 @@ export function SambharOpening() {
           }
         }
       }
-      hindiIn = Math.min(1, e * 1.4);
+      hindiIn = Math.min(1, clockProgress(t) * 1.4);
       hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
     };
     let hindiIn = 1;
     let hindiOpen = 1;
+
+    /** A very soft gold shimmer travelling along the finished word, opacity only. */
+    const setShimmer = (time: number, amp: number) => {
+      const w = ((time / 1.8) % 1) * 1.5 - 0.25; // the bright crest, left to right
+      for (const cs of contours)
+        for (const k of cs) {
+          const u = (k.letter + 0.5) / SAMBHAR.letters.length;
+          const crest = Math.exp(-(((u - w) / 0.14) ** 2));
+          k.el.style.opacity = (1 - amp * 0.2 * (1 - crest)).toFixed(3);
+        }
+    };
 
     /** The ink band's half-height (font units) at fill f, feathered 2px at both edges. */
     const setFill = (f: number) => {
@@ -274,12 +325,13 @@ export function SambharOpening() {
 
     const finishIntro = () => {
       if (html.hasAttribute('data-intro-done')) return;
-      setEngrave(1);
+      setEngrave(Infinity);
       setAfter(DONE_AT);
       for (const k of headerKids) k.style.removeProperty('opacity');
       body.style.removeProperty('opacity');
       cue.style.removeProperty('opacity');
       html.setAttribute('data-header-in', '');
+      html.setAttribute('data-engraved', '');
       html.setAttribute('data-intro-done', '');
       html.style.removeProperty('overflow');
       lenisStore.get()?.start();
@@ -293,15 +345,28 @@ export function SambharOpening() {
     }
 
     if (!introDone) {
-      // Take over the CSS engraving's clock (it has been running since first paint).
-      // the first hairline (S, no delay) carries the CSS clock
+      // Take over the CSS engraving's clock (it has been running since first paint). The
+      // pre-paint script noted when that was; failing that, the first hairline (S, no delay)
+      // carries the CSS clock. A second mount keeps the first one's clock.
       const css = contours[0]?.[0]?.el.getAnimations()[0];
+      const pre = (window as { __sambharT0?: number }).__sambharT0;
       const cssElapsed =
         introClock !== null
           ? (performance.now() - introClock) / 1000
           : css && typeof css.currentTime === 'number'
-            ? css.currentTime / 1000
-            : 0;
+            ? // an animation's time is frozen at the last frame during a long task (hydration):
+              // add the time since then, or the script would start behind what's on screen
+              (css.currentTime + Math.max(0, performance.now() - frameTime())) / 1000
+            : typeof pre === 'number'
+              ? (performance.now() - pre) / 1000
+              : 0;
+      // whatever the CSS has already drawn stays drawn
+      for (const cs of contours)
+        for (const k of cs) {
+          const st = getComputedStyle(k.el);
+          const L = k.len * unit;
+          k.floor = st.opacity === '0' || !L ? 0 : clamp01(1 - parseFloat(st.strokeDashoffset) / L);
+        }
       html.setAttribute('data-opening-js', '');
       const t0 = (introClock ??= performance.now() - cssElapsed * 1000);
       void document.fonts.ready.then(() => reportLoad('fonts', 1));
@@ -311,38 +376,42 @@ export function SambharOpening() {
           'सांभर',
         )
         .catch(() => {});
-      let target = loadProgress();
-      cleanups.push(onLoadProgress((p) => (target = p)));
-      let x = Math.min(1, cssElapsed / ENGRAVE_MAX);
-      let v = 0;
-      let last = performance.now();
+      // The pen runs on the clock alone; load progress only decides when the loader ends.
+      let ready = loadProgress() >= 1;
+      cleanups.push(onLoadProgress((p) => (ready ||= p >= 1)));
       let engravedAt = -1;
+      let afterAt = -1;
+      let shimmerFrom = 0;
       let unlocked = false;
       // Arrived already scrolled (restored position): no intro, the filled word.
       if (window.scrollY > 8) finishIntro();
       else {
         html.style.overflow = 'hidden'; // held until the outline has faded (Lenis is stopped too)
-        setEngrave(x);
+        setEngrave(cssElapsed);
         setFill(0);
         const tick = (now: number) => {
           const t = (now - t0) / 1000;
-          const dt = Math.min(0.05, (now - last) / 1000);
-          last = now;
           if (engravedAt < 0) {
-            // A critically damped spring towards the real progress, at most 1/1.2 s per unit,
-            // and never behind the 3 s clock.
-            const k = 60;
-            v += (k * (target - x) - 2 * Math.sqrt(k) * v) * dt;
-            // once everything has loaded, no slow creep through the last per cent
-            v = Math.min(Math.max(v, target >= 1 ? 0.6 : 0), 1 / ENGRAVE_MIN);
-            x = Math.min(Math.max(x + v * dt, t / ENGRAVE_MAX), Math.max(target, t / ENGRAVE_MAX));
-            if (x >= 0.995) {
-              x = 1;
+            setEngrave(t);
+            if (clockProgress(t) >= 1) {
               engravedAt = t;
+              html.setAttribute('data-engraved', ''); // heavier work may start now
             }
-            setEngrave(x);
+          } else if (afterAt < 0) {
+            // the finished word, held until the page is ready (at most HOLD_MAX)
+            const hold = t - engravedAt;
+            setShimmer(hold, Math.min(1, hold / 0.3));
+            if (ready || hold >= HOLD_MAX) {
+              afterAt = t;
+              shimmerFrom = Math.min(1, hold / 0.3);
+            }
           } else {
-            const s = t - engravedAt;
+            const fade = Math.max(0, 1 - (t - afterAt) / 0.3);
+            if (shimmerFrom > 0) {
+              setShimmer(t - engravedAt, shimmerFrom * fade);
+              if (fade === 0) shimmerFrom = 0;
+            }
+            const s = t - afterAt;
             setAfter(s);
             if (!unlocked && s >= UNLOCK_AT) {
               unlocked = true;
@@ -404,7 +473,8 @@ export function SambharOpening() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: hero,
-          start: 'top top',
+          // behind the Journey panorama, which uncovers it three-quarters done
+          start: () => `top+=${Math.round(window.innerHeight * OPEN_START_VH)} top`,
           end: () => `+=${Math.round(window.innerHeight * OPEN_VH)}`,
           scrub: 0.9,
           invalidateOnRefresh: true,

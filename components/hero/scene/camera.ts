@@ -40,6 +40,7 @@ export function cameraAt(
   p: number,
   layout: HeroLayout,
   glide = 1,
+  pans = false,
 ): void {
   let i = 0;
   while (i < K.length - 2 && p > K[i + 1]!.p) i++;
@@ -72,8 +73,21 @@ export function cameraAt(
     cp.y += lift;
   }
 
+  // The salt pans: from the pour, one slow, low dolly forward at a 1.2 m eye height (the scene
+  // is 1:10), tilted up a little so the horizon sits low and the sky holds the words.
+  let camZ = layout.camZ;
+  if (pans && p > 0.74) {
+    const t = clamp01((p - 0.74) / 0.26);
+    const k = smooth(0.78, 0.9, p);
+    const glide = 0.5 * t + 0.5 * t * t * (3 - 2 * t);
+    const endZ = layout.portrait ? 0.15 : -0.45;
+    cp.set(0.03 * t, 0.1 + 0.02 * k, 0.56 + (endZ - 0.56) * glide);
+    cl.set(0.03 - 0.01 * k, 0.08 + 0.25 * k, -3.4 * k);
+    camZ = layout.camZ + (1 - layout.camZ) * k;
+  }
+
   // Pull back along the view direction on portrait screens.
-  cp.sub(cl).multiplyScalar(layout.camZ).add(cl);
+  cp.sub(cl).multiplyScalar(camZ).add(cl);
   camera.position.copy(cp);
   camera.lookAt(cl);
 }
