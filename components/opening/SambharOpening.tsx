@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
-import { onLoadProgress, partProgress, reportLoad } from '@/lib/loader/progress';
+import { reportLoad } from '@/lib/loader/progress';
 import { loadGsap } from '@/lib/motion/gsap';
-import { unlockScroll } from '@/lib/motion/unlock';
+import { refreshOnce } from '@/lib/motion/unlock';
 import { OPEN_START_VH, OPEN_VH, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
   AFTER,
   COUNTER_START,
   DONE_AT,
-  HOLD_MAX,
-  UNLOCK_AT,
+  ENGRAVE,
+  FAST,
   WINDOW,
   clockProgress,
   clockTime,
@@ -65,7 +65,7 @@ const GEO = {
 // The lengths go into a <style> in <head>, not onto the paths: React owns the paths' attributes,
 // and changing them before hydration is a hydration mismatch. The engraving's start time is kept
 // on window, so a remount (or a client re-render) continues on the same clock.
-const PRE = `(function(r){window.__sambharT0=window.__sambharT0||performance.now();var w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px',c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
+const PRE = `(function(r){window.__sambharT0=window.__sambharT0||performance.now();var k=function(){window.__sambharSkip=performance.now();['wheel','touchmove','keydown','pointerdown'].forEach(function(e){removeEventListener(e,k,true)})};['wheel','touchmove','keydown','pointerdown'].forEach(function(e){addEventListener(e,k,{capture:true,passive:true})});var w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px',c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
 
 /** The CSS engraving's timing for a contour drawn over [a, a + w] of the progress, on the clock. */
 const timed = (a: number, w: number) => ({
@@ -162,8 +162,8 @@ function Word() {
  * "Sambhar is engraved": the homepage's opening, inside the hero's pinned stage.
  *
  *   A  SAMBHAR engraves in gold hairlines, letter by letter, in one 2.4 s pass; if the page
- *      isn't ready yet, the word holds, shimmering, for up to 4 s. Then the navy ink spreads from the
- *      seam, the outline fades, and the header, the small line and the scroll cue come in.
+ *      nothing holds the page: the first scroll input finishes it in ~0.3 s. Then the navy ink
+ *      spreads from the seam, the outline fades, and the header, the small line and the scroll cue come in.
  *   B  Scrolling opens the horizon: the word splits along the seam, the halves part and drift
  *      out (the top half under the header), the gap glowing faintly gold.
  *   C  The jar rises out of the gap (components/hero/scene reads the same progress), then
@@ -252,18 +252,6 @@ export function SambharOpening() {
     let hindiIn = 1;
     let hindiOpen = 1;
 
-    /** A very soft gold shimmer travelling along the finished word (each letter's group). */
-    const letterGroups = strokes.map((g) => [...g.children] as SVGGElement[]);
-    const setShimmer = (time: number, amp: number) => {
-      const w = ((time / 1.8) % 1) * 1.5 - 0.25; // the bright crest, left to right
-      for (const gs of letterGroups)
-        gs.forEach((g, i) => {
-          const u = (i + 0.5) / gs.length;
-          const crest = Math.exp(-(((u - w) / 0.14) ** 2));
-          g.style.opacity = (1 - amp * 0.2 * (1 - crest)).toFixed(3);
-        });
-    };
-
     /** The ink band's half-height (font units) at fill f, feathered 2px at both edges. */
     const setFill = (f: number) => {
       const feather = 2 / unit;
@@ -306,7 +294,7 @@ export function SambharOpening() {
       html.setAttribute('data-header-in', '');
       html.setAttribute('data-engraved', '');
       html.setAttribute('data-intro-done', '');
-      void unlockScroll();
+      void refreshOnce();
       introDone = true;
     };
 
@@ -333,7 +321,7 @@ export function SambharOpening() {
               ? (performance.now() - pre) / 1000
               : 0;
       html.setAttribute('data-opening-js', '');
-      const t0 = (introClock ??= performance.now() - cssElapsed * 1000);
+      introClock ??= ( performance.now() - cssElapsed * 1000);
       void document.fonts.ready.then(() => reportLoad('fonts', 1));
       void document.fonts
         .load(
@@ -341,59 +329,65 @@ export function SambharOpening() {
           'सांभर',
         )
         .catch(() => {});
-      // The pen runs on the clock alone; load progress only decides when the loader ends.
-      // Ready = what the page needs to scroll (fonts, GSAP). The 3D model, textures and sounds
-      // keep loading in the background: only step 2's reveal needs them.
-      const pageReady = () => partProgress('fonts') >= 1 && partProgress('gsap') >= 1;
-      let ready = pageReady();
-      cleanups.push(onLoadProgress(() => (ready ||= pageReady())));
-      let engravedAt = -1;
-      let afterAt = -1;
-      let shimmerFrom = 0;
-      let unlocked = false;
-      // Arrived already scrolled (restored position): no intro, the filled word.
-      if (window.scrollY > 8) finishIntro();
-      else {
-        html.style.overflow = 'hidden'; // held until the outline has faded (Lenis is stopped too)
-        setEngrave(cssElapsed);
-        setFill(0);
-        const tick = (now: number) => {
-          const t = (now - t0) / 1000;
-          if (engravedAt < 0) {
-            setEngrave(t);
-            if (clockProgress(t) >= 1) {
-              engravedAt = t;
-              html.setAttribute('data-engraved', ''); // heavier work may start now
+      // The pen runs on the clock alone and nothing holds the page: scrolling works from the
+      // first paint. The first scroll input finishes the intro fast (FAST), it never waits.
+      const FILL_END = ENGRAVE + AFTER.fill[1];
+      let vt = cssElapsed; // the intro's own clock (seconds), sped up once interrupted
+      let last = performance.now();
+      let rate = 1;
+      let fast = false;
+      let engraved = false;
+      const interrupt = () => {
+        if (fast) return;
+        fast = true;
+        removeInputs();
+        if (vt >= FILL_END) return;
+        // the CSS hairlines: each one ends within FAST seconds (Web Animations API)
+        for (const cs of contours)
+          for (const c of cs)
+            for (const a of c.el.getAnimations()) {
+              const end = Number(a.effect?.getComputedTiming().endTime ?? 0);
+              const left = end - Number(a.currentTime ?? end);
+              if (left > 0) a.playbackRate = Math.max(1, left / (FAST * 1000));
             }
-          } else if (afterAt < 0) {
-            // the finished word, held until the page is ready (at most HOLD_MAX)
-            const hold = t - engravedAt;
-            setShimmer(hold, Math.min(1, hold / 0.3));
-            if (ready || hold >= HOLD_MAX) {
-              afterAt = t;
-              shimmerFrom = Math.min(1, hold / 0.3);
-            }
-          } else {
-            const fade = Math.max(0, 1 - (t - afterAt) / 0.3);
-            if (shimmerFrom > 0) {
-              setShimmer(t - engravedAt, shimmerFrom * fade);
-              if (fade === 0) shimmerFrom = 0;
-            }
-            const s = t - afterAt;
-            setAfter(s);
-            if (!unlocked && s >= UNLOCK_AT) {
-              unlocked = true;
-              void unlockScroll();
-            }
-            if (s >= DONE_AT) {
-              finishIntro();
-              return;
-            }
+        rate = vt < ENGRAVE ? Math.max(1, (ENGRAVE - vt) / FAST) : 1;
+      };
+      const INPUTS = ['wheel', 'touchmove', 'keydown', 'scroll', 'pointerdown'] as const;
+      const removeInputs = () =>
+        INPUTS.forEach((e) => window.removeEventListener(e, interrupt, true));
+      INPUTS.forEach((e) =>
+        window.addEventListener(e, interrupt, { capture: true, passive: true }),
+      );
+      cleanups.push(removeInputs);
+      // input before the script arrived (the pre-paint script noted it)
+      if ((window as { __sambharSkip?: number }).__sambharSkip || window.scrollY > 8) interrupt();
+      setEngrave(vt);
+      setFill(0);
+      const tick = (now: number) => {
+        const dt = Math.min(0.1, (now - last) / 1000);
+        last = now;
+        vt += dt * rate;
+        if (fast && vt >= ENGRAVE && rate > 1 && vt < FILL_END)
+          rate = AFTER.fill[1] / FAST; // then the navy fill, as quickly
+        if (vt >= FILL_END) rate = 1;
+        if (!engraved) {
+          setEngrave(vt);
+          if (clockProgress(vt) >= 1) {
+            engraved = true;
+            html.setAttribute('data-engraved', ''); // heavier work may start now
           }
-          raf = requestAnimationFrame(tick);
-        };
+        }
+        if (vt >= ENGRAVE) {
+          const s = vt - ENGRAVE;
+          setAfter(s);
+          if (s >= DONE_AT) {
+            finishIntro();
+            return;
+          }
+        }
         raf = requestAnimationFrame(tick);
-      }
+      };
+      raf = requestAnimationFrame(tick);
     }
 
     // ---- B and C: the scrubbed opening ----

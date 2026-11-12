@@ -70,7 +70,7 @@ export const viewport: Viewport = {
  */
 const LOADER_CSS = `html[data-intro=full]:not([data-intro-done]) [data-ink]{opacity:0}[data-strokes] path{fill:none;opacity:0}`;
 
-const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
+const HEAD_FLAGS = `try{if(!location.hash){history.scrollRestoration='manual';scrollTo(0,0)}}catch(e){}try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

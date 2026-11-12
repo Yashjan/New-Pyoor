@@ -17,6 +17,8 @@ import {
   Float32BufferAttribute,
   Line,
   LineBasicMaterial,
+  type Mesh,
+  type Material,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
@@ -67,6 +69,12 @@ const HEMI_PINK = new Color('#e7a6a0');
 /** The idle turn while the jar is at rest: ~6° a second. */
 const TURN_RATE = (6 * Math.PI) / 180;
 
+const idle = () =>
+  new Promise<void>((resolve) =>
+    window.requestIdleCallback
+      ? window.requestIdleCallback(() => resolve(), { timeout: 500 })
+      : window.setTimeout(resolve, 16),
+  );
 const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
@@ -86,6 +94,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     alpha: true,
     powerPreference: 'high-performance',
   });
+  // No error log reads: getProgramInfoLog waits for the compile, which turns the parallel
+  // (KHR_parallel_shader_compile) compile back into a ~1–2 s freeze of the page.
+  renderer.debug.checkShaderErrors = false;
   renderer.setClearColor(SKY, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier.maxDpr));
   renderer.toneMapping = ACESFilmicToneMapping;
@@ -344,6 +355,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // (KHR_parallel_shader_compile), instead of blocking the page for ~0.2–0.7 s on first render.
   await nextFrame();
   pour.mound.visible = true; // compile it too
+  await idle();
   try {
     await renderer.compileAsync(scene, camera);
   } catch {
@@ -354,12 +366,28 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   {
     const w = Math.max(2, renderer.domElement.width);
     const h = Math.max(2, renderer.domElement.height);
+    await idle();
     const warm = new WebGLRenderTarget(w, h);
     cameraAt(camera, 0, layout, 1);
     // everything that only appears later (the mound) is drawn once here too, so its programs
     // and shadow pass are built now rather than mid-scroll
     pour.mound.visible = true;
     renderer.setRenderTarget(warm);
+    // One object per idle moment: without parallel compile (many phones, software GL) linking
+    // every program in one render freezes the page for 1–2 s, which stalls scrolling.
+    const mats = new Map<Material, boolean>();
+    scene.traverse((o) => {
+      const m = (o as Mesh).material;
+      if (m) (Array.isArray(m) ? m : [m]).forEach((x) => mats.set(x, x.visible));
+    });
+    for (const m of mats.keys()) {
+      if (signal.aborted) break;
+      mats.forEach((_, x) => (x.visible = x === m));
+      renderer.render(scene, camera);
+      await idle();
+    }
+    mats.forEach((v, x) => (x.visible = v));
+    pour.mound.visible = true;
     renderer.render(scene, camera);
     renderer.setRenderTarget(null);
     renderer.clear(); // the visible canvas never holds a warm-up frame

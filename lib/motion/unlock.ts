@@ -1,5 +1,4 @@
 import { loadGsap } from './gsap';
-import { lenisStore } from './lenis';
 
 let refreshed = false;
 
@@ -11,16 +10,3 @@ export async function refreshOnce(): Promise<void> {
   ScrollTrigger.refresh();
 }
 
-/**
- * Lets the visitor scroll (the instant the loader's ink fill completes): re-measure once, then
- * start Lenis from where the page is. Input while locked was ignored, never buffered.
- */
-export async function unlockScroll(): Promise<void> {
-  await refreshOnce();
-  document.documentElement.style.removeProperty('overflow');
-  const lenis = lenisStore.get();
-  if (!lenis) return;
-  lenis.resize();
-  lenis.scrollTo(window.scrollY, { immediate: true, force: true });
-  lenis.start();
-}

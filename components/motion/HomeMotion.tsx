@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
-import { introIsFull } from '@/lib/loader/progress';
 import { refreshOnce } from '@/lib/motion/unlock';
 import { POUR_END, POUR_START } from '@/lib/motion/pour';
 
@@ -166,9 +165,8 @@ export function HomeMotion() {
         }
       });
 
-      // Re-measure exactly once, after the fonts. With the intro, the loader does it the instant
-      // scrolling unlocks (lib/motion/unlock.ts); nothing waits for the 3D model.
-      if (!introIsFull()) void refreshOnce();
+      // Re-measure exactly once, after the fonts; nothing waits for the 3D model or images.
+      void refreshOnce();
 
       cleanup = () => {
         ctx.revert();

@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore, scrollToHash } from '@/lib/motion/lenis';
-import { introIsFull } from '@/lib/loader/progress';
 
 /**
  * Lenis smooth scroll, driven by GSAP's ticker so ScrollTrigger and Lenis share one clock.
@@ -33,8 +32,6 @@ export function SmoothScroll() {
       const tick = (time: number) => lenis.raf(time * 1000);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
-      // Hold scrolling under the first-visit opening; SambharOpening starts Lenis after the glint.
-      if (introIsFull()) lenis.stop();
       lenisStore.set(lenis);
 
       const onClick = (e: MouseEvent) => {

@@ -20,11 +20,11 @@ export function letterDraw(i: number, e: number): { outer: number; counter: numb
 }
 
 /**
- * The engraving draws on time alone: one steady pass of 2.4 s, ease-in-out. Load progress only
- * decides when the loader ends (the finished word is held, shimmering, for at most HOLD_MAX).
+ * The engraving draws on time alone: one steady pass of 2.4 s, ease-in-out. Nothing waits for loading.
  */
 export const ENGRAVE = 2.4;
-export const HOLD_MAX = 4;
+/** The first scroll input finishes the engraving, then the fill, each in this many seconds. */
+export const FAST = 0.3;
 const inOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 /** Engraving progress at t seconds. */
 export const clockProgress = (t: number) => inOut(clamp01(t / ENGRAVE));
@@ -42,10 +42,9 @@ export const AFTER = {
   outline: [0.56, 1],
   header: [1, 1.6],
   body: [1.42, 2.02],
-  cue: [1.84, 2.44],
+  cue: [0, 0.6], // only a hint: in as soon as the fill starts
 } as const;
-/** Scrolling is held until the outline has faded; the intro counts as done after the cue. */
-export const UNLOCK_AT = AFTER.fill[1]; // the instant the navy fill completes
-export const DONE_AT = AFTER.cue[1];
+/** The intro counts as done once the small line is in. */
+export const DONE_AT = AFTER.body[1];
 
 export const phase = (t: number, [a, b]: readonly [number, number]) => clamp01((t - a) / (b - a));
