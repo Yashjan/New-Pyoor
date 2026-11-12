@@ -261,12 +261,10 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     };
     go();
   };
-  let lastT = 0;
 
   const glints = () => root.querySelectorAll<SVGSVGElement>('[data-veil] [data-live="glint"]');
   let stepping = false;
   const step2 = (t: number, farTx: number) => {
-    lastT = t;
     if (t <= 0 || t >= 1) {
       if (!stepping) return;
       stepping = false;
