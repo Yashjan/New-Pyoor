@@ -29,14 +29,14 @@
   }
 }
 
-.half,
-.halfIn {
+.panel {
   position: absolute;
   inset: 0;
 }
 
-/* static: one copy of the word, unclipped */
-.half[data-half='bottom'] {
+/* static: one copy of the opening, unclipped, no seam */
+.panel[data-panel='r'],
+.seamBox {
   display: none;
 }
 
@@ -118,41 +118,72 @@
   animation: fade 0.6s var(--ease-settle) both;
 }
 
-/* ---------------- motion: inside the hero's pinned stage ---------------- */
+/* ---------------- motion: an overlay above the Journey, in the hero's pinned stage ----------------
+   Two identical ivory panels, each clipped to its half: together one screen, the seam at the
+   exact centre. The Journey's timeline parts them (--split-cue, transforms, --edge, --seam-draw). */
 :global(html.motion) .opening {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 5;
   height: auto;
   min-height: 0;
 }
 
-:global(html.motion) .half[data-half='bottom'] {
-  display: block;
-}
-
-/* Static clips; the script only moves .halfIn. The top half: cut at the seam (moving with
-   it) and, on the outer layer, at the header's bottom edge (fixed to the screen). */
-:global(html.motion) .half[data-half='top'] {
-  clip-path: inset(var(--hb, 0px) 0 0 0);
-}
-
-:global(html.motion) .half[data-half='top'] .halfIn {
-  clip-path: inset(0 0 calc(100% - var(--seam)) 0);
-}
-
-:global(html.motion) .half[data-half='bottom'] .halfIn {
-  clip-path: inset(var(--seam) 0 0 0);
-}
-
-:global(html.motion) .halfIn {
+:global(html.motion) .panel {
+  background: var(--ivory-100);
   will-change: transform;
 }
 
-/* the jar's mask (components/hero), once the halves have gone */
-.unmasked {
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
+:global(html.motion) .panel[data-panel='l'] {
+  clip-path: inset(0 50% 0 0);
+}
+
+:global(html.motion) .panel[data-panel='r'] {
+  display: block;
+  clip-path: inset(0 0 0 50%);
+}
+
+/* a soft gold edge along each cut, once the panels move */
+:global(html.motion) .panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 1px;
+  background: linear-gradient(transparent, var(--gold-500) 18%, var(--gold-500) 82%, transparent);
+  opacity: var(--edge, 0);
+}
+
+:global(html.motion) .panel[data-panel='r']::after {
+  left: 50%;
+}
+
+/* the seam: over the word's height and a little beyond, drawn top to bottom */
+:global(html.motion) .seamBox {
+  position: absolute;
+  left: 50%;
+  top: var(--seam);
+  display: block;
+  width: var(--word-w);
+  aspect-ratio: var(--aspect);
+  transform: translate(-50%, calc(var(--line-frac) * -100%));
+}
+
+:global(html.motion) .seamLine {
+  position: absolute;
+  left: calc(50% - 0.5px);
+  top: -16%;
+  bottom: -16%;
+  width: 1px;
+  background: var(--gold-500);
+  transform: scaleY(var(--seam-draw, 0));
+  opacity: var(--seam-fade, 1);
+  transform-origin: top;
+}
+
+:global(html.motion) .cue > * {
+  opacity: var(--split-cue, 1);
 }
 
 :global(html.motion) .cue {

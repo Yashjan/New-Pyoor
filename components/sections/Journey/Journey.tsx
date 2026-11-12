@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
-import { JOURNEY, JOURNEY_VH, STEP, journeyStore } from '@/lib/motion/opening';
+import { JOURNEY, JOURNEY_VH, SPLIT_VH, STEP, journeyStore } from '@/lib/motion/opening';
 import { FOV, heroCamera, jarStartX, layoutFor } from '@/lib/motion/heroCamera';
 import { LIVE, PANORAMA } from './panorama';
 import { LiveLayer, createLiving } from './Living';
@@ -88,7 +88,6 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
   let k = 1;
   let vw = 0;
   let artTop = 0;
-  let lineFrom = 0;
   let lineTo = 0;
   let current = 0;
 
@@ -116,9 +115,6 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     root.style.setProperty('--art-top', `${artTop}px`);
     root.style.setProperty('--art-h', `${artH}px`);
     LAYERS.forEach(sizeLayer);
-    const word = document.querySelector('[data-opening] svg');
-    const top = root.getBoundingClientRect().top;
-    lineFrom = (word ? word.getBoundingClientRect().bottom - top : vh / 2) + 14;
     lineTo = artTop + PANORAMA.horizon * k;
   };
 
@@ -384,18 +380,13 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
   const render = (s: number) => {
     current = s;
     root.dataset.progress = s.toFixed(4); // read by tests/scroll.spec.ts
-    root.style.visibility = s > 0.0005 && s < 0.9995 ? 'visible' : 'hidden';
-    const inP = phase(s, 0, JOURNEY.in);
+    // visible from the first frame: scene 01 waits behind the SAMBHAR panels
+    root.style.visibility = s < 0.9995 ? 'visible' : 'hidden';
+    const inP = 1; // (the split, before s, has uncovered the panorama)
     const pan = phase(s, JOURNEY.in, JOURNEY.out);
     const outP = phase(s, JOURNEY.out, 1);
 
-    // SAMBHAR -> the panorama: the word (with सांभर, the subline and the cue) fades right out
-    // over the first 40%, the line draws out under it and becomes the horizon; only then does
-    // the panorama come in, so the two are never on screen together
-    if (opening)
-      opening.style.opacity =
-        s >= 1 ? '' : outP > 0 ? '0' : (1 - ease(phase(inP, 0, 0.4))).toFixed(3);
-    const veilIn = ease(phase(inP, 0.4, 0.8));
+    const veilIn = 1;
     veil.style.opacity = veilIn.toFixed(3);
     journeyStore.covered = veilIn >= 1 && outP === 0;
     // the jar holds still while step 2 lines the engraving up on it, then floats again
@@ -404,13 +395,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     journeyStore.show3d = s >= 1 || outP >= STEP.reveal[0];
     journeyStore.reveal = s >= 1 ? 1 : phase(outP, ...STEP.reveal);
     living.active(inP > 0.7 && outP === 0);
-    const handing = inP < 1;
-    line.style.visibility = handing || (outP > 0 && outP < 1) ? 'visible' : 'hidden';
-    if (handing) {
-      const grow = ease(phase(inP, 0, 0.45));
-      const y = lineFrom + (lineTo - lineFrom) * ease(phase(inP, 0.4, 1));
-      line.style.transform = `translate3d(0,${y.toFixed(2)}px,0) scaleX(${grow.toFixed(4)})`;
-    }
+    line.style.visibility = outP > 0 && outP < 1 ? 'visible' : 'hidden';
     const horizon = svgs.far?.querySelector<SVGGElement>('g[data-s="h"]');
     // (in step 2 the horizon is the line, so the jar can pass in front of it)
     if (horizon) horizon.style.visibility = inP >= 1 && outP === 0 ? 'visible' : 'hidden';
@@ -465,10 +450,36 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     }
   };
 
+  /* ---------------- the split: SAMBHAR's panels part (the first SPLIT_VH of the pin) ---------------- */
   const opening = document.querySelector<HTMLElement>('[data-opening]');
+  const panelL = opening?.querySelector<HTMLElement>('[data-panel="l"]');
+  const panelR = opening?.querySelector<HTMLElement>('[data-panel="r"]');
+  const powerInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+  const split = (q: number) => {
+    if (!opening || !panelL || !panelR) return;
+    opening.dataset.progress = q.toFixed(4); // read by tests/scroll.spec.ts
+    opening.style.visibility = q >= 1 ? 'hidden' : '';
+    // 0–12%: the gold hairline draws down the seam; the cue goes in the first 10%
+    opening.style.setProperty('--seam-draw', phase(q, 0, 0.12).toFixed(4));
+    opening.style.setProperty('--split-cue', (1 - phase(q, 0, 0.1)).toFixed(3));
+    // 12–100%: the halves part to ∓55% of the screen, each with a soft gold edge on its cut
+    const m = powerInOut(phase(q, 0.12, 1));
+    panelL.style.transform = m > 0 ? `translate3d(${(-55 * m).toFixed(3)}%,0,0)` : '';
+    panelR.style.transform = m > 0 ? `translate3d(${(55 * m).toFixed(3)}%,0,0)` : '';
+    opening.style.setProperty('--edge', (0.6 * phase(q, 0.12, 0.2)).toFixed(3));
+    // the seam hands over to the two edges as they part
+    opening.style.setProperty('--seam-fade', (1 - phase(q, 0.12, 0.24)).toFixed(3));
+  };
+  /** The whole pin: the split (its first SPLIT_VH), then the panorama and step 2 (s). */
+  const SPLIT_AT = SPLIT_VH / (SPLIT_VH + JOURNEY_VH);
+  const renderAll = (u: number) => {
+    split(phase(u, 0, SPLIT_AT));
+    render(phase(u, SPLIT_AT, 1));
+  };
+
   measure();
   measureJar();
-  render(0);
+  renderAll(0);
 
   let cancelled = false;
   let kill: (() => void) | undefined;
@@ -481,11 +492,11 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
       scrollTrigger: {
         trigger: hero,
         start: 'top top',
-        end: () => `+=${Math.round(window.innerHeight * JOURNEY_VH)}`,
+        end: () => `+=${Math.round(window.innerHeight * (SPLIT_VH + JOURNEY_VH))}`,
         scrub: 0.6,
         invalidateOnRefresh: true,
       },
-      onUpdate: () => render(tl.progress()),
+      onUpdate: () => renderAll(tl.progress()),
     });
     tl.to(state, { s: 1, ease: 'none', duration: 1 });
     kill = () => {
@@ -516,6 +527,8 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
       svgs[l] = svg;
       sizeLayer(l);
     });
+    // scene 01 doesn't draw itself: it is there, whole, as the split uncovers it
+    drawScene(0, false);
     render(current);
   })().catch((err) => {
     if ((err as Error).name !== 'AbortError') console.error('Journey panorama failed', err);

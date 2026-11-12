@@ -164,7 +164,7 @@
 
 /* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
-  height: 900vh; /* the Journey's 500vh (the opening runs behind it), the pour's 300vh, the pinned screen */
+  height: 1000vh; /* the split's 100vh, the Journey's 500vh, the pour's 300vh, the pinned screen */
 }
 
 :global(html.motion) .stage {

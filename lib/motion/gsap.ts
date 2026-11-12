@@ -15,6 +15,9 @@ export function loadGsap(): Promise<GsapModules> {
       gsap.registerPlugin(ScrollTrigger);
       // the phone address bar showing/hiding must not re-measure (and jump) the page
       ScrollTrigger.config({ ignoreMobileResize: true });
+      // every trigger's start and end in px (tests/scroll.spec.ts: they must not drift)
+      (window as { __pyoorTriggers?: () => [number, number][] }).__pyoorTriggers = () =>
+        ScrollTrigger.getAll().map((t) => [Math.round(t.start), Math.round(t.end)]);
       return { gsap, ScrollTrigger };
     },
   );

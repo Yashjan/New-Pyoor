@@ -2,20 +2,19 @@ import { test, expect, type Page, type CDPSession } from '@playwright/test';
 
 /**
  * Scrolling is never held: from the first paint, through the SAMBHAR engraving and the fill,
- * one scroll input moves the page AND the SAMBHAR handoff (the word fades, the line draws).
+ * one scroll input moves the page AND the SAMBHAR split (the seam draws, the panels part).
  * Then a slow scroll through the Journey moves each scrubbed section smoothly.
  */
 
-type Probe = { y: number; opacity: number; journey: number; opening: number };
+type Probe = { y: number; split: number; journey: number };
 const probe = (page: Page) =>
   page.evaluate<Probe>(() => {
     const o = document.querySelector<HTMLElement>('[data-opening]');
     const j = document.querySelector<HTMLElement>('[data-journey]');
     return {
       y: window.scrollY,
-      opacity: o ? Number(getComputedStyle(o).opacity) : 1,
+      split: Number(o?.dataset.progress ?? 0),
       journey: Number(j?.dataset.progress ?? 0),
-      opening: Number(o?.dataset.progress ?? 0),
     };
   });
 
@@ -55,7 +54,7 @@ for (const [name, at] of [
   ['b: during the fill (3 s)', 3000],
   ['c: after the intro (6 s)', 6000],
 ] as const) {
-  test(`${name}: the first scroll moves the page and the handoff within 300 ms`, async ({
+  test(`${name}: the first scroll moves the page and starts the split within 300 ms`, async ({
     page,
   }, info) => {
     const touch = info.project.name === 'phone';
@@ -68,25 +67,26 @@ for (const [name, at] of [
     let after = before;
     while (Date.now() - t0 < 300) {
       after = await probe(page);
-      if (after.y > 0 && after.opacity < before.opacity - 0.01) break;
+      if (after.y > 0 && after.split > 0) break;
       await page.waitForTimeout(16);
     }
     console.log(`${info.project.name} ${name}: ${Date.now() - t0} ms`, before, after);
     expect(after.y, 'scrollY moved').toBeGreaterThan(0);
-    expect(after.opacity, 'the handoff moved (SAMBHAR fades)').toBeLessThan(before.opacity - 0.01);
+    expect(after.split, 'the split started (the seam draws)').toBeGreaterThan(0);
   });
 }
 
 test('d: a slow scroll through the Journey moves every scrubbed section smoothly', async ({
   page,
 }, info) => {
+  test.setTimeout(240_000);
   const touch = info.project.name === 'phone';
   const cdp = await page.context().newCDPSession(page);
   await loadAndWait(page, 500);
-  const end = await page.evaluate(() => window.innerHeight * 5); // JOURNEY_VH
+  const end = await page.evaluate(() => window.innerHeight * 6); // SPLIT_VH + JOURNEY_VH
   const samples: Probe[] = [await probe(page)];
-  for (let i = 0; i < 400 && samples.at(-1)!.journey < 0.999; i++) {
-    await scrollInput(page, cdp, touch, 80);
+  for (let i = 0; i < 800 && samples.at(-1)!.journey < 0.999; i++) {
+    await scrollInput(page, cdp, touch, 40);
     await page.waitForTimeout(90);
     samples.push(await probe(page));
     if (process.env.DEBUG_SCROLL) console.log(Date.now(), JSON.stringify(samples.at(-1)));
@@ -95,23 +95,23 @@ test('d: a slow scroll through the Journey moves every scrubbed section smoothly
   // let the scrub settle
   await page.waitForTimeout(1000);
   samples.push(await probe(page));
-  const worst = (k: 'journey' | 'opening') =>
+  const worst = (k: 'journey' | 'split') =>
     Math.max(...samples.slice(1).map((s, i) => s[k] - samples[i]![k]));
-  const back = (k: 'journey' | 'opening') =>
+  const back = (k: 'journey' | 'split') =>
     Math.min(...samples.slice(1).map((s, i) => s[k] - samples[i]![k]));
   console.log(
     `${info.project.name} d: ${samples.length} steps, final`,
     samples.at(-1),
     'largest step: journey',
     worst('journey').toFixed(3),
-    'opening',
-    worst('opening').toFixed(3),
+    'split',
+    worst('split').toFixed(3),
   );
   expect(samples.at(-1)!.journey, 'reached the end of the Journey').toBeGreaterThan(0.99);
   expect(worst('journey'), 'Journey: no step over 10%').toBeLessThanOrEqual(0.1);
-  expect(worst('opening'), 'opening: no step over 10%').toBeLessThanOrEqual(0.1);
+  expect(worst('split'), 'split: no step over 10%').toBeLessThanOrEqual(0.1);
   expect(back('journey'), 'Journey never jumps back').toBeGreaterThanOrEqual(-0.001);
-  expect(back('opening'), 'opening never jumps back').toBeGreaterThanOrEqual(-0.001);
+  expect(back('split'), 'split never jumps back').toBeGreaterThanOrEqual(-0.001);
 });
 
 for (const delayGlb of [false, true]) {
@@ -141,6 +141,9 @@ for (const delayGlb of [false, true]) {
           engOpacity: eng ? Number(getComputedStyle(eng).opacity) : 0,
           box: h?.box ?? null,
           shown: !!h?.shown,
+          split: Number(
+            document.querySelector<HTMLElement>('[data-opening]')?.dataset.progress ?? 0,
+          ),
         };
       });
     type R = Awaited<ReturnType<typeof read>>;
@@ -148,11 +151,13 @@ for (const delayGlb of [false, true]) {
     const reveal: R[] = [];
     let prev = await read();
     let steps = 0;
+    let splitAt = -1; // the step at which the split had started
     while (prev.y < prev.max - 2 && steps < 600) {
       await scrollInput(page, cdp, touch, touch ? 120 : 100);
       await page.waitForTimeout(110);
       const now = await read();
       steps++;
+      if (splitAt < 0 && now.split > 0) splitAt = steps;
       if (now.y <= prev.y) stuck.push(`step ${steps}: y ${prev.y} -> ${now.y} (s ${now.s})`);
       // step 2's reveal, as the jar is filled in (STEP.reveal, 0.35–0.85 of 0.6–1)
       if (now.s > 0.86 && now.s < 0.96) reveal.push(now);
@@ -172,7 +177,7 @@ for (const delayGlb of [false, true]) {
     const engravingHeld = reveal.filter((r) => !r.shown).every((r) => r.engOpacity > 0.5);
     console.log(
       `${info.project.name} e${delayGlb ? ' (GLB +5 s)' : ''}: ${steps} steps to y ${prev.y}/${prev.max};`,
-      `stuck ${stuck.length};`,
+      `stuck ${stuck.length}; split from step ${splitAt};`,
       `reveal samples ${reveal.length} (3D shown in ${off.length}), worst centre offset`,
       off.length ? (Math.max(...off) * 100).toFixed(1) + '%' : 'n/a',
       `; engraving held while 3D not ready: ${engravingHeld}`,
@@ -180,6 +185,7 @@ for (const delayGlb of [false, true]) {
     if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
     if (process.env.DEBUG_SCROLL) console.log(JSON.stringify(reveal));
     expect(stuck, 'every step scrolls').toEqual([]);
+    expect(splitAt, 'the split starts with the first step').toBe(1);
     expect(prev.y, 'reached the end').toBeGreaterThanOrEqual(prev.max - 2);
     expect(engravingHeld, 'the engraving stays while the 3D is not ready').toBe(true);
     if (!delayGlb) expect(off.length, 'the 3D jar was revealed').toBeGreaterThan(0);
@@ -187,3 +193,48 @@ for (const delayGlb of [false, true]) {
       expect(o, '3D jar centred on the engraving (±5%)').toBeLessThanOrEqual(0.05);
   });
 }
+
+test('f: a reload from the middle starts at the top, the whole SAMBHAR on screen', async ({
+  page,
+}) => {
+  await page.goto('/#journey');
+  await page.evaluate(() => window.scrollTo(0, 5000));
+  await page.waitForTimeout(500);
+  await page.reload();
+  await page.waitForTimeout(800);
+  const r = await page.evaluate(() => {
+    const o = document.querySelector<HTMLElement>('[data-opening]')!;
+    const panels = [...o.querySelectorAll<HTMLElement>('[data-panel]')];
+    return {
+      y: window.scrollY,
+      hash: location.hash,
+      visible: getComputedStyle(o).visibility,
+      split: Number(o.dataset.progress ?? 0),
+      transforms: panels.map((p) => getComputedStyle(p).transform),
+    };
+  });
+  console.log('f:', r);
+  expect(r.y).toBe(0);
+  expect(r.hash, 'the #hash is dropped on reload').toBe('');
+  expect(r.visible).toBe('visible');
+  expect(r.split).toBe(0);
+  for (const t of r.transforms) expect(t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)').toBe(true);
+});
+
+test('g: every ScrollTrigger keeps its start and end (after load and 10 s later)', async ({
+  page,
+}, info) => {
+  test.setTimeout(60_000);
+  await page.goto('/');
+  await page.waitForFunction(() => !!(window as { __pyoorTriggers?: unknown }).__pyoorTriggers);
+  await page.waitForTimeout(300);
+  const get = () =>
+    page.evaluate(() =>
+      (window as unknown as { __pyoorTriggers: () => [number, number][] }).__pyoorTriggers(),
+    );
+  const a = await get();
+  await page.waitForTimeout(10_000);
+  const b = await get();
+  console.log(`${info.project.name} g: ${JSON.stringify(a)} | 10 s later ${JSON.stringify(b)}`);
+  expect(b).toEqual(a);
+});

@@ -2,9 +2,8 @@
 
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { reportLoad } from '@/lib/loader/progress';
-import { loadGsap } from '@/lib/motion/gsap';
 import { refreshOnce } from '@/lib/motion/unlock';
-import { OPEN_START_VH, OPEN_VH, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
+import { expoOut } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
   AFTER,
@@ -79,6 +78,7 @@ function Word() {
   return (
     <svg
       className={styles.word}
+      data-word
       viewBox={`${VX} ${VY} ${VW} ${VH}`}
       aria-hidden="true"
       focusable="false"
@@ -159,19 +159,17 @@ function Word() {
 }
 
 /**
- * "Sambhar is engraved": the homepage's opening, inside the hero's pinned stage.
+ * "Sambhar is engraved": the homepage's opening. An overlay in the hero's pinned stage, above
+ * the Journey panorama; it has no scroll code of its own.
  *
- *   A  SAMBHAR engraves in gold hairlines, letter by letter, in one 2.4 s pass; if the page
- *      nothing holds the page: the first scroll input finishes it in ~0.3 s. Then the navy ink
- *      spreads from the seam, the outline fades, and the header, the small line and the scroll cue come in.
- *   B  Scrolling opens the horizon: the word splits along the seam, the halves part and drift
- *      out (the top half under the header), the gap glowing faintly gold.
- *   C  The jar rises out of the gap (components/hero/scene reads the same progress), then
- *      glides to 62% as the headline and CTA fade in.
+ *   The intro (this component): SAMBHAR engraves in gold hairlines (pure CSS, one 2.4 s pass),
+ *   the navy ink spreads from the line, then the header, the small line and the scroll cue come
+ *   in. Nothing holds the page: the first scroll input finishes the intro in ~0.3 s.
+ *   The split (components/sections/Journey, the first phase of its one scrubbed timeline): two
+ *   identical full-screen panels, each clipped to its half, part from a gold seam at the centre
+ *   to show scene 01 behind them.
  *
- * html[data-intro="full"] (app/layout.tsx) plays A on every load, refreshes included.
- * Without JS, or with reduced motion, the CSS shows the filled word at once, fades only. The
- * engraving starts in CSS before any script arrives; this component takes over its clock.
+ * Without JS, or with reduced motion, the CSS shows the filled word on one static screen.
  */
 export function SambharOpening() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -182,75 +180,71 @@ export function SambharOpening() {
     const html = document.documentElement;
     if (!root || !html.classList.contains('motion')) return;
     const stage = root.parentElement!;
-    const hero = stage.closest<HTMLElement>('[data-hero]')!;
-    const $ = <T extends Element = HTMLElement>(sel: string, from: ParentNode = root) =>
-      from.querySelector<T>(sel)!;
-    // the halves move as transforms only; their clips are static (SambharOpening.module.css)
-    const top = $('[data-half="top"] > div');
-    const bottom = $('[data-half="bottom"] > div');
-    const hindi = $('[data-hindi]');
-    const body = $('[data-body]');
-    const cue = $('[data-cue]');
-    const glow = $('[data-opening-glow]', stage);
-    const jarMask = $('[data-jar-mask]', stage);
-    const jarBack = $('[data-jar-back]', stage);
-    const poster = $('[data-jar-layer] img', stage);
-    const copyIn = $('[data-copy-in]', stage);
-    const rail = stage.querySelector<HTMLElement>('[data-rail]');
+    const all = (sel: string, from: ParentNode = root) => [
+      ...from.querySelectorAll<HTMLElement>(sel),
+    ];
+    const hindis = all('[data-hindi]');
+    const bodies = all('[data-body]');
+    const cues = all('[data-cue]');
     const header = document.querySelector<HTMLElement>('[data-site-header]');
-    const words = [...root.querySelectorAll<SVGSVGElement>('svg')];
+    const words = [...root.querySelectorAll<SVGSVGElement>('svg[data-word]')];
     const contours = words.map((w) =>
-      [...w.querySelectorAll<SVGPathElement>('[data-contour]')].map((p) => {
-        const letter = Number(p.dataset.contour);
-        const counter = p.hasAttribute('data-counter');
-        // the same start and end times as the CSS engraving (timed()), linear in between, so
-        // the script takes over exactly where the CSS has drawn to
-        const from = letterStart(letter) + (counter ? COUNTER_START * WINDOW : 0);
-        return {
-          el: p,
-          letter,
-          len: p.getTotalLength(), // font units
-          t0: clockTime(from),
-          t1: clockTime(letterStart(letter) + WINDOW),
-          floor: 0, // how far it has been drawn (on screen, by the CSS or the script)
-        };
-      }),
+      [...w.querySelectorAll<SVGPathElement>('[data-contour]')].map((p) => ({
+        el: p,
+        len: p.getTotalLength(), // font units
+      })),
     );
     const bands = words.map((w) => w.querySelector<SVGLinearGradientElement>('[data-ink-band]')!);
     const inks = words.map((w) => w.querySelector<SVGGElement>('[data-ink]')!);
     const strokes = words.map((w) => w.querySelector<SVGGElement>('[data-strokes]')!);
     const headerKids = header ? [...(header.children as HTMLCollectionOf<HTMLElement>)] : [];
 
+    // What the old scrubbed opening left behind it, now simply the jar sequence's resting state:
+    // the jar unmasked, risen and (desktop) glided, the dawn glow, the headline block in.
+    const jarMask = stage.querySelector<HTMLElement>('[data-jar-mask]');
+    const poster = stage.querySelector<HTMLElement>('[data-jar-layer] img');
+    const glow = stage.querySelector<HTMLElement>('[data-opening-glow]');
+    const copyIn = stage.querySelector<HTMLElement>('[data-copy-in]');
+    const rail = stage.querySelector<HTMLElement>('[data-rail]');
+    const rest = () => {
+      jarMask?.style.setProperty('mask-image', 'none');
+      jarMask?.style.setProperty('-webkit-mask-image', 'none');
+      if (poster) {
+        poster.style.translate = `${window.innerWidth < PHONE ? 0 : 0.12 * window.innerWidth}px 0px`;
+        poster.style.rotate = '0deg';
+      }
+      if (glow) glow.style.opacity = '0.11';
+      if (copyIn) copyIn.style.opacity = '1';
+      if (rail) rail.style.opacity = '1';
+    };
+
     // ---- geometry ----
     let W = 0;
     let H = 0;
     let seam = 0;
     let unit = 1; // CSS px per font unit
-    let hb = 0;
     const measure = () => {
       W = window.innerWidth;
       H = stage.clientHeight;
       seam = Math.round(H / 2);
       unit = inkWidth(W) / VW;
-      hb = header?.getBoundingClientRect().bottom ?? 0;
       // the hairlines are non-scaling: their dashes are measured on screen
       for (const cs of contours)
         for (const k of cs) k.el.style.setProperty('--len', (k.len * unit).toFixed(2));
       root.style.setProperty('--seam', `${seam}px`);
-      root.style.setProperty('--hb', `${hb}px`);
       stage.style.setProperty('--seam', `${seam}px`);
     };
     measure();
+    rest();
 
     // ---- A: the engraving and what follows it ----
     // The hairlines are pure CSS (one 2.4 s pass, from the server-rendered SVG): the script only
     // keeps time with them and never sets, resets or remounts a stroke.
     const setEngrave = (t: number) => {
       hindiIn = Math.min(1, clockProgress(t) * 1.4);
-      hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
+      for (const h of hindis) h.style.opacity = hindiIn.toFixed(3);
     };
     let hindiIn = 1;
-    let hindiOpen = 1;
 
     /** The ink band's half-height (font units) at fill f, feathered 2px at both edges. */
     const setFill = (f: number) => {
@@ -275,8 +269,8 @@ export function SambharOpening() {
       for (const g of strokes) g.style.opacity = outline;
       const hd = easeOutSettle(phase(s, AFTER.header)).toFixed(3);
       for (const k of headerKids) k.style.opacity = hd;
-      body.style.opacity = phase(s, AFTER.body).toFixed(3);
-      cue.style.opacity = phase(s, AFTER.cue).toFixed(3);
+      for (const b of bodies) b.style.opacity = phase(s, AFTER.body).toFixed(3);
+      for (const c of cues) c.style.opacity = phase(s, AFTER.cue).toFixed(3);
     };
     const easeOutSettle = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -289,8 +283,7 @@ export function SambharOpening() {
       setEngrave(Infinity);
       setAfter(DONE_AT);
       for (const k of headerKids) k.style.removeProperty('opacity');
-      body.style.removeProperty('opacity');
-      cue.style.removeProperty('opacity');
+      for (const el of [...bodies, ...cues]) el.style.removeProperty('opacity');
       html.setAttribute('data-header-in', '');
       html.setAttribute('data-engraved', '');
       html.setAttribute('data-intro-done', '');
@@ -389,81 +382,16 @@ export function SambharOpening() {
       raf = requestAnimationFrame(tick);
     }
 
-    // ---- B and C: the scrubbed opening ----
-    const render = (o: number) => {
-      openingStore.set(o);
-      root.dataset.progress = o.toFixed(4); // read by tests/scroll.spec.ts
-      const P = openingPose(o);
-      const up = P.open * 0.27 * H + P.drift * 0.36 * H;
-      const down = 0.9 * up; // the bottom half moves 10% less
-      // (the top half is clipped under the header: it never crosses the nav or the logo)
-      top.style.transform = `translate3d(0,${(-up).toFixed(2)}px,0)`;
-      bottom.style.transform = `translate3d(0,${down.toFixed(2)}px,0)`;
-      hindiOpen = P.hindi;
-      hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
-      if (introDone) {
-        body.style.opacity = P.intro.toFixed(3);
-        cue.style.opacity = P.intro.toFixed(3);
-      }
-      glow.style.opacity = P.glow.toFixed(3);
-      // The jar is hidden below the gap's bottom edge, feathered 16px: it rises out of the
-      // opening like a sunrise, not out of a slot. The mask is static; it moves down with the
-      // bottom half and the jar is moved back up inside it (transforms only, no repaint).
-      jarMask.style.transform = `translate3d(0,${down.toFixed(2)}px,0)`;
-      jarBack.style.transform = `translate3d(0,${(-down).toFixed(2)}px,0)`;
-      jarMask.classList.toggle(styles.unmasked!, P.drift >= 1);
-      // the poster (until the 3D jar's first frame) follows the same rise, tilt and glide
-      const dx = W < PHONE ? 0 : P.glide * 0.12 * W;
-      poster.style.translate = `${dx.toFixed(1)}px ${((1 - P.rise) * 0.3 * H).toFixed(1)}px`;
-      poster.style.rotate = `${(2.5 * (1 - P.rise)).toFixed(3)}deg`;
-      copyIn.style.opacity = P.copy.toFixed(3);
-      copyIn.style.transform = `translate3d(0,${(14 * (1 - P.copy)).toFixed(2)}px,0)`;
-      // still focusable while hidden: :focus-within shows it (SambharOpening.module.css)
-      copyIn.style.pointerEvents = P.copy > 0.5 ? '' : 'none';
-      if (rail) rail.style.opacity = P.rail.toFixed(3);
-    };
-    render(0);
-
-    let cancelled = false;
-    let kill: (() => void) | undefined;
-    let current = 0;
-    void loadGsap().then(({ gsap }) => {
-      reportLoad('gsap', 1);
-      if (cancelled) return;
-      const state = { o: 0 };
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: hero,
-          // behind the Journey panorama, which uncovers it three-quarters done
-          start: () => `top+=${Math.round(window.innerHeight * OPEN_START_VH)} top`,
-          end: () => `+=${Math.round(window.innerHeight * OPEN_VH)}`,
-          scrub: 0.6,
-          invalidateOnRefresh: true,
-        },
-        onUpdate: () => {
-          current = tl.progress();
-          render(current);
-        },
-      });
-      tl.to(state, { o: 1, ease: 'none', duration: 1 });
-      kill = () => {
-        tl.scrollTrigger?.kill();
-        tl.kill();
-      };
-    });
-
     const onResize = () => {
       measure();
-      render(current);
+      rest();
     };
     window.addEventListener('resize', onResize);
 
     return () => {
-      cancelled = true;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
       cleanups.forEach((fn) => fn());
-      kill?.();
       // a remount (React dev) carries on; a real unmount finishes the intro
       if (!introDone) pendingFinish = window.setTimeout(finishIntro, 0);
     };
@@ -472,31 +400,34 @@ export function SambharOpening() {
   return (
     <div ref={rootRef} className={styles.opening} style={GEO} data-opening suppressHydrationWarning>
       <span className="sr-only">Sambhar</span>
-      <div className={styles.half} data-half="top">
-        <div className={styles.halfIn}>
-          <p className={styles.hindi} lang="hi" aria-hidden="true" data-hindi>
-            सांभर
-          </p>
-          <div className={styles.box}>
-            <Word />
-          </div>
-        </div>
+      <Panel side="l" />
+      <Panel side="r" />
+      {/* the seam: a gold hairline drawn down the centre as the split begins */}
+      <div className={styles.seamBox} aria-hidden="true">
+        <i className={styles.seamLine} data-seam-line />
       </div>
-      <div className={styles.half} data-half="bottom" aria-hidden="true">
-        <div className={styles.halfIn}>
-          <div className={styles.box}>
-            <Word />
-          </div>
-        </div>
+      <script dangerouslySetInnerHTML={{ __html: PRE }} />
+    </div>
+  );
+}
+
+/** One half of the screen: the whole opening, clipped to the left or the right half. */
+function Panel({ side }: { side: 'l' | 'r' }) {
+  return (
+    <div className={styles.panel} data-panel={side} aria-hidden={side === 'r' || undefined}>
+      <p className={styles.hindi} lang="hi" aria-hidden="true" data-hindi>
+        सांभर
+      </p>
+      <div className={styles.box}>
+        <Word />
       </div>
       <p className={`py-lead ${styles.body}`} data-body>
         Black salt and lake salt from India’s largest inland salt lake.
       </p>
       <div className={styles.cue} aria-hidden="true" data-cue>
-        Scroll
+        <span>Scroll</span>
         <i />
       </div>
-      <script dangerouslySetInnerHTML={{ __html: PRE }} />
     </div>
   );
 }

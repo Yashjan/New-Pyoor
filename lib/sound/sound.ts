@@ -7,7 +7,14 @@
  * the opening and the jar sequence use): loops simply track it, one-shots fire only while
  * scrolling forward. Every gain change ramps over at least 0.4 s.
  */
-import { JOURNEY, JOURNEY_VH, SEQUENCE_START_VH, STEP, clamp01 } from '@/lib/motion/opening';
+import {
+  JOURNEY,
+  JOURNEY_VH,
+  SEQUENCE_START_VH,
+  SPLIT_VH,
+  STEP,
+  clamp01,
+} from '@/lib/motion/opening';
 import { pourRate } from '@/lib/motion/pour';
 import { asset } from '@/lib/basePath';
 
@@ -68,8 +75,8 @@ function mix() {
   if (hero) {
     const vh = window.innerHeight;
     const y = -hero.getBoundingClientRect().top;
-    const s = clamp01(y / (vh * JOURNEY_VH));
-    const inP = phase(s, 0, JOURNEY.in);
+    const s = clamp01((y - vh * SPLIT_VH) / (vh * JOURNEY_VH)); // the panorama, after the split
+    const inP = clamp01(y / (vh * SPLIT_VH)); // the split
     const pan = phase(s, JOURNEY.in, JOURNEY.out);
     // step 2 (the end of the Journey): the 3D jar revealed under the engraving
     const rise = phase(phase(s, JOURNEY.out, 1), ...STEP.reveal);
@@ -79,9 +86,9 @@ function mix() {
 
     // wind: from the SAMBHAR handoff through the Journey, down to 0.12 as the 3D jar is
     // revealed (step 2), gone once the jar sequence starts
-    if (s > 0 && y < seqAt) wind = inP * (0.35 + (0.12 - 0.35) * rise);
+    if (y > 0 && y < seqAt) wind = inP * (0.35 + (0.12 - 0.35) * rise);
     // water: scene 01, gone halfway to scene 02
-    if (s > 0 && s < 1) water = inP * 0.4 * (1 - clamp01((pan * 4) / 0.5));
+    if (y > 0 && s < 1) water = inP * 0.4 * (1 - clamp01((pan * 4) / 0.5));
     // the pour: follows the stream (0 -> 0.45 -> 0), silent once it stops or scrolls back
     if (y >= seqAt) pouring = 0.45 * pourRate(p);
 

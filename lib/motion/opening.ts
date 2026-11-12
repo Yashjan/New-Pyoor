@@ -5,8 +5,12 @@
  * Kept free of GSAP and three.js imports: both the opening and the jar scene read it.
  */
 
-/** Scroll distance of the opening, in viewport heights, before the jar sequence starts. */
-export const OPEN_VH = 1.2;
+/**
+ * The split: the first 100vh of the Journey's pin. SAMBHAR's two half-panels part from a gold
+ * seam and uncover scene 01 (components/sections/Journey drives it; components/opening is only
+ * the overlay).
+ */
+export const SPLIT_VH = 1;
 
 /**
  * The Journey panorama (components/sections/Journey) comes straight after the SAMBHAR screen:
@@ -32,10 +36,8 @@ export const STEP = {
   hand: [0.95, 1],
 } as const;
 
-/** Where the opening starts (behind the panorama: it is three-quarters done as it lifts). */
-export const OPEN_START_VH = 2.15;
-/** Where the jar sequence starts: once the panorama has gone. */
-export const SEQUENCE_START_VH = JOURNEY_VH;
+/** Where the jar sequence starts: once the split and the panorama have gone. */
+export const SEQUENCE_START_VH = SPLIT_VH + JOURNEY_VH;
 /**
  * covered: the panorama fully covers the stage (the 3D scene needn't render behind it).
  * calm: 0–1, holds the jar still (no idle float, no pointer tilt) while step 2 lines the
@@ -60,7 +62,7 @@ export const journeyStore = {
   onReady: null as (() => void) | null,
 };
 
-let progress = 0;
+let progress = 1; // the jar's resting pose (rise and glide done): nothing scrubs it now
 
 /** The opening's scrubbed progress, 0–1 (written by SambharOpening, read by the jar scene). */
 export const openingStore = {

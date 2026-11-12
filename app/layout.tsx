@@ -70,7 +70,7 @@ export const viewport: Viewport = {
  */
 const LOADER_CSS = `html[data-intro=full]:not([data-intro-done]) [data-ink]{opacity:0}[data-strokes] path{fill:none;opacity:0}`;
 
-const HEAD_FLAGS = `try{if(!location.hash){history.scrollRestoration='manual';scrollTo(0,0)}}catch(e){}try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
+const HEAD_FLAGS = `try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0];if(location.hash&&n&&n.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);if(!location.hash)scrollTo(0,0);addEventListener('pageshow',function(e){if(e.persisted)scrollTo(0,0)})}catch(e){}try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
