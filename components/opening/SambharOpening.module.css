@@ -3,9 +3,7 @@
  *
  * States, from html (app/layout.tsx):
  *   no html.motion          no JS or reduced motion: the filled word, one static screen, fades only
- *   [data-intro='full']     first visit: the engraving. CSS starts it at first paint on a 2.4 s
- *                           clock; with [data-opening-js] the component drives it from real
- *                           load progress. Without JS a failsafe fills it and shows the header.
+ *   [data-intro='full']     every homepage load: the whole intro in CSS from first paint (below).
  *
  * Geometry: the word's ink is 78% of the width (phones: the width less 24px each side) and the
  * seam (where the word splits) sits on --seam (a whole pixel at half the height). The word box is shifted up by
@@ -77,10 +75,6 @@
   .strokes path {
     stroke-width: 1.25px;
   }
-}
-
-.tips circle {
-  opacity: 0;
 }
 
 /* सांभर: Tiro 20px, gold-700, 30px above the cap line */
@@ -210,40 +204,44 @@
   animation: cue 2.2s var(--ease-settle) infinite;
 }
 
-/* ---- first visit, before the script: the engraving on its 2.4 s clock ---- */
-:global(html[data-intro='full']:not([data-intro-done])) .ink {
-  opacity: 0;
-}
-
-:global(html[data-intro='full']:not([data-intro-done])) .body,
-:global(html[data-intro='full']:not([data-intro-done])) .cue {
-  opacity: 0;
-}
-
-/* the engraving: pure CSS, one 2.4 s pass (the script only keeps time with it) */
+/* ---- first visit: the whole intro in CSS, from first paint (times in seconds) ----
+   0–2.4 the gold engraving (each hairline's delay and duration inline: timed())
+   2.4–3.3 the navy fill, opening from the line outward (clip-path, expo-out)
+   3.0–3.6 सांभर · 3.1–3.7 the outline fades · 3.3–3.9 the header (globals.css)
+   3.6–4.2 the subline · 4.2–4.8 the scroll cue
+   Opacity and clip-path only. The first scroll input speeds them all up (SambharOpening PRE). */
 :global(html[data-intro='full']) .strokes path {
   animation: engrave linear both;
 }
 
-:global(html[data-intro='full']:not([data-opening-js])) .hindi {
-  animation: fade 2.1s linear both;
+:global(html[data-intro='full']) .ink {
+  animation: fill 0.9s 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* failsafe without the script: the ink, then the outline out, then the small line and cue */
-:global(html[data-intro='full']:not([data-opening-js])) .ink {
-  animation: fade 0.8s 2.5s var(--ease-settle) both;
+:global(html[data-intro='full']) .hindi {
+  animation: fade 0.6s 3s var(--ease-settle) both;
 }
 
-:global(html[data-intro='full']:not([data-opening-js])) .strokes {
-  animation: fade-out 0.5s 3s both;
+:global(html[data-intro='full']) .strokes {
+  animation: fade-out 0.6s 3.1s ease-in-out both;
 }
 
-:global(html[data-intro='full']:not([data-opening-js])) .body {
+:global(html[data-intro='full']) .body {
   animation: fade 0.6s 3.6s var(--ease-settle) both;
 }
 
-:global(html[data-intro='full']:not([data-opening-js])) .cue {
-  animation: fade 0.6s 4s var(--ease-settle) both;
+:global(html[data-intro='full']) .cue {
+  animation: fade 0.6s 4.2s var(--ease-settle) both;
+}
+
+/* the ink opens from the line SAMBHAR sits on (--line-frac of the word box) outward */
+@keyframes fill {
+  from {
+    clip-path: inset(calc(var(--line-frac) * 100%) 0 calc((1 - var(--line-frac)) * 100%) 0) view-box;
+  }
+  to {
+    clip-path: inset(-20% 0 -20% 0) view-box;
+  }
 }
 
 @keyframes engrave {

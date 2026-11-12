@@ -6,7 +6,6 @@ import { ButtonLink } from '@/components/Button/Button';
 import { Horizon } from '@/components/Horizon/Horizon';
 import { SambharOpening } from '@/components/opening/SambharOpening';
 import { Journey } from '@/components/sections/Journey/Journey';
-import { reportLoad } from '@/lib/loader/progress';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
@@ -64,12 +63,7 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     const canvas = canvasRef.current;
     if (!section || !canvas) return;
     const tier = document.documentElement.classList.contains('motion') ? pickQualityTier() : null;
-    if (!tier) {
-      // No 3D on this device: nothing for the loader to wait for.
-      reportLoad('three', 1);
-      reportLoad('model', 1);
-      return;
-    }
+    if (!tier) return; // no 3D on this device: the poster stays
 
     const controller = new AbortController();
     let dispose: (() => void) | undefined;
@@ -80,7 +74,6 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     const start = async () => {
       if (controller.signal.aborted) return;
       const { createJarScene } = await import('./scene/createJarScene');
-      reportLoad('three', 1);
       if (controller.signal.aborted) return;
       try {
         const scene = await createJarScene({
@@ -89,13 +82,11 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
           onFirstFrame: () => setPosterGone(true),
-          onModelProgress: (f) => reportLoad('model', f),
           signal: controller.signal,
         });
         if (controller.signal.aborted) scene.dispose();
         else dispose = scene.dispose;
       } catch (err) {
-        reportLoad('model', 1); // a model that failed holds nothing
         if ((err as Error).name !== 'AbortError') console.error('Jar hero failed to start', err);
       }
     };

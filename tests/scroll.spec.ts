@@ -264,3 +264,69 @@ test('g: every ScrollTrigger keeps its start and end (after load and 10 s later)
   console.log(`${info.project.name} g: ${JSON.stringify(a)} | 10 s later ${JSON.stringify(b)}`);
   expect(b).toEqual(a);
 });
+
+/** The intro's state: the ink's clip, the cue's opacity, finite animations still running. */
+const intro = (page: Page) =>
+  page.evaluate(() => {
+    const o = document.querySelector<HTMLElement>('[data-opening]')!;
+    const ink = o.querySelector('[data-ink]')!;
+    const cue = o.querySelector('[data-cue]')!;
+    const running = document.getAnimations().filter((a) => {
+      const t = (a.effect as KeyframeEffect | null)?.target;
+      return (
+        t &&
+        o.contains(t) &&
+        a.playState === 'running' &&
+        isFinite(Number(a.effect?.getComputedTiming().endTime))
+      );
+    }).length;
+    return {
+      t: Math.round(performance.now()),
+      clip: getComputedStyle(ink).clipPath,
+      cue: Number(getComputedStyle(cue).opacity),
+      done: document.documentElement.hasAttribute('data-intro-done'),
+      running,
+      y: window.scrollY,
+    };
+  });
+
+test('h: untouched, the intro fills at ~2.4 s and is done by ~4.8 s', async ({ page }, info) => {
+  await loadAndWait(page, 2200);
+  const before = await intro(page);
+  await loadAndWaitMore(page, 3500);
+  const filled = await intro(page);
+  await loadAndWaitMore(page, 5100);
+  const end = await intro(page);
+  console.log(`${info.project.name} h:`, before, filled, end);
+  expect(before.clip, 'no fill before 2.4 s').toContain('inset');
+  expect(before.cue).toBe(0);
+  expect(filled.cue, 'cue not yet in at 3.5 s').toBe(0);
+  expect(end.cue, 'cue in by ~4.8 s').toBe(1);
+  expect(end.running).toBe(0);
+  expect(end.done).toBe(true);
+});
+
+test('i: a scroll at 1 s finishes the intro within ~0.3 s and scrolls at once', async ({
+  page,
+}, info) => {
+  const touch = info.project.name === 'phone';
+  const cdp = await page.context().newCDPSession(page);
+  await loadAndWait(page, 1000);
+  await scrollInput(page, cdp, touch, 200);
+  const t0 = Date.now();
+  let s = await intro(page);
+  while (Date.now() - t0 < 600 && (s.running > 0 || s.cue < 1)) {
+    await page.waitForTimeout(25);
+    s = await intro(page);
+  }
+  const took = Date.now() - t0;
+  console.log(`${info.project.name} i: finished ${took} ms after the input`, s);
+  expect(s.y, 'scrolled').toBeGreaterThan(0);
+  expect(s.running, 'every intro animation finished').toBe(0);
+  expect(s.cue).toBe(1);
+  expect(took).toBeLessThanOrEqual(450);
+});
+
+async function loadAndWaitMore(page: Page, at: number) {
+  await page.waitForFunction((t) => performance.now() >= t, at, { polling: 16 });
+}

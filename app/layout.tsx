@@ -68,7 +68,7 @@ export const viewport: Viewport = {
  * The loader's first paint, inline (it can't wait for a stylesheet): under the intro, the word's
  * navy ink and its hairlines start hidden, so the finished word never shows before the engraving.
  */
-const LOADER_CSS = `html[data-intro=full]:not([data-intro-done]) [data-ink]{opacity:0}[data-strokes] path{fill:none;opacity:0}`;
+const LOADER_CSS = `html[data-intro=full] [data-ink]{clip-path:inset(50% 0 50% 0)}[data-strokes] path{fill:none;opacity:0}`;
 
 const HEAD_FLAGS = `try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0];if(location.hash&&n&&n.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);if(!location.hash)scrollTo(0,0);addEventListener('pageshow',function(e){if(e.persisted)scrollTo(0,0)})}catch(e){}try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 

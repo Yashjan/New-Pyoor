@@ -125,9 +125,13 @@ export function createPour(count: number, x0: number, shadows: boolean): Pour {
     }),
     dustCount,
   );
+  // Every instance starts at zero scale: an identity matrix would be a 1 m grain at the origin,
+  // and the first (warm-up) draw of thousands of them over the whole screen took seconds.
+  const zero = new Matrix4().makeScale(0, 0, 0);
   for (const m of [grains, dust]) {
     m.instanceMatrix.setUsage(DynamicDrawUsage);
     m.frustumCulled = false;
+    for (let i = 0; i < m.count; i++) m.setMatrixAt(i, zero);
   }
   grains.castShadow = shadows;
 
@@ -198,7 +202,6 @@ export function createPour(count: number, x0: number, shadows: boolean): Pour {
   const e3 = new Euler();
   const v3 = new Vector3();
   const sc = new Vector3();
-  const zero = new Matrix4().makeScale(0, 0, 0);
 
   const place = (mesh: InstancedMesh, d: Float32Array, n: number, p: number, isDust: boolean) => {
     for (let i = 0; i < n; i++) {
