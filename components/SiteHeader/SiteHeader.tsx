@@ -2,30 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCart } from '@/components/providers/CartProvider';
-import { lenisStore } from '@/lib/motion/lenis';
-import { SoundToggle } from './SoundToggle';
+import { SiteMenu, type SiteMenuHandle } from '@/components/SiteMenu/SiteMenu';
+import { loadGsap } from '@/lib/motion/gsap';
+import { scrollToHash } from '@/lib/motion/lenis';
 import styles from './SiteHeader.module.css';
 import { asset } from '@/lib/basePath';
 
-const NAV = [
-  { href: '/#shop', label: 'Shop' },
-  { href: '/#roots', label: 'Our roots' },
-  { href: '/#journey', label: 'Journey' },
-];
-const MENU = [
-  { href: '/#shop', label: 'Shop' },
-  { href: '/#roots', label: 'Our roots' },
-  { href: '/#journey', label: 'The journey' },
-  { href: '/#recipes', label: 'Recipes' },
-];
-const MENU_ANIM_MS = 600;
-
 /**
- * Navigation left, logo centred, Recipes + bag right (design-system/component-SiteHeader.md,
- * concept.html). Transparent over the hero, blurred ivory after 80px of scroll. Under 861px the
- * nav moves into a full-screen navy menu and the logo sits on its ivory crest.
+ * Menu left, logo centred, bag right (design-system/component-SiteHeader.md). Transparent over
+ * the hero, blurred ivory after 80px of scroll. The menu (components/SiteMenu) opens under it,
+ * so the header stays exactly as it is; only the button's word rolls from Menu to Close.
  * In-page links (/#…) are handed to Lenis by SmoothScroll.
  */
 export function SiteHeader() {
@@ -35,9 +23,8 @@ export function SiteHeader() {
   const bump = added?.id ?? 0;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menu = useRef<SiteMenuHandle>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -46,42 +33,30 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const setMenu = useCallback((next: boolean) => {
-    setOpen(next);
-    if (next) setMenuMounted(true);
-  }, []);
+  // Magnetic on desktop: the button follows the cursor by up to 6px (the rect is read once,
+  // on entering; no layout reads while it moves).
+  const box = useRef<DOMRect | null>(null);
+  const magnetic = () =>
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const onEnter = (e: React.PointerEvent<HTMLButtonElement>) => {
+    void loadGsap(); // the menu's choreography, ready before the click
+    box.current = magnetic() ? e.currentTarget.getBoundingClientRect() : null;
+  };
+  const onMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const b = box.current;
+    if (!b) return;
+    const k = (v: number) => Math.max(-1, Math.min(1, v));
+    const dx = k((e.clientX - (b.left + b.width / 2)) / (b.width / 2)) * 6;
+    const dy = k((e.clientY - (b.top + b.height / 2)) / (b.height / 2)) * 6;
+    e.currentTarget.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+  };
+  const onLeave = (e: React.PointerEvent<HTMLButtonElement>) => {
+    box.current = null;
+    e.currentTarget.style.transform = '';
+  };
 
-  // Menu open: keep focus inside, pause scrolling, hide the page from assistive tech.
-  useEffect(() => {
-    const page = [document.getElementById('main'), document.querySelector('footer')];
-    if (open) {
-      lenisStore.get()?.stop();
-      page.forEach((el) => el?.setAttribute('inert', ''));
-      requestAnimationFrame(() => menuRef.current?.querySelector('a')?.focus());
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          setMenu(false);
-          menuButton.current?.focus();
-        }
-      };
-      window.addEventListener('keydown', onKey);
-      return () => window.removeEventListener('keydown', onKey);
-    }
-    lenisStore.get()?.start();
-    page.forEach((el) => el?.removeAttribute('inert'));
-    const t = window.setTimeout(() => setMenuMounted(false), MENU_ANIM_MS);
-    return () => window.clearTimeout(t);
-  }, [open, setMenu]);
-
-  // Leaving phone width with the menu open: close it.
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 861px)');
-    const onChange = () => mq.matches && setMenu(false);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [setMenu]);
-
-  const headerClass = [styles.hdr, scrolled && styles.scrolled, open && styles.menuOpen]
+  const headerClass = [styles.hdr, scrolled && styles.scrolled, open && styles.open]
     .filter(Boolean)
     .join(' ');
 
@@ -94,18 +69,32 @@ export function SiteHeader() {
           className={styles.menuBtn}
           aria-expanded={open}
           aria-controls="site-menu"
-          onClick={() => setMenu(!open)}
+          onClick={() => setOpen(!open)}
+          onPointerEnter={onEnter}
+          onPointerMove={onMove}
+          onPointerLeave={onLeave}
+          onFocus={() => void loadGsap()}
         >
-          {open ? 'Close' : 'Menu'}
+          <span className={styles.btnMask} aria-hidden="true">
+            <span className={styles.btnRoll}>
+              <span>Menu</span>
+              <span>Close</span>
+            </span>
+          </span>
+          <i className={styles.dot} aria-hidden="true" />
+          <span className="sr-only">Menu</span>
         </button>
-        <nav aria-label="Main" className={styles.nav}>
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Link className={styles.logo} href="/#top" aria-label="Pyoor home" data-header-logo>
+        <Link
+          className={styles.logo}
+          href="/#top"
+          aria-label="Pyoor home"
+          data-header-logo
+          onClick={(e) => {
+            if (!open) return;
+            e.preventDefault();
+            menu.current?.closeThen(() => scrollToHash('#top'));
+          }}
+        >
           <Image
             src={asset('/brand/pyoor-logo.png')}
             alt=""
@@ -116,16 +105,12 @@ export function SiteHeader() {
           />
         </Link>
         <div className={styles.end}>
-          <Link href="/#recipes" className={styles.endLink}>
-            Recipes
-          </Link>
-          <SoundToggle className={styles.soundHdr} />
           <button
             type="button"
             key={bump}
             className={`${styles.bag} ${bump ? styles.bump : ''}`}
             aria-haspopup="dialog"
-            onClick={openCart}
+            onClick={() => (open ? menu.current?.closeThen(openCart) : openCart())}
           >
             {/* one flex item: the button's gap would otherwise space out "( 0 )" */}
             <span>
@@ -136,23 +121,7 @@ export function SiteHeader() {
         </div>
       </header>
 
-      <div
-        id="site-menu"
-        ref={menuRef}
-        className={`${styles.menu} ${open ? styles.menuShown : ''}`}
-        data-theme="navy"
-        hidden={!menuMounted && !open}
-      >
-        <nav aria-label="Menu">
-          {MENU.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMenu(false)}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <SoundToggle className={styles.soundMenu} />
-        <p className="py-eyebrow">Sambhar Lake · Rajasthan</p>
-      </div>
+      <SiteMenu ref={menu} open={open} onClose={() => setOpen(false)} button={menuButton} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 // "A day at Sambhar": the Journey panorama, one etched landscape in three parallax layers.
 //   npm run engravings
-// Writes public/engravings/journey-{sky,far,near}.svg and the layout constants the page reads
+// Writes public/engravings/journey-{sky,far,near}.svg (and the menu's, menu.mjs) and the layout constants the page reads
 // (components/sections/Journey/panorama.ts). Everything is seeded, so the output is repeatable.
 //
 // Layers: sky · far (far pans, horizon, mounds, the jar) · near (near pans, water, figures).
@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Plate, curve, rect, clamp, lerp, inside, H } from './engrave.mjs';
 import { CAM, projectJar } from './jar3d.mjs';
+import { buildMenu } from './menu.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '../../public/engravings');
@@ -1573,13 +1574,15 @@ const STYLE =
 
 mkdirSync(OUT, { recursive: true });
 let total = 0;
+const built = {};
 for (const [name, fn] of [
   ['sky', buildSky],
   ['far', buildFar],
   ['near', buildNear],
 ]) {
   const f = join(OUT, `journey-${name}.svg`);
-  writeFileSync(f, fn());
+  built[name] = fn();
+  writeFileSync(f, built[name]);
   const kb = statSync(f).size / 1024;
   total += kb;
   console.log(`journey-${name}.svg`, kb.toFixed(1) + ' KB');
@@ -1595,3 +1598,5 @@ export const PANORAMA = ${JSON.stringify({ height: H, horizon: HZ, scene: S, jar
 export const LIVE = ${JSON.stringify(LIVE)} as const;
 `,
 );
+
+buildMenu({ layers: built, L, rake: LIVE.rake });

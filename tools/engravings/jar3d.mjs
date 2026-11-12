@@ -25,7 +25,7 @@ export const CAM = {
   jarY: 0.006,
 };
 
-function readGlb(file) {
+export function readGlb(file = GLB) {
   const b = readFileSync(file);
   const jsonLen = b.readUInt32LE(12);
   const json = JSON.parse(b.subarray(20, 20 + jsonLen).toString());

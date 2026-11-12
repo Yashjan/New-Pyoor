@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
+import { coveredStore } from '@/lib/motion/covered';
 import { LIVE, PANORAMA } from './panorama';
 import styles from './Journey.module.css';
 
@@ -583,7 +584,7 @@ export function createLiving(journey: HTMLElement) {
 
   let on = false;
   const update = () => {
-    const visible = document.visibilityState === 'visible';
+    const visible = document.visibilityState === 'visible' && !coveredStore.get();
     for (const l of loops) {
       const want = on && visible && revealed[l.scene]! && l.inView;
       if (want && !l.running) {
@@ -608,6 +609,7 @@ export function createLiving(journey: HTMLElement) {
   });
   loops.forEach((l) => io.observe(l.el));
   document.addEventListener('visibilitychange', update);
+  const unsubscribe = coveredStore.subscribe(update);
 
   return {
     scroll,
@@ -632,6 +634,7 @@ export function createLiving(journey: HTMLElement) {
       update();
       io.disconnect();
       document.removeEventListener('visibilitychange', update);
+      unsubscribe();
       timers.forEach((t) => clearTimeout(t));
       [...ringAnims, ...shimmerAnims, ...wings].forEach((a) => a.cancel());
       pass?.cancel();

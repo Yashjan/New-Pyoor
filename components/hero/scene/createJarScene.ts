@@ -1,3 +1,4 @@
+import { coveredStore } from '@/lib/motion/covered';
 import {
   ACESFilmicToneMapping,
   Box3,
@@ -297,7 +298,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       journeyStore.onReady?.(); // a late arrival crossfades in from this frame
     }
     if (shown && !canvasShown && framesHidden === 0) resize();
-    if (!visible || !shown || journeyStore.covered) {
+    if (!visible || !shown || journeyStore.covered || coveredStore.get()) {
       clock.getDelta(); // don't let time pile up while paused
       return;
     }

@@ -37,7 +37,8 @@ export function SmoothScroll() {
       const onClick = (e: MouseEvent) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
         const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
-        if (!a) return;
+        // the site menu navigates itself, once it has closed (components/SiteMenu)
+        if (!a || a.closest('[data-site-menu]')) return;
         const url = new URL(a.href, window.location.href);
         if (url.pathname !== window.location.pathname || !url.hash) return;
         if (scrollToHash(url.hash)) {
