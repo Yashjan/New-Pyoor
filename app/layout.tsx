@@ -63,7 +63,8 @@ export const viewport: Viewport = {
  *   load, refreshes included. Reduced motion and no JS get no data-intro: the filled word,
  *   fades only.
  */
-const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname==='/')d.setAttribute('data-intro','full')}}catch(e){}`;
+// The homepage, wherever the site is hosted: '/' locally, '/New-Pyoor/' on GitHub Pages.
+const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

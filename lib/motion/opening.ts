@@ -41,7 +41,12 @@ export const SEQUENCE_START_VH = JOURNEY_VH;
  * calm: 0–1, holds the jar still (no idle float, no pointer tilt) while step 2 lines the
  * engraving up on it; 0 from the first frame of the jar sequence on.
  */
-export const journeyStore = { covered: false, calm: 0 };
+/**
+ * show3d: the 3D canvas may be seen (from the start of step 2's reveal on; before that it is
+ * hidden and draws nothing, so nothing of the scene shows behind the opening or the panorama).
+ * reveal: 0–1, how far step 2 has revealed the 3D jar (the contact shadows fade in with it).
+ */
+export const journeyStore = { covered: false, calm: 0, show3d: false, reveal: 0 };
 
 let progress = 0;
 

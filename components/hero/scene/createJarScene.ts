@@ -11,6 +11,7 @@ import {
   Scene,
   SRGBColorSpace,
   WebGLRenderer,
+  WebGLRenderTarget,
   Vector3,
   BufferGeometry,
   Float32BufferAttribute,
@@ -227,6 +228,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const jarBase = new Vector3();
   let sp = opts.getProgress(); // smoothed progress
   let frames = 0;
+  let canvasShown: boolean | null = null;
   let raf = 0;
   let turn = 0;
   window.__pyoorHero = { p: sp, target: sp, frames };
@@ -235,7 +237,15 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     raf = requestAnimationFrame(frame);
     // Paused behind the panorama, but the first frame renders anyway (invisible there): the
     // textures upload and the pipelines warm up during the Journey, not at the reveal.
-    if (!visible || (journeyStore.covered && frames > 0)) {
+    // Unseen until step 2's reveal: the canvas is hidden (opacity and visibility) and nothing is
+    // drawn to it, so no frame (shadow, ground, glow) can show behind the opening or panorama.
+    const shown = journeyStore.show3d;
+    if (shown !== canvasShown) {
+      canvasShown = shown;
+      canvas.style.opacity = shown ? '1' : '0';
+      canvas.style.visibility = shown ? 'visible' : 'hidden';
+    }
+    if (!visible || !shown || journeyStore.covered) {
       clock.getDelta(); // don't let time pile up while paused
       return;
     }
@@ -280,15 +290,18 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     rig.jar.getWorldPosition(jarBase);
     ground.contact.position.set(jarBase.x, 0, jarBase.z);
     const lifted = 1 - smooth(0.002, 0.03, jarBase.y);
-    for (const [mat, base] of ground.contactMats) mat.opacity = base * lifted * op.rise * op.rise;
+    // (all three fade in only with the 3D jar, as step 2 reveals it)
+    const seen = journeyStore.reveal;
+    for (const [mat, base] of ground.contactMats)
+      mat.opacity = base * lifted * op.rise * op.rise * seen;
     const rest0 = capRest(jarStartX(layout, op.glide));
     capShadow.group.position.set(rest0[0] - R * 0.15, 0, rest0[2]);
-    capShadow.set(smooth(0.2, 0.25, p) * 0.9);
+    capShadow.set(smooth(0.2, 0.25, p) * 0.9 * seen);
     const poured = pouredAt(p - FLIGHT);
     moundShadow.group.position.set(pour.mx, 0, 0);
     const ms = 0.25 + 1.15 * Math.cbrt(poured);
     moundShadow.group.scale.set(ms, 1, ms);
-    moundShadow.set(Math.sqrt(poured));
+    moundShadow.set(Math.sqrt(poured) * seen);
     ground.shadowMat.opacity = 0.12;
     renderer.setClearColor(SKY, 0);
     if (pans) {
@@ -317,7 +330,19 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   try {
     await renderer.compileAsync(scene, camera);
   } catch {
-    // older drivers: the first render compiles them instead
+    // older drivers: the render below compiles them instead
+  }
+  // Warm-up, invisibly: one render into an offscreen target (textures upload, pipelines and
+  // shadow maps build), never to the visible canvas.
+  {
+    const w = Math.max(2, renderer.domElement.width);
+    const h = Math.max(2, renderer.domElement.height);
+    const warm = new WebGLRenderTarget(w, h);
+    cameraAt(camera, 0, layout, 1);
+    renderer.setRenderTarget(warm);
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
+    warm.dispose();
   }
   if (signal.aborted) {
     disposeObject(scene);

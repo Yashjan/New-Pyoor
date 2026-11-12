@@ -242,6 +242,9 @@
   display: block;
   width: 100%;
   height: 100%;
+  /* unseen until step 2's reveal (createJarScene shows it then) */
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* The poster stands in until the first 3D frame, exactly where the 3D jar renders: 39.4% of the

@@ -356,6 +356,9 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     journeyStore.covered = veilIn >= 1 && outP === 0;
     // the jar holds still while step 2 lines the engraving up on it, then floats again
     journeyStore.calm = s < 1 ? 1 - phase(outP, ...STEP.hand) : 0;
+    // the 3D scene stays unseen (and unrendered) until step 2's reveal begins
+    journeyStore.show3d = s >= 1 || outP >= STEP.reveal[0];
+    journeyStore.reveal = s >= 1 ? 1 : phase(outP, ...STEP.reveal);
     living.active(inP > 0.7 && outP === 0);
     const handing = inP < 1;
     line.style.visibility = handing || (outP > 0 && outP < 1) ? 'visible' : 'hidden';
@@ -491,6 +494,8 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     opening?.style.removeProperty('opacity');
     kill?.();
     journeyStore.covered = false;
+    journeyStore.show3d = true; // no panorama: nothing to wait for
+    journeyStore.reveal = 1;
   };
 }
 

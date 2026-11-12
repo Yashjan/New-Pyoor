@@ -97,7 +97,8 @@
   color: var(--gold-700);
 }
 
-.body {
+/* (.opening .body: it also carries the global .py-lead, whose margin must not win) */
+.opening .body {
   position: absolute;
   left: 24px;
   right: 24px;
