@@ -13,6 +13,8 @@ export function loadGsap(): Promise<GsapModules> {
   loading ??= Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(
     ([{ gsap }, { ScrollTrigger }]) => {
       gsap.registerPlugin(ScrollTrigger);
+      // the phone address bar showing/hiding must not re-measure (and jump) the page
+      ScrollTrigger.config({ ignoreMobileResize: true });
       return { gsap, ScrollTrigger };
     },
   );

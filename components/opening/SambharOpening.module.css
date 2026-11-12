@@ -189,7 +189,8 @@
   opacity: 0;
 }
 
-:global(html[data-intro='full']:not([data-opening-js])) .strokes path {
+/* the engraving: pure CSS, one 2.4 s pass (the script only keeps time with it) */
+:global(html[data-intro='full']) .strokes path {
   animation: engrave linear both;
 }
 
@@ -212,11 +213,6 @@
 
 :global(html[data-intro='full']:not([data-opening-js])) .cue {
   animation: fade 0.6s 4s var(--ease-settle) both;
-}
-
-/* the script drives the hairlines from here (inline styles) */
-:global(html[data-opening-js]) .strokes path {
-  animation: none;
 }
 
 @keyframes engrave {

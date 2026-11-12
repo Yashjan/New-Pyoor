@@ -24,9 +24,9 @@ export function SmoothScroll() {
       if (cancelled) return;
 
       const lenis = new Lenis({
-        duration: 1.15,
-        easing: (t: number) => 1 - Math.pow(1 - t, 3),
+        lerp: 0.1,
         smoothWheel: true,
+        syncTouch: false, // phones keep native touch scrolling
         autoRaf: false,
       });
       lenis.on('scroll', ScrollTrigger.update);

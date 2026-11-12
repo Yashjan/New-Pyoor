@@ -4,14 +4,7 @@ import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { loadProgress, onLoadProgress, reportLoad } from '@/lib/loader/progress';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
-import {
-  OPEN_START_VH,
-  OPEN_VH,
-  clamp01,
-  expoOut,
-  openingPose,
-  openingStore,
-} from '@/lib/motion/opening';
+import { OPEN_START_VH, OPEN_VH, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
   AFTER,
@@ -223,7 +216,6 @@ export function SambharOpening() {
         };
       }),
     );
-    const tips = words.map((w) => [...w.querySelectorAll<SVGCircleElement>('[data-tips] circle')]);
     const bands = words.map((w) => w.querySelector<SVGLinearGradientElement>('[data-ink-band]')!);
     const inks = words.map((w) => w.querySelector<SVGGElement>('[data-ink]')!);
     const strokes = words.map((w) => w.querySelector<SVGGElement>('[data-strokes]')!);
@@ -251,44 +243,25 @@ export function SambharOpening() {
     measure();
 
     // ---- A: the engraving and what follows it ----
-    /** The pen at t seconds into the engraving (Infinity: finished). */
+    // The hairlines are pure CSS (one 2.4 s pass, from the server-rendered SVG): the script only
+    // keeps time with them and never sets, resets or remounts a stroke.
     const setEngrave = (t: number) => {
-      for (let w = 0; w < words.length; w++) {
-        const cs = contours[w]!;
-        for (let c = 0; c < cs.length; c++) {
-          const k = cs[c]!;
-          const a = Math.max(k.floor, clamp01((t - k.t0) / (k.t1 - k.t0)));
-          k.floor = a; // a hairline only ever grows
-          k.el.style.strokeDashoffset = (k.len * unit * (1 - a)).toFixed(2);
-          k.el.style.opacity = a > 0 ? '1' : '0'; // no round-cap dot before a contour starts
-          // The tip: a soft gold head on the pen, fading as the letter completes.
-          const tip = tips[w]![c]!;
-          const fade =
-            a <= 0 || a >= 1 ? 0 : Math.min(1, a / 0.04) * (1 - clamp01((a - 0.8) / 0.2));
-          tip.style.opacity = fade.toFixed(3);
-          if (fade > 0) {
-            const pt = k.el.getPointAtLength(k.len * a);
-            tip.setAttribute('cx', pt.x.toFixed(1));
-            tip.setAttribute('cy', pt.y.toFixed(1));
-            tip.setAttribute('r', (3.5 / unit).toFixed(2));
-          }
-        }
-      }
       hindiIn = Math.min(1, clockProgress(t) * 1.4);
       hindi.style.opacity = (hindiIn * hindiOpen).toFixed(3);
     };
     let hindiIn = 1;
     let hindiOpen = 1;
 
-    /** A very soft gold shimmer travelling along the finished word, opacity only. */
+    /** A very soft gold shimmer travelling along the finished word (each letter's group). */
+    const letterGroups = strokes.map((g) => [...g.children] as SVGGElement[]);
     const setShimmer = (time: number, amp: number) => {
       const w = ((time / 1.8) % 1) * 1.5 - 0.25; // the bright crest, left to right
-      for (const cs of contours)
-        for (const k of cs) {
-          const u = (k.letter + 0.5) / SAMBHAR.letters.length;
+      for (const gs of letterGroups)
+        gs.forEach((g, i) => {
+          const u = (i + 0.5) / gs.length;
           const crest = Math.exp(-(((u - w) / 0.14) ** 2));
-          k.el.style.opacity = (1 - amp * 0.2 * (1 - crest)).toFixed(3);
-        }
+          g.style.opacity = (1 - amp * 0.2 * (1 - crest)).toFixed(3);
+        });
     };
 
     /** The ink band's half-height (font units) at fill f, feathered 2px at both edges. */
@@ -360,13 +333,6 @@ export function SambharOpening() {
             : typeof pre === 'number'
               ? (performance.now() - pre) / 1000
               : 0;
-      // whatever the CSS has already drawn stays drawn
-      for (const cs of contours)
-        for (const k of cs) {
-          const st = getComputedStyle(k.el);
-          const L = k.len * unit;
-          k.floor = st.opacity === '0' || !L ? 0 : clamp01(1 - parseFloat(st.strokeDashoffset) / L);
-        }
       html.setAttribute('data-opening-js', '');
       const t0 = (introClock ??= performance.now() - cssElapsed * 1000);
       void document.fonts.ready.then(() => reportLoad('fonts', 1));
@@ -466,7 +432,7 @@ export function SambharOpening() {
     let cancelled = false;
     let kill: (() => void) | undefined;
     let current = 0;
-    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+    void loadGsap().then(({ gsap }) => {
       reportLoad('gsap', 1);
       if (cancelled) return;
       const state = { o: 0 };
@@ -476,7 +442,7 @@ export function SambharOpening() {
           // behind the Journey panorama, which uncovers it three-quarters done
           start: () => `top+=${Math.round(window.innerHeight * OPEN_START_VH)} top`,
           end: () => `+=${Math.round(window.innerHeight * OPEN_VH)}`,
-          scrub: 0.9,
+          scrub: 0.6,
           invalidateOnRefresh: true,
         },
         onUpdate: () => {
@@ -489,7 +455,6 @@ export function SambharOpening() {
         tl.scrollTrigger?.kill();
         tl.kill();
       };
-      ScrollTrigger.refresh();
     });
 
     const onResize = () => {

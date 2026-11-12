@@ -176,6 +176,7 @@
   min-height: 0;
   padding: 0;
   overflow: hidden;
+  contain: paint; /* the pinned stage repaints on its own */
 }
 
 /* the dawn glow: gold-500, at most ~11% in the centre of the opening (opacity from the script) */

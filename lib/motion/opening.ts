@@ -23,13 +23,13 @@ export const JOURNEY = { in: 0.5 / JOURNEY_VH, out: 3 / JOURNEY_VH } as const;
  * jar is revealed from the bottom up, the gold lines fade, and the jar sequence takes over.
  */
 export const STEP = {
-  undraw: [0, 0.5],
-  caption: [0, 0.4],
-  glide: [0.35, 0.6],
-  paper: [0.5, 0.6],
-  reveal: [0.6, 0.86],
-  lines: [0.8, 0.92],
-  hand: [0.92, 1],
+  undraw: [0, 0.25],
+  caption: [0, 0.25],
+  glide: [0.15, 0.35],
+  paper: [0.25, 0.35],
+  reveal: [0.35, 0.85], // linear, soft edge
+  lines: [0.75, 0.95],
+  hand: [0.95, 1],
 } as const;
 
 /** Where the opening starts (behind the panorama: it is three-quarters done as it lifts). */

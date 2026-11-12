@@ -325,7 +325,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
 
     // c. the 3D jar, revealed from the bottom up with a soft edge, like the ink fill (STEP.reveal)
     if (jarLayer) {
-      const r = ease(phase(t, ...STEP.reveal));
+      const r = phase(t, ...STEP.reveal); // linear: the jar fills at the scroll's own pace
       const from = Math.max(target.base[1]!, target.top[1]!) + 40;
       const to = Math.min(target.base[1]!, target.top[1]!) - 40;
       const edge = (r <= 0 ? target.layerH + 60 : from + (to - from) * r) - target.layerTop;
@@ -438,7 +438,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
         trigger: hero,
         start: 'top top',
         end: () => `+=${Math.round(window.innerHeight * JOURNEY_VH)}`,
-        scrub: 0.7,
+        scrub: 0.6,
         invalidateOnRefresh: true,
       },
       onUpdate: () => render(tl.progress()),

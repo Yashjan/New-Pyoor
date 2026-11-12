@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
+import { whenIntroDone } from '@/lib/loader/prefetch';
 import { POUR_END, POUR_START } from '@/lib/motion/pour';
 
 /**
@@ -65,7 +66,7 @@ export function HomeMotion() {
           gsap.fromTo(
             el.querySelector('[data-parallax-inner]') ?? el,
             { yPercent: -amount },
-            { yPercent: amount, ease: 'none', scrollTrigger: { trigger: el, scrub: true } },
+            { yPercent: amount, ease: 'none', scrollTrigger: { trigger: el, scrub: 0.6 } },
           );
         });
         q('[data-float]').forEach((el) =>
@@ -76,7 +77,7 @@ export function HomeMotion() {
               y: -36,
               rotate: 2,
               ease: 'none',
-              scrollTrigger: { trigger: el.parentElement, scrub: true },
+              scrollTrigger: { trigger: el.parentElement, scrub: 0.6 },
             },
           ),
         );
@@ -97,7 +98,7 @@ export function HomeMotion() {
               scale: 1,
               rotate: 0,
               ease: 'none',
-              scrollTrigger: { trigger: crystals.parentElement, scrub: true },
+              scrollTrigger: { trigger: crystals.parentElement, scrub: 0.6 },
             },
           );
         }
@@ -144,7 +145,7 @@ export function HomeMotion() {
             trigger: hero,
             start: () => `top+=${Math.round(window.innerHeight * SEQUENCE_START_VH)} top`,
             end: 'bottom bottom',
-            scrub: true,
+            scrub: 0.6,
             invalidateOnRefresh: true,
             onUpdate: (s) => {
               beats.progress(s.progress);
@@ -164,14 +165,22 @@ export function HomeMotion() {
         }
       });
 
-      // Fonts and images change layout: re-measure once everything has loaded.
-      const refresh = () => ScrollTrigger.refresh();
-      if (document.readyState === 'complete') refresh();
-      else window.addEventListener('load', refresh, { once: true });
-      document.fonts?.ready.then(refresh);
+      // Re-measure exactly once: after the fonts, the page's files and the intro (scrolling is
+      // held until then, so it happens before the visitor reaches the first pin). Never again.
+      let refreshed = false;
+      const loaded = new Promise<void>((r) =>
+        document.readyState === 'complete'
+          ? r()
+          : window.addEventListener('load', () => r(), { once: true }),
+      );
+      const refresh = () => {
+        if (refreshed || cancelled) return;
+        refreshed = true;
+        ScrollTrigger.refresh();
+      };
+      void Promise.all([document.fonts?.ready, loaded, whenIntroDone()]).then(refresh);
 
       cleanup = () => {
-        window.removeEventListener('load', refresh);
         ctx.revert();
       };
     });

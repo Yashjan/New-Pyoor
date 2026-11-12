@@ -24,6 +24,7 @@ import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
 import { cameraAt } from './camera';
+import { loadGsap } from '@/lib/motion/gsap';
 import { createPour, type Pour } from './grains';
 import { createContact, createGround } from './ground';
 import { createJarRig, poseCap, poseJar } from './jar';
@@ -229,12 +230,11 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   let sp = opts.getProgress(); // smoothed progress
   let frames = 0;
   let canvasShown: boolean | null = null;
-  let raf = 0;
   let turn = 0;
   window.__pyoorHero = { p: sp, target: sp, frames };
 
+  // one clock for the page: GSAP's ticker drives Lenis, ScrollTrigger and this render
   const frame = () => {
-    raf = requestAnimationFrame(frame);
     // Paused behind the panorama, but the first frame renders anyway (invisible there): the
     // textures upload and the pipelines warm up during the Journey, not at the reveal.
     // Unseen until step 2's reveal: the canvas is hidden (opacity and visibility) and nothing is
@@ -327,6 +327,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // Compile every material before the first frame, in parallel where the driver supports it
   // (KHR_parallel_shader_compile), instead of blocking the page for ~0.2–0.7 s on first render.
   await nextFrame();
+  pour.mound.visible = true; // compile it too
   try {
     await renderer.compileAsync(scene, camera);
   } catch {
@@ -339,9 +340,16 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     const h = Math.max(2, renderer.domElement.height);
     const warm = new WebGLRenderTarget(w, h);
     cameraAt(camera, 0, layout, 1);
+    // everything that only appears later (the mound) is drawn once here too, so its programs
+    // and shadow pass are built now rather than mid-scroll
+    pour.mound.visible = true;
     renderer.setRenderTarget(warm);
     renderer.render(scene, camera);
     renderer.setRenderTarget(null);
+    // and once into the canvas's own buffer while it is still hidden (opacity 0, visibility
+    // hidden): the first real frame then only presents
+    renderer.render(scene, camera);
+    pour.mound.visible = false;
     warm.dispose();
   }
   if (signal.aborted) {
@@ -351,11 +359,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     renderer.dispose();
     throw new DOMException('Aborted', 'AbortError');
   }
-  raf = requestAnimationFrame(frame);
+  const { gsap } = await loadGsap();
+  gsap.ticker.add(frame);
 
   return {
     dispose() {
-      cancelAnimationFrame(raf);
+      gsap.ticker.remove(frame);
       pans?.dispose();
       ro.disconnect();
       io.disconnect();

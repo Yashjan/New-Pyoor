@@ -1,8 +1,8 @@
 /**
  * Quality tier for the 3D hero, chosen once from the device.
  *
- *   high   desktop               12,000 grains (15% of them fine dust), DPR ≤ 2, realtime shadows
- *   phone  ≤ 860 px wide          4,800 grains, DPR ≤ 2, realtime shadows
+ *   high   desktop               12,000 grains (15% of them fine dust), DPR ≤ 1.5, realtime shadows
+ *   phone  ≤ 860 px wide          4,800 grains, DPR ≤ 1.25, realtime shadows
  *   weak   < 4 GB or < 4 cores    2,400 grains, DPR ≤ 1.25, no shadows
  *
  * `null` means no WebGL at all (reduced motion or no WebGL support): the poster stays.
@@ -38,6 +38,6 @@ export function pickQualityTier(): QualityTier | null {
     (nav.hardwareConcurrency !== undefined && nav.hardwareConcurrency < 4);
   if (weak) return { name: 'weak', grains: 2400, maxDpr: 1.25, shadows: false };
   const small = window.matchMedia('(max-width: 860px)').matches;
-  if (small) return { name: 'phone', grains: 4800, maxDpr: 2, shadows: true };
-  return { name: 'high', grains: 12000, maxDpr: 2, shadows: true };
+  if (small) return { name: 'phone', grains: 4800, maxDpr: 1.25, shadows: true };
+  return { name: 'high', grains: 12000, maxDpr: 1.5, shadows: true };
 }
