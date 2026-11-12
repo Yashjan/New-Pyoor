@@ -302,6 +302,7 @@ test('h: untouched, the intro fills at ~2.4 s and is done by ~4.8 s', async ({ p
   expect(before.cue).toBe(0);
   expect(filled.cue, 'cue not yet in at 3.5 s').toBe(0);
   expect(end.cue, 'cue in by ~4.8 s').toBe(1);
+  expect(end.clip, 'the ink rests unclipped').toBe('none');
   expect(end.running).toBe(0);
   expect(end.done).toBe(true);
 });
@@ -324,6 +325,7 @@ test('i: a scroll at 1 s finishes the intro within ~0.3 s and scrolls at once', 
   expect(s.y, 'scrolled').toBeGreaterThan(0);
   expect(s.running, 'every intro animation finished').toBe(0);
   expect(s.cue).toBe(1);
+  expect(s.clip, 'the ink rests unclipped').toBe('none');
   expect(took).toBeLessThanOrEqual(450);
 });
 

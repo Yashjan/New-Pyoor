@@ -60,15 +60,15 @@ export const viewport: Viewport = {
  *   Without JS, or with prefers-reduced-motion, the class is never added and every section
  *   lays out as a normal static page.
  * - On the homepage, `html[data-intro]="full"` plays the opening (components/opening) on every
- *   load, refreshes included. Reduced motion and no JS get no data-intro: the filled word,
- *   fades only.
+ *   load, refreshes included. Reduced motion and no JS get no data-intro: the complete word,
+ *   no animation.
  */
 // The homepage, wherever the site is hosted: '/' locally, '/New-Pyoor/' on GitHub Pages.
 /**
- * The loader's first paint, inline (it can't wait for a stylesheet): under the intro, the word's
- * navy ink and its hairlines start hidden, so the finished word never shows before the engraving.
+ * The first paint, inline (it can't wait for a stylesheet): the hairlines start hidden (the
+ * navy ink is never hidden at rest: only the intro's fill animation clips it).
  */
-const LOADER_CSS = `html[data-intro=full] [data-ink]{clip-path:inset(50% 0 50% 0)}[data-strokes] path{fill:none;opacity:0}`;
+const LOADER_CSS = `[data-strokes] path{fill:none;opacity:0}`;
 
 const HEAD_FLAGS = `try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0];if(location.hash&&n&&n.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);if(!location.hash)scrollTo(0,0);addEventListener('pageshow',function(e){if(e.persisted)scrollTo(0,0)})}catch(e){}try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 

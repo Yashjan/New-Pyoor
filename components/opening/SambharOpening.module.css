@@ -47,15 +47,29 @@
 }
 
 .word {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect);
+}
+
+/* the navy letters: an HTML box, unclipped at rest (the intro only opens it, from the line) */
+.ink,
+.ink svg,
+.strokes {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: var(--aspect);
+  height: 100%;
   overflow: visible;
 }
 
 .ink {
   fill: var(--navy-800);
+  clip-path: none;
+}
+
+.strokes {
+  position: absolute;
+  inset: 0;
 }
 
 .strokes path {
@@ -105,11 +119,6 @@
 
 .cue {
   display: none;
-}
-
-/* reduced motion and no JS: fades only */
-:global(html:not(.motion)) .opening > * {
-  animation: fade 0.6s var(--ease-settle) both;
 }
 
 /* ---------------- motion: an overlay above the Journey, in the hero's pinned stage ----------------
@@ -214,12 +223,15 @@
   animation: engrave linear both;
 }
 
+/* the static styles are the end state: each animation only brings its element in (fill
+   backwards), so one that ends early, is sped up or never runs leaves it fully visible.
+   The outline is the exception: it exits (its paths are hidden at rest anyway). */
 :global(html[data-intro='full']) .ink {
-  animation: fill 0.9s 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fill 0.9s 2.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 :global(html[data-intro='full']) .hindi {
-  animation: fade 0.6s 3s var(--ease-settle) both;
+  animation: fade 0.6s 3s var(--ease-settle) backwards;
 }
 
 :global(html[data-intro='full']) .strokes {
@@ -227,20 +239,21 @@
 }
 
 :global(html[data-intro='full']) .body {
-  animation: fade 0.6s 3.6s var(--ease-settle) both;
+  animation: fade 0.6s 3.6s var(--ease-settle) backwards;
 }
 
 :global(html[data-intro='full']) .cue {
-  animation: fade 0.6s 4.2s var(--ease-settle) both;
+  animation: fade 0.6s 4.2s var(--ease-settle) backwards;
 }
 
-/* the ink opens from the line SAMBHAR sits on (--line-frac of the word box) outward */
+/* the ink opens from the line SAMBHAR sits on (--line-frac of the wrapper's box) outward, to
+   past the box, so no ascender, descender or curve is ever cut */
 @keyframes fill {
   from {
-    clip-path: inset(calc(var(--line-frac) * 100%) 0 calc((1 - var(--line-frac)) * 100%) 0) view-box;
+    clip-path: inset(calc(var(--line-frac) * 100%) 0 calc((1 - var(--line-frac)) * 100%) 0);
   }
   to {
-    clip-path: inset(-20% 0 -20% 0) view-box;
+    clip-path: inset(-15% 0 -15% 0);
   }
 }
 
@@ -261,9 +274,6 @@
 @keyframes fade {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 

@@ -90,15 +90,12 @@ html.lenis body {
 /* Homepage (components/opening): the header fades in at 3.3 s, after SAMBHAR is inked
    (opacity only; the first scroll input speeds it up with the rest of the intro). */
 html[data-intro='full'] [data-site-header] > * {
-  animation: py-intro-fade 0.6s 3.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: py-intro-fade 0.6s 3.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 @keyframes py-intro-fade {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 

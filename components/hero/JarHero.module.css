@@ -151,10 +151,15 @@
     padding-top: calc(var(--header-height-mobile) + var(--space-5));
   }
 
-  .poster {
+  .poster,
+  .posterFinal {
     grid-column: 1;
     grid-row: 4;
     width: 56vw;
+  }
+
+  .posterFinal {
+    width: 90vw;
   }
 
   .h1 {

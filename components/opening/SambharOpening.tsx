@@ -38,7 +38,7 @@ const GEO = {
  *    touches scroll or layout;
  *  - data-intro-done once the scroll cue has faded in (it drives nothing heavy).
  */
-const PRE = `(function(r){var d=document.documentElement,w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',Math.round(r.clientHeight/2)+'px');var E=['wheel','touchmove','keydown','pointerdown'],h=document.querySelector('[data-site-header]'),f=function(){E.forEach(function(n){removeEventListener(n,f,true)});if(!document.getAnimations)return;document.getAnimations().forEach(function(a){var t=a.effect&&a.effect.target;if(!t||!(r.contains(t)||(h&&h.contains(t))))return;var m=a.effect.getComputedTiming(),l=m.endTime-(a.currentTime||0);if(isFinite(l)&&l>300)a.playbackRate=l/300})};E.forEach(function(n){addEventListener(n,f,{capture:true,passive:true})});r.addEventListener('animationend',function(v){if(v.target.hasAttribute&&v.target.hasAttribute('data-cue'))d.setAttribute('data-intro-done','')})})(document.currentScript.parentNode)`;
+const PRE = `(function(r){var d=document.documentElement,w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},c='',g=r.querySelector('[data-strokes]');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',Math.round(r.clientHeight/2)+'px');var E=['wheel','touchmove','keydown','pointerdown'],h=document.querySelector('[data-site-header]'),f=function(){E.forEach(function(n){removeEventListener(n,f,true)});if(!document.getAnimations)return;document.getAnimations().forEach(function(a){var t=a.effect&&a.effect.target;if(!t||!(r.contains(t)||(h&&h.contains(t))))return;var m=a.effect.getComputedTiming(),l=m.endTime-(a.currentTime||0);if(isFinite(l)&&l>300)a.playbackRate=l/300})};E.forEach(function(n){addEventListener(n,f,{capture:true,passive:true})});r.addEventListener('animationend',function(v){if(v.target.hasAttribute&&v.target.hasAttribute('data-cue'))d.setAttribute('data-intro-done','')})})(document.currentScript.parentNode)`;
 
 /** The CSS engraving's timing for a contour drawn over [a, a + w] of the progress, on the clock. */
 const timed = (a: number, w: number) => ({
@@ -46,22 +46,28 @@ const timed = (a: number, w: number) => ({
   animationDuration: `${(clockTime(a + w) - clockTime(a)).toFixed(3)}s`,
 });
 
-/** One copy of the word: the navy ink (opened from the line by CSS) and the gold hairlines. */
+/**
+ * One copy of the word: the navy ink in an HTML wrapper (its clip-path, opened from the line by
+ * CSS, is in the wrapper's own box, not the SVG's), and the gold hairlines over it.
+ */
 function Word() {
+  const box = `${VX} ${VY} ${VW} ${VH}`;
   return (
-    <svg
-      className={styles.word}
-      data-word
-      viewBox={`${VX} ${VY} ${VW} ${VH}`}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <g className={styles.ink} data-ink>
-        {SAMBHAR.letters.map((l, i) => (
-          <path key={i} d={l.outer + l.counters.join('')} fillRule="evenodd" />
-        ))}
-      </g>
-      <g className={styles.strokes} data-strokes>
+    <div className={styles.word} data-word>
+      <div className={styles.ink} data-ink>
+        <svg viewBox={box} aria-hidden="true" focusable="false">
+          {SAMBHAR.letters.map((l, i) => (
+            <path key={i} d={l.outer + l.counters.join('')} fillRule="evenodd" />
+          ))}
+        </svg>
+      </div>
+      <svg
+        className={styles.strokes}
+        data-strokes
+        viewBox={box}
+        aria-hidden="true"
+        focusable="false"
+      >
         {SAMBHAR.letters.map((l, i) => (
           <g key={i}>
             <path
@@ -82,8 +88,8 @@ function Word() {
             ))}
           </g>
         ))}
-      </g>
-    </svg>
+      </svg>
+    </div>
   );
 }
 
