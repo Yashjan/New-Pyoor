@@ -4,7 +4,6 @@ import { useEffect, useRef, type CSSProperties } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { JOURNEY, JOURNEY_VH, STEP, journeyStore } from '@/lib/motion/opening';
 import { FOV, heroCamera, jarStartX, layoutFor } from '@/lib/motion/heroCamera';
-import { whenEngraved, whenIntroDone } from '@/lib/loader/prefetch';
 import { LIVE, PANORAMA } from './panorama';
 import { LiveLayer, createLiving } from './Living';
 import styles from './Journey.module.css';
@@ -348,6 +347,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
 
   const render = (s: number) => {
     current = s;
+    root.dataset.progress = s.toFixed(4); // read by tests/scroll.spec.ts
     root.style.visibility = s > 0.0005 && s < 0.9995 ? 'visible' : 'hidden';
     const inP = phase(s, 0, JOURNEY.in);
     const pan = phase(s, JOURNEY.in, JOURNEY.out);
@@ -458,9 +458,8 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     };
   });
 
-  // The drawing arrives after the intro, so it can't compete with the engraving.
+  // The drawing is fetched at once (~90 KB); it's needed as soon as anyone scrolls.
   void (async () => {
-    await whenIntroDone(controller.signal);
     const texts = await Promise.all(
       LAYERS.map((l) =>
         fetch(asset(`/engravings/journey-${l}.svg`), { signal: controller.signal }).then((r) =>
@@ -520,16 +519,9 @@ export function Journey() {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // nothing of the panorama runs during the SAMBHAR engraving: it mounts once that's drawn
-    const gate = new AbortController();
-    let teardown: (() => void) | undefined;
-    void whenEngraved(gate.signal).then(() => {
-      if (!gate.signal.aborted) teardown = mountPanorama(rootRef.current);
-    });
-    return () => {
-      gate.abort();
-      teardown?.();
-    };
+    // mounted at once: the SAMBHAR handoff follows the scroll from the first paint, even
+    // mid-engraving (nothing waits for the intro)
+    return mountPanorama(rootRef.current);
   }, []);
 
   // Reduced motion (the still frames): scene 05's engraved jar crossfades to the jar, once.

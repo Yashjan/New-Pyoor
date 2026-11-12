@@ -26,3 +26,7 @@ __pycache__/
 /3d/
 /pyoor-thread-update/
 /pyoor-salt-update/
+
+# playwright
+/test-results/
+/playwright-report/

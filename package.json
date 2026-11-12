@@ -17,7 +17,8 @@
     "models": "bash tools/3d/compress.sh",
     "models:inspect": "bash tools/3d/compress.sh --inspect",
     "glyphs": "node tools/glyphs/build.mjs",
-    "engravings": "node tools/engravings/build.mjs"
+    "engravings": "node tools/engravings/build.mjs",
+    "test:scroll": "playwright test"
   },
   "dependencies": {
     "gsap": "3.15.1",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@gltf-transform/cli": "4.5.1",
+    "@playwright/test": "1.65.0",
     "@types/node": "20.19.43",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

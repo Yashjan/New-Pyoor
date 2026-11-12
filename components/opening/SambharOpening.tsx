@@ -393,6 +393,7 @@ export function SambharOpening() {
     // ---- B and C: the scrubbed opening ----
     const render = (o: number) => {
       openingStore.set(o);
+      root.dataset.progress = o.toFixed(4); // read by tests/scroll.spec.ts
       const P = openingPose(o);
       const up = P.open * 0.27 * H + P.drift * 0.36 * H;
       const down = 0.9 * up; // the bottom half moves 10% less
