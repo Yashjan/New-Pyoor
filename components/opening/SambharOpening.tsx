@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
-import { loadProgress, onLoadProgress, reportLoad } from '@/lib/loader/progress';
+import { onLoadProgress, partProgress, reportLoad } from '@/lib/loader/progress';
 import { loadGsap } from '@/lib/motion/gsap';
-import { lenisStore } from '@/lib/motion/lenis';
+import { unlockScroll } from '@/lib/motion/unlock';
 import { OPEN_START_VH, OPEN_VH, expoOut, openingPose, openingStore } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
@@ -306,8 +306,7 @@ export function SambharOpening() {
       html.setAttribute('data-header-in', '');
       html.setAttribute('data-engraved', '');
       html.setAttribute('data-intro-done', '');
-      html.style.removeProperty('overflow');
-      lenisStore.get()?.start();
+      void unlockScroll();
       introDone = true;
     };
 
@@ -343,8 +342,11 @@ export function SambharOpening() {
         )
         .catch(() => {});
       // The pen runs on the clock alone; load progress only decides when the loader ends.
-      let ready = loadProgress() >= 1;
-      cleanups.push(onLoadProgress((p) => (ready ||= p >= 1)));
+      // Ready = what the page needs to scroll (fonts, GSAP). The 3D model, textures and sounds
+      // keep loading in the background: only step 2's reveal needs them.
+      const pageReady = () => partProgress('fonts') >= 1 && partProgress('gsap') >= 1;
+      let ready = pageReady();
+      cleanups.push(onLoadProgress(() => (ready ||= pageReady())));
       let engravedAt = -1;
       let afterAt = -1;
       let shimmerFrom = 0;
@@ -381,8 +383,7 @@ export function SambharOpening() {
             setAfter(s);
             if (!unlocked && s >= UNLOCK_AT) {
               unlocked = true;
-              html.style.removeProperty('overflow');
-              lenisStore.get()?.start();
+              void unlockScroll();
             }
             if (s >= DONE_AT) {
               finishIntro();

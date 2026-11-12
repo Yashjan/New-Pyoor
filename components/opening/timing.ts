@@ -45,7 +45,7 @@ export const AFTER = {
   cue: [1.84, 2.44],
 } as const;
 /** Scrolling is held until the outline has faded; the intro counts as done after the cue. */
-export const UNLOCK_AT = AFTER.outline[1];
+export const UNLOCK_AT = AFTER.fill[1]; // the instant the navy fill completes
 export const DONE_AT = AFTER.cue[1];
 
 export const phase = (t: number, [a, b]: readonly [number, number]) => clamp01((t - a) / (b - a));

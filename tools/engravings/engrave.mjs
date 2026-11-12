@@ -391,7 +391,7 @@ export function Plate(seed, { vignette = true, width = W } = {}) {
       const one = (i) => {
         const c = CLS[i.w];
         if (i.paper) return `<path class="p" d="${i.d}"/>`;
-        return `<path${c ? ` class="${c}"` : ''} d="${i.d}"${i.m ? ` data-m="${i.m}"` : ''}${i.opacity ? ` opacity="${i.opacity}"` : ''}/>`;
+        return `<path${c ? ` class="${c}"` : ''} d="${i.d}"${i.m ? ` data-m="${i.m}"` : ''} data-t="${i.t}"${i.opacity ? ` opacity="${i.opacity}"` : ''}/>`;
       };
       const scenes = [...new Set(items.map((i) => i.s))];
       const body =

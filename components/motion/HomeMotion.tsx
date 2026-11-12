@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
-import { whenIntroDone } from '@/lib/loader/prefetch';
+import { introIsFull } from '@/lib/loader/progress';
+import { refreshOnce } from '@/lib/motion/unlock';
 import { POUR_END, POUR_START } from '@/lib/motion/pour';
 
 /**
@@ -165,20 +166,9 @@ export function HomeMotion() {
         }
       });
 
-      // Re-measure exactly once: after the fonts, the page's files and the intro (scrolling is
-      // held until then, so it happens before the visitor reaches the first pin). Never again.
-      let refreshed = false;
-      const loaded = new Promise<void>((r) =>
-        document.readyState === 'complete'
-          ? r()
-          : window.addEventListener('load', () => r(), { once: true }),
-      );
-      const refresh = () => {
-        if (refreshed || cancelled) return;
-        refreshed = true;
-        ScrollTrigger.refresh();
-      };
-      void Promise.all([document.fonts?.ready, loaded, whenIntroDone()]).then(refresh);
+      // Re-measure exactly once, after the fonts. With the intro, the loader does it the instant
+      // scrolling unlocks (lib/motion/unlock.ts); nothing waits for the 3D model.
+      if (!introIsFull()) void refreshOnce();
 
       cleanup = () => {
         ctx.revert();

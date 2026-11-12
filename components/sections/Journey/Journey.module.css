@@ -169,8 +169,9 @@
   max-width: none; /* the layers are far wider than the screen */
 }
 
+/* hairlines never thinner than 1px on screen at 1x (0.75px at 2x and above: --lmin) */
 .layer :global(path) {
-  stroke-width: calc(var(--u, 1) * 0.75);
+  stroke-width: calc(var(--u, 1) * max(0.75, var(--lmin, 0.75)));
 }
 
 .layer :global(path.p) {
@@ -179,11 +180,11 @@
 }
 
 .layer :global(path.a) {
-  stroke-width: calc(var(--u, 1) * 0.5);
+  stroke-width: calc(var(--u, 1) * max(0.5, var(--lmin, 0.75)));
 }
 
 .layer :global(path.b) {
-  stroke-width: var(--u, 1);
+  stroke-width: calc(var(--u, 1) * max(1, var(--lmin, 0.75)));
 }
 
 .layer :global(path.c) {

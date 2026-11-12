@@ -206,6 +206,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   };
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
+  // phones: the address bar showing/hiding (sized before the next frame, never after it)
+  window.visualViewport?.addEventListener('resize', resize);
   resize();
 
   // ---- pointer parallax (only matters while the jar is at rest) ----
@@ -230,6 +232,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   let sp = opts.getProgress(); // smoothed progress
   let frames = 0;
   let canvasShown: boolean | null = null;
+  let firstShown = false;
+  let framesHidden = 0; // correct frames rendered since the reveal began, before showing
   let turn = 0;
   window.__pyoorHero = { p: sp, target: sp, frames };
 
@@ -239,12 +243,20 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     // textures upload and the pipelines warm up during the Journey, not at the reveal.
     // Unseen until step 2's reveal: the canvas is hidden (opacity and visibility) and nothing is
     // drawn to it, so no frame (shadow, ground, glow) can show behind the opening or panorama.
+    // On the reveal's start: size to the viewport now, render one correct (masked) frame while
+    // still hidden, and show the canvas on the next tick, so a stale frame can never flash.
     const shown = journeyStore.show3d;
-    if (shown !== canvasShown) {
-      canvasShown = shown;
-      canvas.style.opacity = shown ? '1' : '0';
-      canvas.style.visibility = shown ? 'visible' : 'hidden';
+    if (!shown && canvasShown !== false) {
+      canvasShown = false;
+      framesHidden = 0;
+      canvas.style.opacity = '0';
+      canvas.style.visibility = 'hidden';
+    } else if (shown && canvasShown === false && framesHidden > 0) {
+      canvasShown = true;
+      canvas.style.opacity = '1';
+      canvas.style.visibility = 'visible';
     }
+    if (shown && !canvasShown && framesHidden === 0) resize();
     if (!visible || !shown || journeyStore.covered) {
       clock.getDelta(); // don't let time pile up while paused
       return;
@@ -321,8 +333,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     renderer.render(scene, camera);
 
     frames++;
+    framesHidden = canvasShown ? 0 : framesHidden + 1;
     window.__pyoorHero = { p, target: goal, frames };
-    if (frames === 1) opts.onFirstFrame();
+    if (canvasShown && !firstShown) {
+      firstShown = true;
+      opts.onFirstFrame();
+    }
   };
   // Compile every material before the first frame, in parallel where the driver supports it
   // (KHR_parallel_shader_compile), instead of blocking the page for ~0.2–0.7 s on first render.
@@ -346,9 +362,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     renderer.setRenderTarget(warm);
     renderer.render(scene, camera);
     renderer.setRenderTarget(null);
-    // and once into the canvas's own buffer while it is still hidden (opacity 0, visibility
-    // hidden): the first real frame then only presents
-    renderer.render(scene, camera);
+    renderer.clear(); // the visible canvas never holds a warm-up frame
     pour.mound.visible = false;
     warm.dispose();
   }
@@ -367,6 +381,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       gsap.ticker.remove(frame);
       pans?.dispose();
       ro.disconnect();
+      window.visualViewport?.removeEventListener('resize', resize);
       io.disconnect();
       window.removeEventListener('pointermove', onPointer);
       pour.dispose();

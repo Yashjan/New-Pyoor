@@ -113,6 +113,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     k = artH / PANORAMA.height;
     root.style.setProperty('--k', String(k));
     root.style.setProperty('--u', String(1 / k));
+    root.style.setProperty('--lmin', window.devicePixelRatio < 2 ? '1' : '0.75');
     root.style.setProperty('--art-top', `${artTop}px`);
     root.style.setProperty('--art-h', `${artH}px`);
     LAYERS.forEach(sizeLayer);
@@ -137,6 +138,13 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     }
     living.reveal(i, animate ? 1100 : 0);
     if (!animate) return;
+    // ground first (pans, bunds, grid, sky), then mounds, then what stands on them (gate,
+    // figures, jar), then the small details: nothing appears floating before its ground
+    const rank = (p: SVGPathElement) => {
+      const t = Number(p.dataset.t ?? 7);
+      return t >= 7 ? 0 : t >= 4 && t <= 5 ? 1 : t <= 3 ? 2 : 3;
+    };
+    paths.sort((a, b) => rank(a) - rank(b));
     paths.forEach((p, n) => {
       const L = Number(p.dataset.m) || p.getTotalLength();
       const base = Number(p.getAttribute('opacity') ?? 1);
@@ -400,7 +408,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     const c = PANORAMA.layers.near.centers;
     captions.forEach((el, i) => {
       const d = Math.abs(x - c[i]!) / PANORAMA.scene;
-      const on = 1 - ease(phase(d, 0.2, 0.42));
+      const on = 1 - ease(phase(d, 0.44, 0.5)); // held while its scene is on screen
       el.style.opacity = (
         on *
         ease(phase(inP, 0.7, 1)) *

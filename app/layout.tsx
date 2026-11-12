@@ -64,6 +64,12 @@ export const viewport: Viewport = {
  *   fades only.
  */
 // The homepage, wherever the site is hosted: '/' locally, '/New-Pyoor/' on GitHub Pages.
+/**
+ * The loader's first paint, inline (it can't wait for a stylesheet): under the intro, the word's
+ * navy ink and its hairlines start hidden, so the finished word never shows before the engraving.
+ */
+const LOADER_CSS = `html[data-intro=full]:not([data-intro-done]) [data-ink]{opacity:0}[data-strokes] path{fill:none;opacity:0}`;
+
 const HEAD_FLAGS = `try{var d=document.documentElement,m=!matchMedia('(prefers-reduced-motion: reduce)').matches;if(m){d.classList.add('motion');if(location.pathname.replace(/\\/$/,'')===${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? '')})d.setAttribute('data-intro','full')}}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -76,6 +82,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: HEAD_FLAGS }} />
+        <style dangerouslySetInnerHTML={{ __html: LOADER_CSS }} />
       </head>
       {/* Browser extensions (e.g. ColorZilla's `cz-shortcut-listen`) add attributes to <body>
           before React hydrates. This only ignores attribute differences on <body> itself;
