@@ -321,7 +321,7 @@ export function SambharOpening() {
               ? (performance.now() - pre) / 1000
               : 0;
       html.setAttribute('data-opening-js', '');
-      introClock ??= ( performance.now() - cssElapsed * 1000);
+      introClock ??= performance.now() - cssElapsed * 1000;
       void document.fonts.ready.then(() => reportLoad('fonts', 1));
       void document.fonts
         .load(
@@ -367,8 +367,7 @@ export function SambharOpening() {
         const dt = Math.min(0.1, (now - last) / 1000);
         last = now;
         vt += dt * rate;
-        if (fast && vt >= ENGRAVE && rate > 1 && vt < FILL_END)
-          rate = AFTER.fill[1] / FAST; // then the navy fill, as quickly
+        if (fast && vt >= ENGRAVE && rate > 1 && vt < FILL_END) rate = AFTER.fill[1] / FAST; // then the navy fill, as quickly
         if (vt >= FILL_END) rate = 1;
         if (!engraved) {
           setEngrave(vt);

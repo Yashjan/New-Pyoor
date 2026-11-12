@@ -9,4 +9,3 @@ export async function refreshOnce(): Promise<void> {
   const [{ ScrollTrigger }] = await Promise.all([loadGsap(), document.fonts?.ready]);
   ScrollTrigger.refresh();
 }
-

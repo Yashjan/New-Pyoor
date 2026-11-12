@@ -46,7 +46,19 @@ export const SEQUENCE_START_VH = JOURNEY_VH;
  * hidden and draws nothing, so nothing of the scene shows behind the opening or the panorama).
  * reveal: 0–1, how far step 2 has revealed the 3D jar (the contact shadows fade in with it).
  */
-export const journeyStore = { covered: false, calm: 0, show3d: false, reveal: 0 };
+export const journeyStore = {
+  covered: false,
+  calm: 0,
+  show3d: false,
+  reveal: 0,
+  /**
+   * ready3d: the 3D scene can draw (model loaded, warmed up). Until then step 2 keeps the
+   * engraving, never waits: the 3D crossfades in whenever it arrives (onReady: the 3D canvas has
+   * just become visible).
+   */
+  ready3d: false,
+  onReady: null as (() => void) | null,
+};
 
 let progress = 0;
 

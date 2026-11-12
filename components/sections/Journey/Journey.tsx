@@ -243,12 +243,36 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     undraw = list.map((o, n) => ({ ...o, a: u0 + each * (1 - dist[n]! / max) }));
   };
 
+  /**
+   * The 3D jar arrived after step 2's reveal had begun (the GLB was late): no fill, the
+   * engraving stayed; now the 3D crossfades in over 0.4 s (lateAt: when it arrived).
+   */
+  let lateAt: number | null = null;
+  let lateRaf = 0;
+  const LATE_FADE = 400;
+  const late = () => (lateAt === null ? 1 : Math.min(1, (performance.now() - lateAt) / LATE_FADE));
+  let missed = false; // the reveal began before the 3D was ready
+  journeyStore.onReady = () => {
+    if (!stepping || !missed || lateAt !== null) return; // on time: the normal reveal
+    lateAt = performance.now();
+    const go = () => {
+      render(current);
+      if (late() < 1) lateRaf = requestAnimationFrame(go);
+    };
+    go();
+  };
+  let lastT = 0;
+
   const glints = () => root.querySelectorAll<SVGSVGElement>('[data-veil] [data-live="glint"]');
   let stepping = false;
   const step2 = (t: number, farTx: number) => {
+    lastT = t;
     if (t <= 0 || t >= 1) {
       if (!stepping) return;
       stepping = false;
+      lateAt = null;
+      missed = false;
+      jarLayer?.style.removeProperty('opacity');
       // back in the panorama, or handed over: nothing of step 2 remains
       hero.removeAttribute('data-step');
       root.removeAttribute('data-step');
@@ -299,9 +323,16 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     });
     glints().forEach((el) => (el.style.display = t > 0.08 ? 'none' : ''));
     // the paper goes as the landscape has gone (the 3D jar shows under the lines)
+    // Without the 3D jar (not loaded yet) the engraved jar stays whole: its paper, its lines,
+    // no fill; whenever the 3D arrives it crossfades in (late()).
+    if (t >= STEP.reveal[0] && !journeyStore.ready3d) missed = true;
+    const ready = journeyStore.ready3d && (!missed || lateAt !== null);
+    const f = ready ? late() : 0;
+    const lerp = (a: number, b: number) => a + (b - a) * f;
     const paper = 1 - phase(t, ...STEP.paper);
     veil.style.backgroundColor = `rgba(245, 241, 232, ${paper.toFixed(3)})`;
-    [...jarPaper, ...papers].forEach((el) => (el.style.opacity = paper.toFixed(3)));
+    papers.forEach((el) => (el.style.opacity = paper.toFixed(3)));
+    jarPaper.forEach((el) => (el.style.opacity = lerp(1, paper).toFixed(3)));
 
     // b. the engraving glides to where the 3D jar stands (STEP.glide)
     const qb = J.anchors.base;
@@ -316,7 +347,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
       const cy = AG[1]! + sG * J.box[1] - artTop - J.box[1] * k;
       jar.style.transform = `translate(${cx.toFixed(2)}px,${cy.toFixed(2)}px) scale(${(sG / k).toFixed(5)})`;
       // d. the gold lines fade; the 3D jar stays (STEP.lines)
-      jar.style.opacity = (1 - phase(t, ...STEP.lines)).toFixed(3);
+      jar.style.opacity = lerp(1, 1 - phase(t, ...STEP.lines)).toFixed(3);
     }
 
     // the horizon, behind the jar (a gap where the jar stands in front of it)
@@ -331,7 +362,14 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     line.style.opacity = (1 - phase(t, ...STEP.hand)).toFixed(3);
 
     // c. the 3D jar, revealed from the bottom up with a soft edge, like the ink fill (STEP.reveal)
-    if (jarLayer) {
+    if (jarLayer && (!ready || lateAt !== null)) {
+      // nothing to reveal yet (not even the poster), or the late crossfade: no fill
+      const m = ready ? 'none' : 'linear-gradient(transparent, transparent)';
+      jarLayer.style.maskImage = m;
+      jarLayer.style.setProperty('-webkit-mask-image', m);
+      jarLayer.style.opacity = f.toFixed(3);
+    } else if (jarLayer) {
+      jarLayer.style.removeProperty('opacity');
       const r = phase(t, ...STEP.reveal); // linear: the jar fills at the scroll's own pace
       const from = Math.max(target.base[1]!, target.top[1]!) + 40;
       const to = Math.min(target.base[1]!, target.top[1]!) - 40;
@@ -497,6 +535,8 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     controller.abort();
     window.removeEventListener('resize', onResize);
     animations.forEach((a) => a.cancel());
+    cancelAnimationFrame(lateRaf);
+    journeyStore.onReady = null;
     living.destroy();
     opening?.style.removeProperty('opacity');
     kill?.();

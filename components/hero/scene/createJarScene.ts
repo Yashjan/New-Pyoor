@@ -1,5 +1,6 @@
 import {
   ACESFilmicToneMapping,
+  Box3,
   Clock,
   Color,
   DirectionalLight,
@@ -56,7 +57,14 @@ export interface JarScene {
 declare global {
   interface Window {
     /** Read-only state for automated screenshots and debugging. */
-    __pyoorHero?: { p: number; target: number; frames: number };
+    __pyoorHero?: {
+      p: number;
+      target: number;
+      frames: number;
+      /** the jar's projected box in client px, and whether the canvas is shown (tests) */
+      box?: [number, number, number, number];
+      shown?: boolean;
+    };
   }
 }
 
@@ -191,6 +199,26 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   }
   const rig = createJarRig(gltf.scene);
   scene.add(rig.pivot, rig.lid);
+  /** The jar's axis projected to client px: [x base, y top, x top, y base] (tests). */
+  const bb = new Box3();
+  const lidBox = new Box3();
+  const corner = new Vector3();
+  const jarBox = (): [number, number, number, number] => {
+    bb.setFromObject(rig.jar).union(lidBox.setFromObject(rig.lid));
+    const r = canvas.getBoundingClientRect();
+    // the jar's axis (base centre to cap-top centre): its true centre on screen, which a
+    // box of projected 3D corners isn't (perspective spreads the near corners)
+    const ends = [bb.min.y, bb.max.y].map((y) => {
+      corner.set((bb.min.x + bb.max.x) / 2, y, (bb.min.z + bb.max.z) / 2).project(camera);
+      return [
+        r.left + ((corner.x + 1) / 2) * r.width,
+        r.top + ((1 - corner.y) / 2) * r.height,
+      ] as const;
+    });
+    const [x0, y1] = ends[0]!;
+    const [x1, y0] = ends[1]!;
+    return [x0, y0, x1, y1];
+  };
 
   // the pour: twice the old count, capped by the tier (precomputed, deterministic)
   let layout: HeroLayout = layoutFor(canvas.clientWidth || 1, canvas.clientHeight || 1);
@@ -266,6 +294,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       canvasShown = true;
       canvas.style.opacity = '1';
       canvas.style.visibility = 'visible';
+      journeyStore.onReady?.(); // a late arrival crossfades in from this frame
     }
     if (shown && !canvasShown && framesHidden === 0) resize();
     if (!visible || !shown || journeyStore.covered) {
@@ -345,7 +374,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
 
     frames++;
     framesHidden = canvasShown ? 0 : framesHidden + 1;
-    window.__pyoorHero = { p, target: goal, frames };
+    window.__pyoorHero = { p, target: goal, frames, box: jarBox(), shown: !!canvasShown };
     if (canvasShown && !firstShown) {
       firstShown = true;
       opts.onFirstFrame();
@@ -403,10 +432,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   }
   const { gsap } = await loadGsap();
   gsap.ticker.add(frame);
+  journeyStore.ready3d = true;
 
   return {
     dispose() {
       gsap.ticker.remove(frame);
+      journeyStore.ready3d = false;
       pans?.dispose();
       ro.disconnect();
       window.visualViewport?.removeEventListener('resize', resize);

@@ -113,3 +113,77 @@ test('d: a slow scroll through the Journey moves every scrubbed section smoothly
   expect(back('journey'), 'Journey never jumps back').toBeGreaterThanOrEqual(-0.001);
   expect(back('opening'), 'opening never jumps back').toBeGreaterThanOrEqual(-0.001);
 });
+
+for (const delayGlb of [false, true]) {
+  test(`e: top to bottom in small steps${delayGlb ? ', the GLB 5 s late' : ''}: every step scrolls, the 3D jar lands on the engraving`, async ({
+    page,
+  }, info) => {
+    test.setTimeout(240_000);
+    const touch = info.project.name === 'phone';
+    const cdp = await page.context().newCDPSession(page);
+    if (delayGlb)
+      await page.route('**/models/**', async (route) => {
+        await new Promise((r) => setTimeout(r, 5000));
+        await route.continue();
+      });
+    await loadAndWait(page, 500);
+    const read = () =>
+      page.evaluate(() => {
+        const j = document.querySelector<HTMLElement>('[data-journey]');
+        const eng = document.querySelector('[data-veil] [data-jar]');
+        const e = eng?.getBoundingClientRect();
+        const h = window.__pyoorHero;
+        return {
+          y: window.scrollY,
+          max: document.documentElement.scrollHeight - window.innerHeight,
+          s: Number(j?.dataset.progress ?? 0),
+          eng: e ? [e.left, e.top, e.right, e.bottom] : null,
+          engOpacity: eng ? Number(getComputedStyle(eng).opacity) : 0,
+          box: h?.box ?? null,
+          shown: !!h?.shown,
+        };
+      });
+    type R = Awaited<ReturnType<typeof read>>;
+    const stuck: string[] = [];
+    const reveal: R[] = [];
+    let prev = await read();
+    let steps = 0;
+    while (prev.y < prev.max - 2 && steps < 600) {
+      await scrollInput(page, cdp, touch, touch ? 120 : 100);
+      await page.waitForTimeout(110);
+      const now = await read();
+      steps++;
+      if (now.y <= prev.y) stuck.push(`step ${steps}: y ${prev.y} -> ${now.y} (s ${now.s})`);
+      // step 2's reveal, as the jar is filled in (STEP.reveal, 0.35–0.85 of 0.6–1)
+      if (now.s > 0.86 && now.s < 0.96) reveal.push(now);
+      prev = now;
+    }
+    // the jar where the engraving is: centres within 5% of the engraving's box
+    const off = reveal
+      .filter((r) => r.shown && r.box && r.eng)
+      .map((r) => {
+        const [a, b, c, d] = r.eng as [number, number, number, number];
+        const [p, q, u, v] = r.box as [number, number, number, number];
+        return Math.max(
+          Math.abs((p + u) / 2 - (a + c) / 2) / (c - a),
+          Math.abs((q + v) / 2 - (b + d) / 2) / (d - b),
+        );
+      });
+    const engravingHeld = reveal.filter((r) => !r.shown).every((r) => r.engOpacity > 0.5);
+    console.log(
+      `${info.project.name} e${delayGlb ? ' (GLB +5 s)' : ''}: ${steps} steps to y ${prev.y}/${prev.max};`,
+      `stuck ${stuck.length};`,
+      `reveal samples ${reveal.length} (3D shown in ${off.length}), worst centre offset`,
+      off.length ? (Math.max(...off) * 100).toFixed(1) + '%' : 'n/a',
+      `; engraving held while 3D not ready: ${engravingHeld}`,
+    );
+    if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
+    if (process.env.DEBUG_SCROLL) console.log(JSON.stringify(reveal));
+    expect(stuck, 'every step scrolls').toEqual([]);
+    expect(prev.y, 'reached the end').toBeGreaterThanOrEqual(prev.max - 2);
+    expect(engravingHeld, 'the engraving stays while the 3D is not ready').toBe(true);
+    if (!delayGlb) expect(off.length, 'the 3D jar was revealed').toBeGreaterThan(0);
+    for (const o of off)
+      expect(o, '3D jar centred on the engraving (±5%)').toBeLessThanOrEqual(0.05);
+  });
+}

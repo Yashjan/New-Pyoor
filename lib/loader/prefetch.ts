@@ -48,4 +48,3 @@ function whenFlag(attr: string, signal?: AbortSignal): Promise<void> {
 
 /** Resolves once the first-visit intro has finished (at once if there is none). */
 export const whenIntroDone = (signal?: AbortSignal) => whenFlag('data-intro-done', signal);
-
