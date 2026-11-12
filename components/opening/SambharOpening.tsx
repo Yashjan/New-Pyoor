@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { reportLoad } from '@/lib/loader/progress';
-import { refreshOnce } from '@/lib/motion/unlock';
 import { expoOut } from '@/lib/motion/opening';
 import { SAMBHAR } from './sambharGlyphs';
 import {
@@ -64,7 +63,7 @@ const GEO = {
 // The lengths go into a <style> in <head>, not onto the paths: React owns the paths' attributes,
 // and changing them before hydration is a hydration mismatch. The engraving's start time is kept
 // on window, so a remount (or a client re-render) continues on the same clock.
-const PRE = `(function(r){window.__sambharT0=window.__sambharT0||performance.now();var k=function(){window.__sambharSkip=performance.now();['wheel','touchmove','keydown','pointerdown'].forEach(function(e){removeEventListener(e,k,true)})};['wheel','touchmove','keydown','pointerdown'].forEach(function(e){addEventListener(e,k,{capture:true,passive:true})});var w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px',c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',m);r.parentNode.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
+const PRE = `(function(r){window.__sambharT0=window.__sambharT0||performance.now();var k=function(){window.__sambharSkip=performance.now();['wheel','touchmove','keydown','pointerdown'].forEach(function(e){removeEventListener(e,k,true)})};['wheel','touchmove','keydown','pointerdown'].forEach(function(e){addEventListener(e,k,{capture:true,passive:true})});var w=innerWidth,s=(w<${PHONE}?Math.min(651,Math.max(200,w-48)):.78*w)/${VW},m=Math.round(r.clientHeight/2)+'px',c='',g=r.querySelector('svg');g&&g.querySelectorAll('[data-c]').forEach(function(p){c+='[data-opening] [data-c="'+p.getAttribute('data-c')+'"]{--len:'+(p.getTotalLength()*s).toFixed(2)+'}'});var e=document.getElementById('sambhar-len')||document.head.appendChild(document.createElement('style'));e.id='sambhar-len';e.textContent=c;r.style.setProperty('--seam',m)})(document.currentScript.parentNode)`;
 
 /** The CSS engraving's timing for a contour drawn over [a, a + w] of the progress, on the clock. */
 const timed = (a: number, w: number) => ({
@@ -179,14 +178,12 @@ export function SambharOpening() {
     const root = rootRef.current;
     const html = document.documentElement;
     if (!root || !html.classList.contains('motion')) return;
-    const stage = root.parentElement!;
     const all = (sel: string, from: ParentNode = root) => [
       ...from.querySelectorAll<HTMLElement>(sel),
     ];
     const hindis = all('[data-hindi]');
     const bodies = all('[data-body]');
     const cues = all('[data-cue]');
-    const header = document.querySelector<HTMLElement>('[data-site-header]');
     const words = [...root.querySelectorAll<SVGSVGElement>('svg[data-word]')];
     const contours = words.map((w) =>
       [...w.querySelectorAll<SVGPathElement>('[data-contour]')].map((p) => ({
@@ -197,45 +194,22 @@ export function SambharOpening() {
     const bands = words.map((w) => w.querySelector<SVGLinearGradientElement>('[data-ink-band]')!);
     const inks = words.map((w) => w.querySelector<SVGGElement>('[data-ink]')!);
     const strokes = words.map((w) => w.querySelector<SVGGElement>('[data-strokes]')!);
-    const headerKids = header ? [...(header.children as HTMLCollectionOf<HTMLElement>)] : [];
-
-    // What the old scrubbed opening left behind it, now simply the jar sequence's resting state:
-    // the jar unmasked, risen and (desktop) glided, the dawn glow, the headline block in.
-    const jarMask = stage.querySelector<HTMLElement>('[data-jar-mask]');
-    const poster = stage.querySelector<HTMLElement>('[data-jar-layer] img');
-    const glow = stage.querySelector<HTMLElement>('[data-opening-glow]');
-    const copyIn = stage.querySelector<HTMLElement>('[data-copy-in]');
-    const rail = stage.querySelector<HTMLElement>('[data-rail]');
-    const rest = () => {
-      jarMask?.style.setProperty('mask-image', 'none');
-      jarMask?.style.setProperty('-webkit-mask-image', 'none');
-      if (poster) {
-        poster.style.translate = `${window.innerWidth < PHONE ? 0 : 0.12 * window.innerWidth}px 0px`;
-        poster.style.rotate = '0deg';
-      }
-      if (glow) glow.style.opacity = '0.11';
-      if (copyIn) copyIn.style.opacity = '1';
-      if (rail) rail.style.opacity = '1';
-    };
 
     // ---- geometry ----
+    // Only the opening's own elements, and only when the width changes (a phone's address bar
+    // changes the height alone: nothing is re-measured for it).
     let W = 0;
-    let H = 0;
-    let seam = 0;
     let unit = 1; // CSS px per font unit
     const measure = () => {
+      if (window.innerWidth === W) return;
       W = window.innerWidth;
-      H = stage.clientHeight;
-      seam = Math.round(H / 2);
       unit = inkWidth(W) / VW;
       // the hairlines are non-scaling: their dashes are measured on screen
       for (const cs of contours)
         for (const k of cs) k.el.style.setProperty('--len', (k.len * unit).toFixed(2));
-      root.style.setProperty('--seam', `${seam}px`);
-      stage.style.setProperty('--seam', `${seam}px`);
+      root.style.setProperty('--seam', `${Math.round(root.clientHeight / 2)}px`);
     };
     measure();
-    rest();
 
     // ---- A: the engraving and what follows it ----
     // The hairlines are pure CSS (one 2.4 s pass, from the server-rendered SVG): the script only
@@ -267,12 +241,12 @@ export function SambharOpening() {
       setFill(expoOut(phase(s, AFTER.fill)));
       const outline = (1 - phase(s, AFTER.outline)).toFixed(3);
       for (const g of strokes) g.style.opacity = outline;
-      const hd = easeOutSettle(phase(s, AFTER.header)).toFixed(3);
-      for (const k of headerKids) k.style.opacity = hd;
+      // the header fades in by CSS (globals.css) once the attribute is set
+      if (s >= AFTER.header[0] && !html.hasAttribute('data-header-in'))
+        html.setAttribute('data-header-in', '');
       for (const b of bodies) b.style.opacity = phase(s, AFTER.body).toFixed(3);
       for (const c of cues) c.style.opacity = phase(s, AFTER.cue).toFixed(3);
     };
-    const easeOutSettle = (t: number) => 1 - Math.pow(1 - t, 3);
 
     const cleanups: (() => void)[] = [];
     let raf = 0;
@@ -282,12 +256,10 @@ export function SambharOpening() {
       if (html.hasAttribute('data-intro-done')) return;
       setEngrave(Infinity);
       setAfter(DONE_AT);
-      for (const k of headerKids) k.style.removeProperty('opacity');
       for (const el of [...bodies, ...cues]) el.style.removeProperty('opacity');
       html.setAttribute('data-header-in', '');
       html.setAttribute('data-engraved', '');
       html.setAttribute('data-intro-done', '');
-      void refreshOnce();
       introDone = true;
     };
 
@@ -382,15 +354,20 @@ export function SambharOpening() {
       raf = requestAnimationFrame(tick);
     }
 
+    let resizeRaf = 0;
     const onResize = () => {
-      measure();
-      rest();
+      if (!resizeRaf)
+        resizeRaf = requestAnimationFrame(() => {
+          resizeRaf = 0;
+          measure();
+        });
     };
     window.addEventListener('resize', onResize);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(resizeRaf);
       cleanups.forEach((fn) => fn());
       // a remount (React dev) carries on; a real unmount finishes the intro
       if (!introDone) pendingFinish = window.setTimeout(finishIntro, 0);

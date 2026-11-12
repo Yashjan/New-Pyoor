@@ -88,9 +88,14 @@ html.lenis body {
 }
 
 /* Homepage first visit (components/opening): the header comes in after SAMBHAR is inked.
-   The script fades it; without the script a failsafe shows it after 3.6 s. */
+   The script sets data-header-in, this fades it; without the script a failsafe shows it after 3.6 s. */
 html[data-intro='full']:not([data-header-in]) [data-site-header] > * {
   opacity: 0;
+}
+
+/* (opacity only: the attributes never change layout) */
+html[data-intro='full'][data-header-in] [data-site-header] > * {
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html[data-intro='full']:not([data-opening-js]):not([data-header-in]) [data-site-header] > * {

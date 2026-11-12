@@ -179,7 +179,7 @@
   contain: paint; /* the pinned stage repaints on its own */
 }
 
-/* the dawn glow: gold-500, at most ~11% in the centre of the opening (opacity from the script) */
+/* the dawn glow behind the jar: gold-500, ~11% in the centre */
 :global(html.motion) .glow {
   position: absolute;
   inset: 0;
@@ -190,7 +190,7 @@
     rgba(168, 130, 63, 0.35) 55%,
     rgba(168, 130, 63, 0) 100%
   );
-  opacity: 0;
+  opacity: 0.11;
 }
 
 /* a static grain (±2 levels) over the glow: breaks the 8-bit steps that show as rings */
@@ -201,10 +201,8 @@
   background: url('../../public/images/grain.png');
 }
 
-/* The jar (3D or poster), hidden below the opening's bottom edge (16px feather) while the
-   halves are in view. The mask is static, three screens tall with its edge on the seam; the
-   opening moves it down with the bottom half and .jarBack back up (transforms only). Before
-   any script runs, the edge sits at half the height and the jar 30% below it: hidden. */
+/* The jar (3D or poster). Under the Journey until step 2, which reveals it (its own mask on
+   .jarLayer); .jarMask and .jarBack are plain full-stage boxes. */
 :global(html.motion) .jarLayer {
   position: absolute;
   inset: 0;
@@ -220,11 +218,6 @@
   top: -100%;
   display: block;
   height: 300%;
-  mask-image: linear-gradient(
-    #000 calc(33.333% + var(--seam, 16.667%) - 16px),
-    transparent calc(33.333% + var(--seam, 16.667%))
-  );
-  will-change: transform;
 }
 
 :global(html.motion) .jarBack {
@@ -249,8 +242,7 @@
 }
 
 /* The poster stands in until the first 3D frame, exactly where the 3D jar renders: 39.4% of the
-   height, centred 50% across (62% once it has glided) and 51.1% down. The opening moves it
-   (translate, rotate) with the 3D jar's rise, tilt and glide. */
+   height, 62% across (phones: centred) and 51.1% down: the jar sequence's resting place. */
 :global(html.motion) .poster {
   position: absolute;
   left: 50%;
@@ -258,9 +250,15 @@
   width: auto;
   height: 39.4%;
   transform: translate(-50%, -50%);
-  translate: 0 30vh;
+  translate: 12vw 0; /* at rest where the 3D jar stands: 62% across (phones: centred) */
   transform-origin: 50% 100%;
   transition: opacity var(--duration-slow) var(--ease-settle);
+}
+
+@media (max-width: 699px) {
+  :global(html.motion) .poster {
+    translate: 0 0;
+  }
 }
 
 :global(html.motion) .gone {
@@ -279,7 +277,6 @@
 
 :global(html.motion) .copyIn {
   gap: 28px;
-  opacity: 0;
 }
 
 /* keyboard users reach the CTA before it has faded in */
@@ -341,7 +338,6 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
-  opacity: 0;
 }
 
 .track {

@@ -6,8 +6,7 @@ import { ButtonLink } from '@/components/Button/Button';
 import { Horizon } from '@/components/Horizon/Horizon';
 import { SambharOpening } from '@/components/opening/SambharOpening';
 import { Journey } from '@/components/sections/Journey/Journey';
-import { prefetchWithProgress, whenIntroDone } from '@/lib/loader/prefetch';
-import { introIsFull, reportLoad } from '@/lib/loader/progress';
+import { reportLoad } from '@/lib/loader/progress';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
@@ -75,31 +74,10 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
     const controller = new AbortController();
     let dispose: (() => void) | undefined;
 
-    // Start after the page has painted and gone idle, so the text and buttons come first.
-    // Under the first-visit intro: download the model and three.js straight away (that is the
-    // intro's real progress), but build the scene only after the reveal, so its heavy setup
-    // (context, environment, shader compile) never stalls the intro. The poster, placed where
-    // the 3D jar renders, stands in until then.
-    // During the engraving only downloads happen: the GLB into the HTTP cache. three.js isn't
-    // even imported (parsing and running it would stall the main thread), so it doesn't hold
-    // the loader either.
-    const intro = introIsFull();
-    if (intro) {
-      reportLoad('three', 1);
-      void prefetchWithProgress(MODEL_URL, (f) => reportLoad('model', f), controller.signal).catch(
-        () => reportLoad('model', 1),
-      );
-    }
+    // Built in idle time right after first paint, independent of the intro (nothing waits for
+    // it, and it waits for nothing): createJarScene works in idle chunks, and the canvas stays
+    // hidden until step 2's reveal, where the engraving stands in if it isn't ready yet.
     const start = async () => {
-      if (intro) {
-        await whenIntroDone(controller.signal);
-        // let the hero's own intro play first, then build in the next idle moment
-        await new Promise<void>((resolve) =>
-          window.requestIdleCallback
-            ? window.requestIdleCallback(() => resolve(), { timeout: 2000 })
-            : window.setTimeout(resolve, 1200),
-        );
-      }
       if (controller.signal.aborted) return;
       const { createJarScene } = await import('./scene/createJarScene');
       reportLoad('three', 1);
@@ -111,20 +89,20 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
           onFirstFrame: () => setPosterGone(true),
-          onModelProgress: intro ? undefined : (f) => reportLoad('model', f),
+          onModelProgress: (f) => reportLoad('model', f),
           signal: controller.signal,
         });
         if (controller.signal.aborted) scene.dispose();
         else dispose = scene.dispose;
       } catch (err) {
-        reportLoad('model', 1); // don't hold the loader for a model that failed
+        reportLoad('model', 1); // a model that failed holds nothing
         if ((err as Error).name !== 'AbortError') console.error('Jar hero failed to start', err);
       }
     };
-    const useIdle = !intro && !!window.requestIdleCallback;
+    const useIdle = !!window.requestIdleCallback;
     const idle = useIdle
-      ? window.requestIdleCallback(() => void start(), { timeout: 1200 })
-      : window.setTimeout(() => void start(), intro ? 0 : 200);
+      ? window.requestIdleCallback(() => void start(), { timeout: 1000 })
+      : window.setTimeout(() => void start(), 200);
 
     return () => {
       controller.abort();

@@ -126,6 +126,27 @@ for (const delayGlb of [false, true]) {
         await new Promise((r) => setTimeout(r, 5000));
         await route.continue();
       });
+    // every frame: the 3D canvas must never show unmasked during step 2 (except the late
+    // crossfade, which fades the whole layer)
+    await page.addInitScript(() => {
+      const w = window as unknown as { __unmasked: number };
+      w.__unmasked = 0;
+      const check = () => {
+        const j = document.querySelector<HTMLElement>('[data-journey]');
+        const layer = document.querySelector<HTMLElement>('[data-jar-layer]');
+        const c = layer?.querySelector('canvas');
+        const s = Number(j?.dataset.progress ?? 0);
+        if (c && layer && s > 0.6 && s < 0.94) {
+          const cs = getComputedStyle(c);
+          const mask = getComputedStyle(layer).maskImage;
+          const fading = layer.style.opacity !== '';
+          if (cs.visibility === 'visible' && cs.opacity !== '0' && mask === 'none' && !fading)
+            w.__unmasked++;
+        }
+        requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
+    });
     await loadAndWait(page, 500);
     const read = () =>
       page.evaluate(() => {
@@ -184,6 +205,11 @@ for (const delayGlb of [false, true]) {
     );
     if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
     if (process.env.DEBUG_SCROLL) console.log(JSON.stringify(reveal));
+    const unmasked = await page.evaluate(
+      () => (window as unknown as { __unmasked: number }).__unmasked,
+    );
+    console.log(`${info.project.name} e: unmasked frames ${unmasked}`);
+    expect(unmasked, 'no unmasked 3D frame in step 2').toBe(0);
     expect(stuck, 'every step scrolls').toEqual([]);
     expect(splitAt, 'the split starts with the first step').toBe(1);
     expect(prev.y, 'reached the end').toBeGreaterThanOrEqual(prev.max - 2);
