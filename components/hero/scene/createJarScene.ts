@@ -43,6 +43,7 @@ import { FOV, jarStartX } from '@/lib/motion/heroCamera';
 import { layoutFor, type HeroLayout } from './layout';
 import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
 import { smooth } from './math';
+import { createTurn } from './turn';
 
 export interface JarSceneOptions {
   canvas: HTMLCanvasElement;
@@ -55,6 +56,8 @@ export interface JarSceneOptions {
   signal: AbortSignal;
   /** Download progress of the GLB, 0–1 (feeds the first-visit loader). */
   onModelProgress?: (fraction: number) => void;
+  /** The visitor has turned the jar for the first time (turn.ts). */
+  onFirstTurn?: () => void;
 }
 
 export interface JarScene {
@@ -278,6 +281,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   };
   if (!still) window.addEventListener('pointermove', onPointer, { passive: true });
 
+  // ---- the visitor turns the jar (rest state only) ----
+  const turnCtl = createTurn(canvas, () => opts.onFirstTurn?.());
+
   // ---- pause while the hero is off-screen ----
   let visible = true;
   const io = new IntersectionObserver((entries) => {
@@ -347,8 +353,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     // glide to 62%, the idle turn while at rest (it starts once the jar has begun to rise).
     const op = openingPose(openingStore.get());
     const rest = 1 - smooth(0.02, 0.14, p);
-    if (!still && rest >= 1 && op.rise > 0) lifeT += dt;
-    const turn = Math.sin((2 * Math.PI * lifeT) / TURN_PERIOD) * TURN * (1 - calm);
+    turnCtl.update(dt, !!canvasShown && rest >= 0.999 && calm === 0 && !still);
+    if (!still && rest >= 1 && op.rise > 0) lifeT += dt * turnCtl.sway;
+    const turn = Math.sin((2 * Math.PI * lifeT) / TURN_PERIOD) * TURN * (1 - calm) * turnCtl.sway;
     // sharpness: the tier's DPR while scrolling, up to 2 once the page has rested 300 ms
     const resting = performance.now() - lastScroll > 300;
     if (resting && dpr !== restDpr) setDpr(restDpr);
@@ -366,6 +373,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
         riseFrom: 0.3 * viewH,
         glide: op.glide,
         turn,
+        yaw: turnCtl.yaw,
+        tilt: turnCtl.tilt,
       },
       1 - calm,
     );
@@ -530,6 +539,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       window.visualViewport?.removeEventListener('resize', resize);
       io.disconnect();
       window.removeEventListener('pointermove', onPointer);
+      turnCtl.dispose();
       pour.dispose();
       disposeObject(scene);
       disposeMaterial(ground.crustMat);

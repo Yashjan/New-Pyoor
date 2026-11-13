@@ -78,7 +78,13 @@ export function LabelReader() {
             <div className={styles.backdrop} data-backdrop />
             <canvas className={styles.canvas} data-canvas aria-hidden="true" />
             <div className={styles.layout}>
-              <div className={styles.area} data-area role="img" aria-label={LABEL.summary}>
+              <div
+                className={styles.area}
+                data-area
+                data-lenis-prevent
+                role="img"
+                aria-label={LABEL.summary}
+              >
                 {flat && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -110,7 +116,14 @@ export function LabelReader() {
 function LabelText() {
   const L = LABEL;
   return (
-    <section className={styles.panel} data-panel tabIndex={0} aria-label="Label text">
+    // data-lenis-prevent: Lenis is stopped while the reader is open and would swallow the wheel
+    <section
+      className={styles.panel}
+      data-panel
+      data-lenis-prevent
+      tabIndex={0}
+      aria-label="Label text"
+    >
       <p className={styles.eyebrow}>{L.brand} · The label</p>
       <h2 id="label-reader-title" className={styles.title}>
         {L.name} <span lang="hi">({L.nameHindi})</span>

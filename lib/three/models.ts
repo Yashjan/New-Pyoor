@@ -5,7 +5,7 @@
 import { asset } from '@/lib/basePath';
 
 const HASHES: Record<string, string> = {
-  'pyoor-herbal-black-salt.glb': '3c85b27407',
+  'pyoor-herbal-black-salt.glb': '95ba130c1e',
   'pyoor-himalayan-pink-salt.glb': '270ea54f07',
   'pyoor-natural-lake-salt.glb': 'eeed386136',
 };

@@ -14,6 +14,15 @@ import styles from './JarHero.module.css';
 import { asset } from '@/lib/basePath';
 
 const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
+/** "Drag to turn" is shown until the first turn, then not again this session. */
+const TURNED = 'pyoor-jar-turned';
+const turnedBefore = () => {
+  try {
+    return window.sessionStorage.getItem(TURNED) === '1';
+  } catch {
+    return false;
+  }
+};
 
 /**
  * The jar sequence's progress 0–1: how far the pinned section has been scrolled through after
@@ -42,6 +51,8 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [posterGone, setPosterGone] = useState(false);
+  // the "Drag to turn" hint: shown with the first 3D frame, gone after the first turn
+  const [hint, setHint] = useState(false);
 
   // Reduced motion: when the beats come into view, the closed jar crossfades (0.6 s) to the
   // pour's last frame.
@@ -82,7 +93,18 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           tier,
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
-          onFirstFrame: () => setPosterGone(true),
+          onFirstFrame: () => {
+            setPosterGone(true);
+            setHint(!turnedBefore());
+          },
+          onFirstTurn: () => {
+            setHint(false);
+            try {
+              window.sessionStorage.setItem(TURNED, '1');
+            } catch {
+              // private mode: the hint just won't be remembered
+            }
+          },
           signal: controller.signal,
         });
         if (controller.signal.aborted) scene.dispose();
@@ -122,7 +144,14 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         <div className={styles.jarLayer} data-jar-layer>
           <div className={styles.jarMask} data-jar-mask>
             <div className={styles.jarBack} data-jar-back>
-              <canvas ref={canvasRef} className={styles.gl} aria-hidden="true" />
+              {/* focusable once shown (at rest: ←/→ turn the jar; scene/turn.ts) */}
+              <canvas
+                ref={canvasRef}
+                className={styles.gl}
+                tabIndex={0}
+                role="img"
+                aria-label="Pyoor Herbal Black Salt jar in 3D. Drag, or use the left and right arrow keys, to turn it."
+              />
               <Image
                 className={`${styles.poster} ${posterGone ? styles.gone : ''}`}
                 src={asset('/images/renders/jar-black.webp')}
@@ -170,6 +199,21 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             <Horizon className={styles.horizonLine} data-hero-horizon />
           </div>
         </div>
+
+        {/* keyboard focus on the jar: a ring around the jar itself (the canvas fills the stage) */}
+        <span className={styles.jarRing} aria-hidden="true" data-jar-ring />
+
+        {/* under the jar, until the first turn (faded with the headline by the jar sequence) */}
+        <p
+          className={`${styles.turnHint} ${hint ? styles.turnHintOn : ''}`}
+          aria-hidden="true"
+          data-turn-hint
+        >
+          Drag to turn
+          <svg viewBox="0 0 24 8" width="24" height="8" fill="none" stroke="currentColor">
+            <path d="M1 4h22M4 1 1 4l3 3M20 1l3 3-3 3" strokeWidth="1" />
+          </svg>
+        </p>
 
         {/* beside the jar: the label reader (faded with the headline by the jar sequence) */}
         <LabelReader />

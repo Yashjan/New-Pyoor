@@ -77,6 +77,9 @@ export interface OpeningJar {
   glide: number;
   /** The hold's slow turn (radians: ±7°, back and forth, while the jar is at rest). */
   turn: number;
+  /** The visitor's own turn and tilt (turn.ts), radians. */
+  yaw?: number;
+  tilt?: number;
 }
 
 /** The tilt the jar rises with, straightening as it arrives (2.5°). */
@@ -106,8 +109,8 @@ export function poseJar(
   rig.jar.position.y =
     rest * (0.006 + Math.sin(t * 1.1) * 0.002 * float) - (1 - opening.rise) * opening.riseFrom;
   rig.jar.rotation.z = -(1 - opening.rise) * RISE_TILT;
-  rig.jar.rotation.y = rest * (opening.turn + pointer.x * 0.35);
-  rig.jar.rotation.x = rest * pointer.y * 0.08;
+  rig.jar.rotation.y = rest * (opening.turn + (opening.yaw ?? 0) + pointer.x * 0.35);
+  rig.jar.rotation.x = rest * (pointer.y * 0.08 + (opening.tilt ?? 0));
 
   // the salt level sinks as it pours
   rig.saltTop.position.y = rig.saltTopY0 - smooth(0.36, 0.84, p) * 0.06;

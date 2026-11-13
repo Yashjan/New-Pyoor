@@ -138,6 +138,7 @@
   align-self: stretch;
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
   padding: 8px 4px 24px 0;
   background: var(--ivory-100); /* the faded jar never shows through the text */
   color: var(--navy-800);

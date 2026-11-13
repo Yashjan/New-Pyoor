@@ -10,7 +10,8 @@
 #   3. resize             salt roughness map to 512 px, normal map to 512 px except for the
 #                         jars in FULL_NORMAL (they tile every ~1.5 cm); the label and salt
 #                         albedo keep full resolution
-#   4. webp               normal map at q90 (lossy normals glint badly), everything else q80
+#   4. webp               normal map at q90 (lossy normals glint badly), the label q72,
+#                         everything else q80
 #   5. meshopt            geometry compression + quantization (EXT_meshopt_compression)
 #
 # Deliberately NOT used: `optimize` (its join/flatten/palette steps merge the Body, Salt,
@@ -60,7 +61,9 @@ for src in "$SRC"/*.glb; do
   [[ " ${FULL_NORMAL[*]} " == *" $name "* ]] && small="*_mr"
   "$GT" resize "$TMP/2.glb" "$TMP/3.glb" --pattern "$small" --width 512 --height 512 >/dev/null
   "$GT" webp "$TMP/3.glb" "$TMP/4.glb" --slots normalTexture --quality 90 --effort 80 >/dev/null
-  "$GT" webp "$TMP/4.glb" "$TMP/5.glb" --quality 80 --effort 80 >/dev/null
+  # the label at q72: the hero swaps in a 4096 px one at runtime (tools/3d/label_textures.py)
+  "$GT" webp "$TMP/4.glb" "$TMP/4b.glb" --pattern "label_*" --quality 72 --effort 80 >/dev/null
+  "$GT" webp "$TMP/4b.glb" "$TMP/5.glb" --quality 80 --effort 80 >/dev/null
   "$GT" meshopt "$TMP/5.glb" "$OUT/$name" >/dev/null
 
   size=$(stat -c %s "$OUT/$name")

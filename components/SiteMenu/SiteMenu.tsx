@@ -158,7 +158,7 @@ export const SiteMenu = forwardRef<SiteMenuHandle, Props>(function SiteMenu(
       onPointerDownCapture={(e) => (pointer.current = e.pointerType)}
     >
       <div className={styles.sheet} data-sheet>
-        <div className={styles.content} data-content>
+        <div className={styles.content} data-content data-lenis-prevent>
           <div className={styles.preview} aria-hidden="true" data-fade>
             <div className={styles.sun} data-sun />
             <div className={styles.drift} data-drift>
