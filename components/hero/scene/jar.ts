@@ -1,13 +1,4 @@
-import {
-  Color,
-  Group,
-  Matrix4,
-  MeshPhysicalMaterial,
-  Quaternion,
-  Vector3,
-  type Mesh,
-  type Object3D,
-} from 'three';
+import { Group, Matrix4, Quaternion, Vector3, type Mesh, type Object3D } from 'three';
 import {
   CAP_C,
   CAP_RISE,
@@ -42,26 +33,6 @@ export interface JarRig {
   meshes: Record<string, Mesh>;
 }
 
-/** Clear PET for the open neck and the body: no white, a faint warm grey in the plastic. */
-function clearPet(old: MeshPhysicalMaterial | undefined) {
-  const m = new MeshPhysicalMaterial({
-    color: 0xffffff,
-    metalness: 0,
-    roughness: 0.06,
-    transmission: 1,
-    ior: 1.57,
-    thickness: 0.0015,
-    attenuationColor: new Color('#d9d2c7'),
-    attenuationDistance: 0.06,
-    specularIntensity: 1,
-    clearcoat: 0.5,
-    clearcoatRoughness: 0.06,
-  });
-  m.envMapIntensity = 1.1;
-  old?.dispose();
-  return m;
-}
-
 /**
  * Builds the rig around the loaded model. `attach()` keeps each node's world transform, so
  * the quantized base transforms stay intact and all motion below is relative to them.
@@ -78,8 +49,7 @@ export function createJarRig(model: Object3D): JarRig {
   for (const name of ['Body', 'Salt', 'Salt_top', 'Label', ...LID_PARTS, 'Neck_thread']) {
     if (!meshes[name]) throw new Error(`Jar model is missing node "${name}"`);
   }
-  for (const name of ['Body', 'Neck_thread'] as const)
-    meshes[name]!.material = clearPet(meshes[name]!.material as MeshPhysicalMaterial);
+  // (the materials themselves: materials.ts, dressJar)
 
   const pivot = new Group();
   const jar = new Group();
@@ -105,7 +75,7 @@ export interface OpeningJar {
   riseFrom: number;
   /** The glide from the centre to 62% of the width, 0–1 (eased). */
   glide: number;
-  /** The idle turn so far (radians, ~6°/s while the jar is at rest). */
+  /** The hold's slow turn (radians: ±7°, back and forth, while the jar is at rest). */
   turn: number;
 }
 
@@ -115,7 +85,8 @@ const RISE_TILT = (2.5 * Math.PI) / 180;
 /**
  * The jar's pose for progress p (lib/motion/pour.ts). `t` (seconds), the idle turn and the
  * pointer only move it while at rest (p < .14); past that the pose depends on p alone, so
- * scrolling back reverses it exactly. The label faces the camera throughout the pour.
+ * scrolling back reverses it exactly. The label faces the camera throughout the pour. At
+ * rest the jar floats ±2 mm.
  */
 export function poseJar(
   rig: JarRig,
@@ -133,7 +104,7 @@ export function poseJar(
 
   const rest = 1 - smooth(0.02, 0.14, p);
   rig.jar.position.y =
-    rest * (0.006 + Math.sin(t * 1.1) * 0.004 * float) - (1 - opening.rise) * opening.riseFrom;
+    rest * (0.006 + Math.sin(t * 1.1) * 0.002 * float) - (1 - opening.rise) * opening.riseFrom;
   rig.jar.rotation.z = -(1 - opening.rise) * RISE_TILT;
   rig.jar.rotation.y = rest * (opening.turn + pointer.x * 0.35);
   rig.jar.rotation.x = rest * pointer.y * 0.08;

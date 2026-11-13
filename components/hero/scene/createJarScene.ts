@@ -2,6 +2,9 @@ import { coveredStore } from '@/lib/motion/covered';
 import {
   ACESFilmicToneMapping,
   Box3,
+  ImageBitmapLoader,
+  LinearMipmapLinearFilter,
+  Texture,
   Clock,
   Color,
   DirectionalLight,
@@ -22,7 +25,10 @@ import {
   type Mesh,
   type Material,
 } from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { studioEnvironment } from './studio';
+import { dressJar } from './materials';
+import { heroShare } from '@/lib/three/heroShare';
+import { asset } from '@/lib/basePath';
 import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
 import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
@@ -33,7 +39,7 @@ import { createPour, type Pour } from './grains';
 import { createContact, createGround } from './ground';
 import { createJarRig, poseCap, poseJar } from './jar';
 import { FLIGHT, capRest, pouredAt, R } from '@/lib/motion/pour';
-import { jarStartX } from '@/lib/motion/heroCamera';
+import { FOV, jarStartX } from '@/lib/motion/heroCamera';
 import { layoutFor, type HeroLayout } from './layout';
 import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
 import { smooth } from './math';
@@ -75,8 +81,11 @@ const KEY_COLOR = new Color(0xfff0dc);
 const KEY_WARM = new Color('#f3c9a8');
 const HEMI_GROUND = new Color(0xe8dfcd);
 const HEMI_PINK = new Color('#e7a6a0');
-/** The idle turn while the jar is at rest: ~6° a second. */
-const TURN_RATE = (6 * Math.PI) / 180;
+/** The hold's slow turn: ±7° on y, back and forth over 9 s (a sine). */
+const TURN = (7 * Math.PI) / 180;
+const TURN_PERIOD = 9;
+/** The label at print sharpness (tools/3d/label_textures.py), loaded after the first frame. */
+const LABEL_4K = '/textures/label-herbal-black-salt-4096.webp';
 
 const idle = () =>
   new Promise<void>((resolve) =>
@@ -107,7 +116,11 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // (KHR_parallel_shader_compile) compile back into a ~1–2 s freeze of the page.
   renderer.debug.checkShaderErrors = false;
   renderer.setClearColor(SKY, 0);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier.maxDpr));
+  // DPR: the tier's cap while scrolling; up to 2 once the page has rested for 300 ms
+  const scrollDpr = Math.min(window.devicePixelRatio, tier.maxDpr);
+  const restDpr = tier.name === 'weak' ? scrollDpr : Math.min(window.devicePixelRatio, 2);
+  let dpr = scrollDpr;
+  renderer.setPixelRatio(dpr);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.outputColorSpace = SRGBColorSpace;
@@ -118,10 +131,10 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const fogColor = IVORY.clone();
   scene.fog = new Fog(fogColor, 2.2, 9);
   const pmrem = new PMREMGenerator(renderer);
-  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+  const envRT = studioEnvironment(pmrem);
   scene.environment = envRT.texture;
 
-  const camera = new PerspectiveCamera(30, 1, 0.01, 40);
+  const camera = new PerspectiveCamera(FOV, 1, 0.01, 40);
   const key = new DirectionalLight(0xfff0dc, 2.4);
   key.position.set(0.6, 1.2, 0.8);
   key.castShadow = tier.shadows;
@@ -199,7 +212,13 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     throw err;
   }
   const rig = createJarRig(gltf.scene);
+  const lidBottom = new Box3().setFromObject(rig.lid).min.y;
   scene.add(rig.pivot, rig.lid);
+  const look = dressJar(rig, tier.name !== 'weak', lidBottom);
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+  const glbLabel = look.label.map;
+  if (glbLabel) glbLabel.anisotropy = maxAnisotropy;
+  let label4k: Texture | null = null;
   /** The jar's axis projected to client px: [x base, y top, x top, y base] (tests). */
   const bb = new Box3();
   const lidBox = new Box3();
@@ -274,7 +293,17 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   let canvasShown: boolean | null = null;
   let firstShown = false;
   let framesHidden = 0; // correct frames rendered since the reveal began, before showing
-  let turn = 0;
+  let lifeT = 0; // the hold's clock (runs while the jar is at rest)
+  let lastScroll = 0;
+  const onScroll = () => {
+    lastScroll = performance.now();
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  const setDpr = (v: number) => {
+    dpr = v;
+    renderer.setPixelRatio(v);
+    resize();
+  };
   window.__pyoorHero = { p: sp, target: sp, frames };
 
   // one clock for the page: GSAP's ticker drives Lenis, ScrollTrigger and this render
@@ -291,7 +320,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       framesHidden = 0;
       canvas.style.opacity = '0';
       canvas.style.visibility = 'hidden';
-    } else if (shown && canvasShown === false && framesHidden > 0) {
+    } else if (shown && canvasShown !== true && framesHidden > 0) {
+      // (also when the scene was built after the reveal had passed: canvasShown is still null)
       canvasShown = true;
       canvas.style.opacity = '1';
       canvas.style.visibility = 'visible';
@@ -317,8 +347,14 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     // glide to 62%, the idle turn while at rest (it starts once the jar has begun to rise).
     const op = openingPose(openingStore.get());
     const rest = 1 - smooth(0.02, 0.14, p);
-    if (!still && rest >= 1 && op.rise > 0) turn = (turn + dt * TURN_RATE) % (2 * Math.PI);
-    const viewH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 0.62 * (layout.portrait ? 0.92 : 1);
+    if (!still && rest >= 1 && op.rise > 0) lifeT += dt;
+    const turn = Math.sin((2 * Math.PI * lifeT) / TURN_PERIOD) * TURN * (1 - calm);
+    // sharpness: the tier's DPR while scrolling, up to 2 once the page has rested 300 ms
+    const resting = performance.now() - lastScroll > 300;
+    if (resting && dpr !== restDpr) setDpr(restDpr);
+    else if (!resting && dpr !== scrollDpr) setDpr(scrollDpr);
+    // the view's height at the jar (the lens changes fov and distance together: the same height)
+    const viewH = 2 * Math.tan((15 * Math.PI) / 180) * 0.62 * (layout.portrait ? 0.92 : 1);
     poseJar(
       rig,
       p,
@@ -329,7 +365,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
         rise: op.rise,
         riseFrom: 0.3 * viewH,
         glide: op.glide,
-        turn: turn > Math.PI ? turn - 2 * Math.PI : turn,
+        turn,
       },
       1 - calm,
     );
@@ -435,10 +471,60 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   gsap.ticker.add(frame);
   journeyStore.ready3d = true;
 
+  heroShare.set({
+    jar: rig.jar,
+    lid: rig.lid,
+    camera,
+    canvas,
+    frame: look.frame,
+    label: () => look.label.map,
+    maxTextureSize: renderer.capabilities.maxTextureSize,
+    maxAnisotropy,
+    weak: tier.name === 'weak',
+  });
+
+  // The label at 4096 px (all tiers): decoded off the main thread, uploaded in an idle moment
+  // while the page rests (never mid-scroll), then swapped in (same program: no recompile).
+  void (async () => {
+    try {
+      const loader = new ImageBitmapLoader();
+      loader.setOptions({ imageOrientation: 'none', colorSpaceConversion: 'none' });
+      const bitmap = await loader.loadAsync(asset(LABEL_4K));
+      if (signal.aborted) return bitmap.close?.();
+      const tex = new Texture(bitmap as unknown as HTMLImageElement);
+      tex.flipY = false;
+      tex.colorSpace = SRGBColorSpace;
+      tex.anisotropy = maxAnisotropy;
+      tex.minFilter = LinearMipmapLinearFilter;
+      tex.generateMipmaps = true;
+      if (glbLabel) {
+        tex.wrapS = glbLabel.wrapS;
+        tex.wrapT = glbLabel.wrapT;
+        tex.offset.copy(glbLabel.offset);
+        tex.repeat.copy(glbLabel.repeat);
+        tex.channel = glbLabel.channel;
+      }
+      tex.needsUpdate = true;
+      while (!signal.aborted && performance.now() - lastScroll < 300) await idle();
+      await idle();
+      if (signal.aborted) return tex.dispose();
+      renderer.initTexture(tex);
+      label4k = tex;
+      look.label.map = tex;
+      glbLabel?.dispose();
+    } catch {
+      // the model's own 2400 px label stays
+    }
+  })();
+
   return {
     dispose() {
       gsap.ticker.remove(frame);
       journeyStore.ready3d = false;
+      heroShare.set(null);
+      window.removeEventListener('scroll', onScroll);
+      look.dispose();
+      label4k?.dispose();
       pans?.dispose();
       ro.disconnect();
       window.visualViewport?.removeEventListener('resize', resize);

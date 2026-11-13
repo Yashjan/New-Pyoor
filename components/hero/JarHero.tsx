@@ -6,6 +6,7 @@ import { ButtonLink } from '@/components/Button/Button';
 import { Horizon } from '@/components/Horizon/Horizon';
 import { SambharOpening } from '@/components/opening/SambharOpening';
 import { Journey } from '@/components/sections/Journey/Journey';
+import { LabelReader } from '@/components/LabelReader/LabelReader';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
@@ -169,6 +170,9 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
             <Horizon className={styles.horizonLine} data-hero-horizon />
           </div>
         </div>
+
+        {/* beside the jar: the label reader (faded with the headline by the jar sequence) */}
+        <LabelReader />
 
         <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
           <p className="py-eyebrow">01 · The jar</p>

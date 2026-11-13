@@ -13,11 +13,14 @@ const here = dirname(fileURLToPath(import.meta.url));
 const GLB = join(here, '../3d/source/pyoor-herbal-black-salt.glb');
 
 /** The hero camera at p = 0 (desktop, 1440 × 900, after the opening's glide). */
+// (lib/motion/heroCamera.ts: fov 24°, the p = 0 key [0, .1, .62] → [0, .07, 0] pulled back by
+// tan 15° / tan 12° so the jar keeps its size)
+const LENS = Math.tan((15 * Math.PI) / 180) / Math.tan((12 * Math.PI) / 180);
 export const CAM = {
-  fov: 30,
+  fov: 24,
   width: 1440,
   height: 900,
-  pos: [0, 0.1, 0.62],
+  pos: [0, 0.07 + 0.03 * LENS, 0.62 * LENS],
   look: [0, 0.07, 0],
   /** jar x at p = 0: layout.jx (0.13) × 0.558 (restX); the camera follows it by 10% */
   jarX: 0.13 * 0.558,

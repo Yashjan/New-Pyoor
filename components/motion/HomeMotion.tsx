@@ -113,7 +113,8 @@ export function HomeMotion() {
           beats
             // the headline leaves before the camera moves in (on phones the jar grows over it)
             .to(
-              sel('[data-hero-copy]'),
+              // (and the "Read the label" button beside the jar, with it)
+              hero.querySelectorAll('[data-hero-copy], [data-label-cta]'),
               { autoAlpha: 0, y: -40, duration: 0.06, ease: 'power2.in' },
               0.01,
             )
@@ -152,7 +153,7 @@ export function HomeMotion() {
               // Back before the first beat: drop the inline styles GSAP leaves on the headline
               // block so it rasterises exactly as it did on load (identical reverse frames).
               if (s.progress < 0.005) {
-                gsap.set(sel('[data-hero-copy]'), {
+                gsap.set(hero.querySelectorAll('[data-hero-copy], [data-label-cta]'), {
                   clearProps: 'transform,opacity,visibility',
                 });
               }

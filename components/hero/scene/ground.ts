@@ -103,8 +103,9 @@ const CORE_STOPS = [
 ] as const;
 
 /**
- * A soft contact shadow, two layers: a tight navy core and a wide ambient ellipse (sized for the
- * 10 cm jar; scale the group for other things). `set(o)` fades it, 0–1.
+ * A soft contact shadow, two layers: a tight warm-grey core and a wide ambient ellipse (sized
+ * for the 10 cm jar; scale the group for other things), ~0.35 at its darkest, blurred like a
+ * studio floor shadow. `set(o)` fades it, 0–1.
  */
 export function createContact() {
   const group = new Group();
@@ -118,7 +119,7 @@ export function createContact() {
   ) => {
     const mat = new MeshBasicMaterial({
       map: blobTexture(stops),
-      color: 0x121a3b,
+      color: 0x5e5246, // warm grey, not navy
       transparent: true,
       opacity,
       depthWrite: false,
@@ -132,8 +133,8 @@ export function createContact() {
     group.add(m);
     mats.push([mat, opacity]);
   };
-  layer(AMBIENT_STOPS, 0.08, 0.2, 0.12, 0.0004); // soft ambient, 20 × 12 cm
-  layer(CORE_STOPS, 0.16, 0.11, 0.0198, 0.0006); // contact core: 1.1 × base, depth 0.18 × width
+  layer(AMBIENT_STOPS, 0.13, 0.22, 0.13, 0.0004); // soft ambient, 22 × 13 cm
+  layer(CORE_STOPS, 0.25, 0.115, 0.022, 0.0006); // contact core: 1.15 × base, depth 0.19 × width
   return {
     group,
     mats,

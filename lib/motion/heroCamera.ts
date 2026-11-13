@@ -1,11 +1,16 @@
 /**
  * The hero camera as a pure function of the jar sequence's progress (no three.js), so the 3D
  * scene and the Journey's step 2 (which lines its engraving up on the 3D jar at p = 0) use the
- * very same camera. Metres; the jar is 12.2 cm tall; vertical fov 30°.
+ * very same camera. Metres; the jar is 12.2 cm tall; vertical fov 24° (FOV).
  */
 import { offsetFor } from './pour';
 
-export const FOV = 30;
+/**
+ * A product-photography lens: 24° (was 30°), the camera moved back by tan(15°)/tan(12°) along
+ * its view so the jar keeps the same size in frame, with flatter, less distorted perspective.
+ */
+export const FOV = 24;
+const LENS = Math.tan((15 * Math.PI) / 180) / Math.tan((FOV * Math.PI) / 360);
 
 export interface HeroLayout {
   /** Jar x offset in metres: right of the headline on desktop, centred on phones. */
@@ -108,6 +113,6 @@ export function heroCamera(p: number, layout: HeroLayout, glide = 1): { pos: V3;
     pos[0] += right;
     look[0] += right;
   }
-  for (let c = 0; c < 3; c++) pos[c] = look[c]! + (pos[c]! - look[c]!) * camZ;
+  for (let c = 0; c < 3; c++) pos[c] = look[c]! + (pos[c]! - look[c]!) * camZ * LENS;
   return { pos, look };
 }

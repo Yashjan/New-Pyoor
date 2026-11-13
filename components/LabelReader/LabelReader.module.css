@@ -1,0 +1,322 @@
+/*
+ * "Read the label" (LabelReader.tsx): the button beside the hero jar, and the reader.
+ * Only transform, opacity and clip changes animate; the 3D is its own canvas (readerScene.ts).
+ */
+
+/* ---- the button: Manrope 13px, a gold hairline that draws on hover ---- */
+.cta {
+  position: relative;
+  /* the static hero (reduced motion, no JS): under the jar's poster (JarHero.module.css) */
+  grid-column: 2;
+  grid-row: 4;
+  justify-self: center;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--navy-800);
+  font: 500 13px/1 var(--font-sans);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.cta::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 1px;
+  background: var(--gold-500);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-settle);
+}
+
+.cta:hover::after,
+.cta:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (max-width: 860px) {
+  .cta {
+    grid-column: 1;
+    grid-row: 5;
+  }
+}
+
+/* in the pinned hero: to the right of the jar, level with its lower label (the jar's place
+   on screen scales with the viewport height: lib/motion/heroCamera.ts) */
+:global(html.motion) .cta {
+  position: absolute;
+  z-index: 3;
+  left: calc(50% + 34vh + 28px);
+  top: calc(50% + 10vh);
+}
+
+/* portrait: the jar is centred above the headline; the button sits above it, right */
+@media (max-aspect-ratio: 9 / 10) {
+  :global(html.motion) .cta {
+    left: auto;
+    right: var(--gutter);
+    top: calc(var(--header-height-mobile) + 6px);
+  }
+}
+
+/* ---- the reader ---- */
+.reader {
+  position: fixed;
+  inset: 0;
+  z-index: 60; /* over the header: the reader has its own Close */
+  visibility: hidden;
+  outline: none;
+}
+
+.reader[data-state='open'],
+.reader[data-state='closing'] {
+  visibility: visible;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--ivory-100);
+  opacity: 0;
+}
+
+.canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.layout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min(420px, 34vw);
+  gap: clamp(24px, 3vw, 56px);
+  padding: 72px var(--gutter) 56px;
+}
+
+/* the reading area: the sheet fits inside it (max 92vw × 80vh), gestures land here */
+.area {
+  position: relative;
+  align-self: center;
+  width: 100%;
+  max-width: 92vw;
+  height: min(80vh, 100%);
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+
+.area:active {
+  cursor: grabbing;
+}
+
+.flatImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.panel {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 4px 24px 0;
+  background: var(--ivory-100); /* the faded jar never shows through the text */
+  color: var(--navy-800);
+  font: 400 15px/1.55 var(--font-sans);
+  opacity: 0;
+  visibility: hidden;
+  outline: none;
+}
+
+.panel h3 {
+  margin: 26px 0 8px;
+  font: 600 12px/1.2 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.panel p {
+  margin: 0;
+}
+
+.eyebrow {
+  font: 600 12px/1.2 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.title {
+  margin: 12px 0 6px;
+  font: 400 clamp(30px, 2.6vw, 40px) / 1.05 var(--font-display);
+  color: var(--navy-800);
+}
+
+.title span {
+  font-family: var(--font-deva);
+  font-size: 0.6em;
+  white-space: nowrap;
+}
+
+.line {
+  color: var(--text-muted);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table caption {
+  caption-side: top;
+  padding-bottom: 6px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.table th,
+.table td {
+  padding: 7px 0;
+  border-top: 1px solid var(--hairline);
+  text-align: left;
+  font-weight: 400;
+  vertical-align: top;
+}
+
+.table td {
+  padding-left: 16px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.facts {
+  display: grid;
+  gap: 10px;
+  margin: 26px 0 0;
+  font-size: 14px;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 12px;
+}
+
+.facts dt {
+  color: var(--text-muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.address {
+  font-style: normal;
+  font-size: 14px;
+}
+
+.origin {
+  margin-top: 22px !important;
+  font: 600 12px/1.2 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.close {
+  position: absolute;
+  z-index: 3;
+  top: 18px;
+  right: var(--gutter);
+  min-height: var(--touch-min);
+  padding: 0 18px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--ivory-100);
+  color: var(--navy-800);
+  font: 600 13px/1 var(--font-sans);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hint {
+  position: absolute;
+  z-index: 3;
+  left: var(--gutter);
+  bottom: 18px;
+  margin: 0;
+  font: 500 12px/1.2 var(--font-sans);
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* reduced motion or no 3D: the flat label and its text, a 0.2 s crossfade (no unwrap) */
+.reader[data-flat] {
+  opacity: 0;
+  transition: opacity 0.2s ease !important;
+}
+
+.reader[data-flat][data-state='open'] {
+  opacity: 1;
+}
+
+.reader[data-flat] .backdrop,
+.reader[data-flat] .panel,
+.reader[data-flat] .close,
+.reader[data-flat] .hint {
+  opacity: 1;
+  visibility: inherit;
+}
+
+/* phones and tablets: the sheet fits the width, the text scrolls below it */
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 34vh minmax(0, 1fr);
+    grid-template-rows: 34svh minmax(0, 1fr);
+    gap: 16px;
+    padding: 72px var(--gutter) 0;
+  }
+
+  .area {
+    height: 100%;
+  }
+
+  .panel {
+    padding-bottom: 48px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 16px;
+  }
+
+  .hint {
+    top: calc(72px + 34svh - 14px);
+    bottom: auto;
+    font-size: 11px;
+  }
+}
