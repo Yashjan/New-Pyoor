@@ -16,6 +16,7 @@ import {
   clamp01,
 } from '@/lib/motion/opening';
 import { pourRate } from '@/lib/motion/pour';
+import { PANS, PANS_VH } from '@/lib/motion/pans';
 import { asset } from '@/lib/basePath';
 
 export type SoundName =
@@ -81,8 +82,10 @@ function mix() {
     // step 2 (the end of the Journey): the 3D jar revealed under the engraving
     const rise = phase(phase(s, JOURNEY.out, 1), ...STEP.reveal);
     const seqAt = vh * SEQUENCE_START_VH;
-    const range = hero.offsetHeight - vh - seqAt;
+    const pansAt = hero.offsetHeight - vh * (1 + PANS_VH);
+    const range = pansAt - seqAt;
     const p = range > 0 ? clamp01((y - seqAt) / range) : 0;
+    const q = clamp01((y - pansAt) / (vh * PANS_VH)); // step 3, the salt pans
 
     // wind: from the SAMBHAR handoff through the Journey, down to 0.12 as the 3D jar is
     // revealed (step 2), gone once the jar sequence starts
@@ -91,6 +94,13 @@ function mix() {
     if (y > 0 && s < 1) water = inP * 0.4 * (1 - clamp01((pan * 4) / 0.5));
     // the pour: follows the stream (0 -> 0.45 -> 0), silent once it stops or scrolls back
     if (y >= seqAt) pouring = 0.45 * pourRate(p);
+    // the salt pans: wind (0.25) and water (0.15) while they colour, out as the camera settles
+    if (q > 0 && q < 1) {
+      const k =
+        phase(q, PANS.colour[0] - 0.05, PANS.colour[0] + 0.05) * (1 - phase(q, ...PANS.settle));
+      wind = Math.max(wind, 0.25 * k);
+      water = Math.max(water, 0.15 * k);
+    }
 
     // one-shots: forward only
     if (!Number.isNaN(prev.pan)) {

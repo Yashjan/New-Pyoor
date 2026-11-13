@@ -1,6 +1,6 @@
 // "A day at Sambhar": the Journey panorama, one etched landscape in three parallax layers.
 //   npm run engravings
-// Writes public/engravings/journey-{sky,far,near}.svg (and the menu's, menu.mjs) and the layout constants the page reads
+// Writes public/engravings/journey-{sky,far,near}.svg (and the menu's, menu.mjs, and the salt pans', pans.mjs) and the layout constants the page reads
 // (components/sections/Journey/panorama.ts). Everything is seeded, so the output is repeatable.
 //
 // Layers: sky · far (far pans, horizon, mounds, the jar) · near (near pans, water, figures).
@@ -9,9 +9,10 @@
 import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Plate, curve, rect, clamp, lerp, inside, H } from './engrave.mjs';
+import { Plate, curve, rect, clamp, lerp, inside, mound, H } from './engrave.mjs';
 import { CAM, projectJar } from './jar3d.mjs';
 import { buildMenu } from './menu.mjs';
+import { buildPans } from './pans.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '../../public/engravings');
@@ -91,41 +92,6 @@ const NEAR_ROWS = [
   [25.2, 37.8],
   [38.4, 51],
 ];
-
-function mound(P, cx, base, r, h, { t = 4, fine = 2.2 } = {}) {
-  const k = P.rnd() * 1.4;
-  const top = curve([
-    [cx - r, base],
-    [cx - r * 0.74, base - h * 0.2 - k],
-    [cx - r * 0.36, base - h * 0.64],
-    [cx - r * 0.08, base - h * 0.97],
-    [cx + r * 0.04, base - h],
-    [cx + r * 0.2, base - h * 0.8],
-    [cx + r * 0.56, base - h * 0.38 + k],
-    [cx + r * 0.86, base - h * 0.09],
-    [cx + r, base],
-  ]);
-  const poly = [...top, top[0]];
-  P.line(top, { w: r > 24 ? 1.25 : 0.75, t, swell: r > 24, taper: 'ends' });
-  const gap = r > 40 ? fine : fine * 1.25;
-  const lit = (x) => (x - cx) / r;
-  P.hatch(poly, {
-    angle: 63,
-    gap,
-    t: t + 1,
-    shared: true,
-    shade: (x) => 0.2 + lit(x) * 0.95,
-    over: r > 40 ? (x) => lit(x) > 0.5 : undefined,
-  });
-  P.hatch(poly, {
-    angle: 118,
-    gap: gap * 1.05,
-    t: t + 1,
-    shared: true,
-    shade: (x) => lit(x) * 1.15 - 0.12,
-  });
-  P.block(poly);
-}
 
 /** Draws into both plates; the overlay also gets a paper backing for each block. */
 const twin = (P, R) => ({
@@ -1600,3 +1566,5 @@ export const LIVE = ${JSON.stringify(LIVE)} as const;
 );
 
 buildMenu({ layers: built, L, rake: LIVE.rake });
+
+buildPans();

@@ -1,0 +1,244 @@
+/*
+ * Step 3, the pink salt pans (SaltPans.tsx). Two layouts, keyed on html.motion:
+ *   static  (reduced motion / no JS) one still below the hero's beats: the finished field, the line.
+ *   motion  a layer of the hero's pinned stage, over the 3D canvas and under the text: the
+ *           inlined drawing, its far edge at 30% of the height (lib/motion/pans.ts HORIZON_AT).
+ */
+
+/* ---------------- static ---------------- */
+.pans {
+  position: relative;
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-5);
+}
+
+.paper,
+.art,
+.rule {
+  display: none;
+}
+
+.field {
+  width: 100%;
+}
+
+.still img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.line {
+  max-width: 22em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* ---------------- motion ---------------- */
+:global(html.motion) .pans {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden; /* until the rise is nearly done (SaltPans.tsx) */
+}
+
+:global(html.motion) .paper {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--ivory-100);
+  opacity: 0;
+}
+
+:global(html.motion) .field {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30%;
+}
+
+:global(html.motion) .still {
+  display: none;
+}
+
+:global(html.motion) .art {
+  display: block;
+}
+
+/* the far edge (y = HZ in the drawing) on the line: a margin in % of the width */
+.art :global(svg) {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  margin-top: -3%; /* pans-wide: HZ 48 of 1600 */
+}
+
+@media (max-aspect-ratio: 9 / 10) {
+  .art :global(svg) {
+    margin-top: -9.5%; /* pans-tall: HZ 76 of 800 */
+  }
+}
+
+/* hairlines in user units: --u is units per px; --z the settle's zoom */
+.art :global([data-lines] path) {
+  stroke-width: calc(var(--u, 1) * 0.75 / var(--z, 1));
+}
+
+.art :global([data-lines] path.a) {
+  stroke-width: calc(var(--u, 1) * 0.5 / var(--z, 1));
+}
+
+.art :global([data-lines] path.b) {
+  stroke-width: calc(var(--u, 1) * 1 / var(--z, 1));
+}
+
+.art :global([data-lines] path.c) {
+  stroke-width: calc(var(--u, 1) * 1.25 / var(--z, 1));
+}
+
+.art :global([data-lines] path.d) {
+  stroke-width: calc(var(--u, 1) * 1.4 / var(--z, 1));
+}
+
+.art :global(path.p) {
+  fill: var(--ivory-100);
+  stroke: none;
+}
+
+/* the far edge: as fine as the 3D line it takes over from (one device pixel) */
+.art :global(.hz) {
+  stroke-width: calc(var(--u, 1) * var(--hzw, 1) / var(--z, 1));
+  opacity: 0;
+}
+
+.art :global(.hr) {
+  stroke-width: calc(var(--u, 1) * 0.3 / var(--z, 1));
+}
+
+.art :global(.gl) {
+  opacity: 0;
+}
+
+/* ---- life (data-live: on screen, coloured, tab visible, nothing covering the page) ---- */
+.art :global(.sh path) {
+  stroke: #fbf3ee;
+  stroke-width: calc(var(--u, 1) * 1.2 / var(--z, 1));
+  opacity: 0;
+}
+
+.pans[data-live] .art :global(.sh path) {
+  animation: shimmer 4.8s ease-in-out calc(var(--i) * 1.1s) infinite;
+}
+
+.pans[data-live] .art :global(.pn:nth-child(2n) .sh path) {
+  animation-duration: 5.6s;
+}
+
+.pans[data-live] .art :global(.pn:nth-child(3n) .sh path) {
+  animation-delay: calc(var(--i) * 1.1s + 0.7s);
+}
+
+.pans[data-lo] .art :global(.sh) {
+  display: none; /* low tier: no shimmer */
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.pans[data-live] .art :global(g[data-fig]) {
+  animation: work 7s ease-in-out infinite alternate;
+}
+
+.pans[data-live] .art :global(g[data-fig='1']) {
+  animation-duration: 9s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes work {
+  from {
+    transform: translateX(-2px);
+  }
+
+  to {
+    transform: translateX(3px);
+  }
+}
+
+.art :global(.bz) {
+  stroke-width: calc(var(--u, 1) * 0.75 / var(--z, 1));
+  opacity: 0;
+}
+
+.pans[data-live] .art :global(.bz) {
+  animation: breeze 6.2s linear var(--d, 0s) infinite;
+}
+
+@keyframes breeze {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+
+  20%,
+  75% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateX(var(--w));
+    opacity: 0;
+  }
+}
+
+/* the line, over the calm sky above the far edge, an ivory veil behind it */
+:global(html.motion) .line {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 16.5%;
+  width: max-content;
+  max-width: min(88vw, 22em);
+  color: var(--navy-800);
+  translate: -50% -50%;
+  opacity: 0;
+}
+
+:global(html.motion) .line::before {
+  content: '';
+  position: absolute;
+  inset: -40% -18%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(245, 241, 232, 0.92), rgba(245, 241, 232, 0));
+}
+
+@media (max-width: 699px) {
+  :global(html.motion) .line {
+    max-width: min(88vw, 11.5em); /* two lines */
+  }
+}
+
+/* the next section's top rule: drawn in from the centre at the very end */
+:global(html.motion) .rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  height: 1px;
+  background: var(--accent-line);
+  transform: scaleX(0);
+}

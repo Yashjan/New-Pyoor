@@ -25,8 +25,9 @@ export default async function HomePage() {
     <>
       <main id="main" suppressHydrationWarning>
         <JarHero fromPrice={lowest ? formatPrice(lowest) : null} />
-        <Roots />
+        {/* the salt pans (the hero's step 3) release straight into the products */}
         <Salts black={black} lake={lake} />
+        <Roots />
         <Crystals />
         <Recipes />
         <HomeMotion />

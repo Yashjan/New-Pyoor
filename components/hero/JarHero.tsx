@@ -8,6 +8,8 @@ import { SambharOpening } from '@/components/opening/SambharOpening';
 import { Journey } from '@/components/sections/Journey/Journey';
 import { LabelReader } from '@/components/LabelReader/LabelReader';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
+import { PANS_VH, pansProgress } from '@/lib/motion/pans';
+import { SaltPans } from '@/components/sections/SaltPans/SaltPans';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
@@ -26,12 +28,13 @@ const turnedBefore = () => {
 
 /**
  * The jar sequence's progress 0–1: how far the pinned section has been scrolled through after
- * the Journey panorama and the opening (the first SEQUENCE_START_VH viewport heights).
+ * the Journey panorama and the opening (the first SEQUENCE_START_VH viewport heights), up to
+ * step 3, the salt pans (the last PANS_VH).
  */
 function heroProgress(section: HTMLElement): number {
   const rect = section.getBoundingClientRect();
   const open = window.innerHeight * SEQUENCE_START_VH;
-  const range = rect.height - window.innerHeight - open;
+  const range = rect.height - window.innerHeight * (1 + PANS_VH) - open;
   return range > 0 ? Math.min(1, Math.max(0, (-rect.top - open) / range)) : 0;
 }
 
@@ -93,6 +96,7 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
           tier,
           modelUrl: MODEL_URL,
           getProgress: () => heroProgress(section),
+          getPans: () => pansProgress(section),
           onFirstFrame: () => {
             setPosterGone(true);
             setHint(!turnedBefore());
@@ -218,29 +222,35 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         {/* beside the jar: the label reader (faded with the headline by the jar sequence) */}
         <LabelReader />
 
-        <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
-          <p className="py-eyebrow">01 · The jar</p>
-          <p className="py-display py-d-m">Open a jar of Sambhar.</p>
-        </div>
-        <div className={`${styles.beat} ${styles.b2}`} data-beat="2">
-          <p className="py-eyebrow">02 · The salt</p>
-          <p className="py-display py-d-m">Every crystal began as brine in an open pan.</p>
-        </div>
-        <div className={`${styles.beat} ${styles.b3}`} data-beat="3">
-          <p className="py-eyebrow">03 · The lake</p>
-          <p className="py-display py-d-xl">Two salts. One lake.</p>
-          <p className="py-lead">
-            India’s largest inland salt lake, in the heart of Rajasthan. This is where every jar
-            begins.
-          </p>
+        {/* the beats and the rail: faded as a whole when step 3 begins (HomeMotion) */}
+        <div className={styles.beats} data-beats>
+          <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
+            <p className="py-eyebrow">01 · The jar</p>
+            <p className="py-display py-d-m">Open a jar of Sambhar.</p>
+          </div>
+          <div className={`${styles.beat} ${styles.b2}`} data-beat="2">
+            <p className="py-eyebrow">02 · The salt</p>
+            <p className="py-display py-d-m">Every crystal began as brine in an open pan.</p>
+          </div>
+          <div className={`${styles.beat} ${styles.b3}`} data-beat="3">
+            <p className="py-eyebrow">03 · The lake</p>
+            <p className="py-display py-d-xl">Two salts. One lake.</p>
+            <p className="py-lead">
+              India’s largest inland salt lake, in the heart of Rajasthan. This is where every jar
+              begins.
+            </p>
+          </div>
+
+          <div className={styles.rail} aria-hidden="true" data-rail>
+            <span data-rail-text>01 / 03</span>
+            <span className={styles.track}>
+              <span className={styles.fill} data-rail-fill />
+            </span>
+          </div>
         </div>
 
-        <div className={styles.rail} aria-hidden="true" data-rail>
-          <span data-rail-text>01 / 03</span>
-          <span className={styles.track}>
-            <span className={styles.fill} data-rail-fill />
-          </span>
-        </div>
+        {/* step 3: the pink salt pans, the last PANS_VH of the pin */}
+        <SaltPans />
       </div>
     </section>
   );

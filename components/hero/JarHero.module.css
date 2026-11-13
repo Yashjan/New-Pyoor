@@ -122,6 +122,11 @@
   display: none;
 }
 
+/* static: the beats are grid items of the stage */
+.beats {
+  display: contents;
+}
+
 .beat {
   display: flex;
   flex-direction: column;
@@ -169,7 +174,9 @@
 
 /* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
-  height: 1000vh; /* the split's 100vh, the Journey's 500vh, the pour's 300vh, the pinned screen */
+  /* the split's 100vh, the Journey's 500vh, the pour's 300vh, the salt pans' 280vh (PANS_VH),
+     the pinned screen */
+  height: 1280vh;
 }
 
 :global(html.motion) .stage {
@@ -309,6 +316,14 @@
 
 :global(html.motion) .horizonLine {
   margin-top: -8px;
+}
+
+:global(html.motion) .beats {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
 }
 
 :global(html.motion) .beat {

@@ -5,6 +5,7 @@ import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { refreshOnce } from '@/lib/motion/unlock';
 import { POUR_END, POUR_START } from '@/lib/motion/pour';
+import { PANS_VH } from '@/lib/motion/pans';
 
 /**
  * The homepage's scroll choreography (concept.html), set up once GSAP has loaded.
@@ -21,7 +22,8 @@ import { POUR_END, POUR_START } from '@/lib/motion/pour';
  *   [data-clip-reveal]    product panels open from an inset clip
  *   [data-crystals-bg]    the crystal texture settles from 1.35× to 1×
  *   [data-hero]           text beats and progress rail, scrubbed by the jar sequence's progress
- *                         (after the Journey and the opening: SEQUENCE_START_VH)
+ *                         (after the Journey and the opening: SEQUENCE_START_VH; before
+ *                         step 3, the salt pans: PANS_VH, whose start fades them all out)
  */
 export function HomeMotion() {
   useEffect(() => {
@@ -142,12 +144,32 @@ export function HomeMotion() {
             )
             .to({}, { duration: 0.01 }, 0.99);
 
+          // step 3 begins (the camera's rise): the last beat and the rail leave together
+          const beatsBox = sel('[data-beats]');
+          if (beatsBox)
+            gsap.fromTo(
+              beatsBox,
+              { autoAlpha: 1 },
+              {
+                autoAlpha: 0,
+                ease: 'none',
+                immediateRender: false,
+                scrollTrigger: {
+                  trigger: hero,
+                  start: () => `bottom-=${Math.round(window.innerHeight * PANS_VH)} bottom`,
+                  end: () => `bottom-=${Math.round(window.innerHeight * PANS_VH * 0.94)} bottom`,
+                  scrub: true,
+                  invalidateOnRefresh: true,
+                },
+              },
+            );
+
           const railText = sel('[data-rail-text]');
           const railFill = hero.querySelector<HTMLElement>('[data-rail-fill]');
           ScrollTrigger.create({
             trigger: hero,
             start: () => `top+=${Math.round(window.innerHeight * SEQUENCE_START_VH)} top`,
-            end: 'bottom bottom',
+            end: () => `bottom-=${Math.round(window.innerHeight * PANS_VH)} bottom`,
             scrub: 0.6,
             invalidateOnRefresh: true,
             onUpdate: (s) => {

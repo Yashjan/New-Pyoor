@@ -120,7 +120,7 @@ const WEIGHTS = [0.5, 0.75, 1, 1.25, 1.4];
 const CLS = { 0.5: 'a', 0.75: '', 1: 'b', 1.25: 'c', 1.4: 'd' };
 const snap = (w) => WEIGHTS.reduce((m, x) => (Math.abs(x - w) < Math.abs(m - w) ? x : m), 0.75);
 
-export function Plate(seed, { vignette = true, width = W } = {}) {
+export function Plate(seed, { vignette = true, width = W, height = H } = {}) {
   const rnd = RNG(seed);
   const items = [];
   const occ = [];
@@ -130,7 +130,7 @@ export function Plate(seed, { vignette = true, width = W } = {}) {
   const pushItem = (o) => items.push({ s: curS, ...o });
   const pushStroke = (o) => strokes.push({ s: curS, ...o });
   const out = (q) => {
-    if (!vignette) return q[0] < 0 || q[0] > width || q[1] < 1 || q[1] > H - 1;
+    if (!vignette) return q[0] < 0 || q[0] > width || q[1] < 1 || q[1] > height - 1;
     if (q[0] < 12 || q[0] > 628 || q[1] < 8 || q[1] > 506) return true;
     // an uneven edge, as where an etcher's lines give out
     const dx = Math.abs(q[0] - 320) / (296 + 11 * Math.sin(q[1] * 1.7) + 7 * Math.sin(q[1] * 0.53));
@@ -406,7 +406,7 @@ export function Plate(seed, { vignette = true, width = W } = {}) {
                     .join('')}</g>`,
               )
               .join('');
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${H}" fill="none" stroke="#a8823f" stroke-linecap="round" stroke-linejoin="round">${style}${body}</svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" fill="none" stroke="#a8823f" stroke-linecap="round" stroke-linejoin="round">${style}${body}</svg>`;
     },
   };
   return api;
@@ -419,3 +419,39 @@ export const rect = (x0, y0, x1, y1) => [
   [x0, y1],
   [x0, y0],
 ];
+
+/** A salt mound: outline, cross-hatched on its shaded side (`ht`: the hatching's draw tier). */
+export function mound(P, cx, base, r, h, { t = 4, fine = 2.2, ht = t + 1 } = {}) {
+  const k = P.rnd() * 1.4;
+  const top = curve([
+    [cx - r, base],
+    [cx - r * 0.74, base - h * 0.2 - k],
+    [cx - r * 0.36, base - h * 0.64],
+    [cx - r * 0.08, base - h * 0.97],
+    [cx + r * 0.04, base - h],
+    [cx + r * 0.2, base - h * 0.8],
+    [cx + r * 0.56, base - h * 0.38 + k],
+    [cx + r * 0.86, base - h * 0.09],
+    [cx + r, base],
+  ]);
+  const poly = [...top, top[0]];
+  P.line(top, { w: r > 24 ? 1.25 : 0.75, t, swell: r > 24, taper: 'ends' });
+  const gap = r > 40 ? fine : fine * 1.25;
+  const lit = (x) => (x - cx) / r;
+  P.hatch(poly, {
+    angle: 63,
+    gap,
+    t: ht,
+    shared: true,
+    shade: (x) => 0.2 + lit(x) * 0.95,
+    over: r > 40 ? (x) => lit(x) > 0.5 : undefined,
+  });
+  P.hatch(poly, {
+    angle: 118,
+    gap: gap * 1.05,
+    t: ht,
+    shared: true,
+    shade: (x) => lit(x) * 1.15 - 0.12,
+  });
+  P.block(poly);
+}

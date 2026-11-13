@@ -332,3 +332,62 @@ test('i: a scroll at 1 s finishes the intro within ~0.3 s and scrolls at once', 
 async function loadAndWaitMore(page: Page, at: number) {
   await page.waitForFunction((t) => performance.now() >= t, at, { polling: 16 });
 }
+
+test('j: through the salt pans: every step scrolls, the scene follows, and scrolling back reverses it', async ({
+  page,
+}, info) => {
+  test.setTimeout(240_000);
+  const touch = info.project.name === 'phone';
+  const cdp = await page.context().newCDPSession(page);
+  await loadAndWait(page, 500);
+  const read = () =>
+    page.evaluate(() => {
+      const h = document.querySelector<HTMLElement>('[data-hero]')!;
+      const pans = document.querySelector<HTMLElement>('[data-pans]');
+      const vh = window.innerHeight;
+      return {
+        y: window.scrollY,
+        // where step 3 starts and ends (the hero's last PANS_VH = 2.8 screens)
+        start: h.offsetTop + h.offsetHeight - vh * 3.8,
+        end: h.offsetTop + h.offsetHeight - vh,
+        q: Number(pans?.dataset.progress ?? 0),
+      };
+    });
+  const at = await read();
+  await page.evaluate((y) => window.scrollTo(0, y), at.start - 300);
+  await page.waitForTimeout(1200);
+  const dy = touch ? 120 : 100;
+  type R = Awaited<ReturnType<typeof read>>;
+  const fwd: R[] = [await read()];
+  const stuck: string[] = [];
+  for (let i = 0; i < 200 && fwd.at(-1)!.y < at.end + 400; i++) {
+    await scrollInput(page, cdp, touch, dy);
+    await page.waitForTimeout(110);
+    const now = await read();
+    if (now.y <= fwd.at(-1)!.y) stuck.push(`forward ${i}: y ${fwd.at(-1)!.y} -> ${now.y}`);
+    fwd.push(now);
+  }
+  await page.waitForTimeout(1000);
+  const top = await read();
+  const back: R[] = [top];
+  for (let i = 0; i < 200 && back.at(-1)!.y > at.start - 200; i++) {
+    await scrollInput(page, cdp, touch, -dy);
+    await page.waitForTimeout(110);
+    const now = await read();
+    if (now.y >= back.at(-1)!.y) stuck.push(`back ${i}: y ${back.at(-1)!.y} -> ${now.y}`);
+    back.push(now);
+  }
+  await page.waitForTimeout(1000);
+  const end = await read();
+  const steps = (list: R[]) => list.slice(1).map((s, i) => s.q - list[i]!.q);
+  console.log(
+    `${info.project.name} j: ${fwd.length} steps forward to q ${top.q}, ${back.length} back to q ${end.q};`,
+    `stuck ${stuck.length}; largest q step ${Math.max(...steps(fwd)).toFixed(3)}`,
+  );
+  if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
+  expect(stuck, 'every step scrolls, both ways').toEqual([]);
+  expect(top.q, 'the scene played to its end').toBe(1);
+  expect(Math.min(...steps(fwd)), 'forward: the scene never runs back').toBeGreaterThanOrEqual(0);
+  expect(Math.max(...steps(back)), 'back: the scene never runs forward').toBeLessThanOrEqual(0);
+  expect(end.q, 'scrolled back to before it began').toBe(0);
+});

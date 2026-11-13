@@ -30,7 +30,7 @@ import { dressJar } from './materials';
 import { heroShare } from '@/lib/three/heroShare';
 import { asset } from '@/lib/basePath';
 import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
-import { disposeMaterial, disposeObject } from '@/lib/three/dispose';
+import { disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
 import { cameraAt } from './camera';
@@ -41,8 +41,8 @@ import { createJarRig, poseCap, poseJar } from './jar';
 import { FLIGHT, capRest, pouredAt, R } from '@/lib/motion/pour';
 import { FOV, jarStartX } from '@/lib/motion/heroCamera';
 import { layoutFor, type HeroLayout } from './layout';
-import { blushAt, createSaltPans, REFLECT_LAYER } from './saltPans';
 import { smooth } from './math';
+import { PANS, power2InOut, riseCamera, span } from '@/lib/motion/pans';
 import { createTurn } from './turn';
 
 export interface JarSceneOptions {
@@ -56,6 +56,8 @@ export interface JarSceneOptions {
   signal: AbortSignal;
   /** Download progress of the GLB, 0–1 (feeds the first-visit loader). */
   onModelProgress?: (fraction: number) => void;
+  /** Step 3's progress, 0–1 (lib/motion/pans.ts): its first part is the camera's rise. */
+  getPans?: () => number;
   /** The visitor has turned the jar for the first time (turn.ts). */
   onFirstTurn?: () => void;
 }
@@ -80,10 +82,6 @@ declare global {
 
 const IVORY = new Color('#f5f1e8');
 const SKY = new Color('#eee9df');
-const KEY_COLOR = new Color(0xfff0dc);
-const KEY_WARM = new Color('#f3c9a8');
-const HEMI_GROUND = new Color(0xe8dfcd);
-const HEMI_PINK = new Color('#e7a6a0');
 /** The hold's slow turn: ±7° on y, back and forth over 9 s (a sine). */
 const TURN = (7 * Math.PI) / 180;
 const TURN_PERIOD = 9;
@@ -167,7 +165,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   // The jar rises through the floor plane in the opening: the (invisible) shadow floor must not
   // hide the clear jar below it.
   ground.shadowMat.depthWrite = false;
-  scene.add(ground.contact, ground.shadowFloor, ground.crust);
+  scene.add(ground.contact, ground.shadowFloor);
   // Soft contact shadows under the resting cap and the mound.
   const capShadow = createContact();
   capShadow.group.scale.set(0.95, 1, 0.95);
@@ -183,23 +181,6 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     new LineBasicMaterial({ color: 0xa8823f, toneMapped: false, fog: false }),
   );
   scene.add(horizonLine);
-
-  // ---- the salt pans (behind ?saltPans until approved) ----
-  const pans = new URLSearchParams(window.location.search).has('saltPans')
-    ? createSaltPans(
-        tier.name === 'high',
-        Math.round(canvas.clientWidth * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
-        Math.round(canvas.clientHeight * Math.min(window.devicePixelRatio, tier.maxDpr)) || 2,
-      )
-    : null;
-  if (pans) {
-    scene.add(pans.group);
-    for (const light of [key, rim, hemi]) light.layers.enable(REFLECT_LAYER);
-    ground.crust.visible = false;
-    ground.horizon.visible = false;
-    camera.far = 120;
-    camera.near = 0.04; // enough depth precision for the thin bunds, far away
-  }
 
   // ---- the jar ----
   // Setup runs while the first-visit intro is on screen: yield a frame between the heavy steps
@@ -295,6 +276,9 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const clock = new Clock();
   const jarBase = new Vector3();
   let sp = opts.getProgress(); // smoothed progress
+  const riseAt = () => span(opts.getPans?.() ?? 0, PANS.rise);
+  let sr = riseAt(); // the rise (step 3), smoothed the same way
+  let shownOpacity = -1;
   let frames = 0;
   let canvasShown: boolean | null = null;
   let firstShown = false;
@@ -334,7 +318,19 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       journeyStore.onReady?.(); // a late arrival crossfades in from this frame
     }
     if (shown && !canvasShown && framesHidden === 0) resize();
-    if (!visible || !shown || journeyStore.covered || coveredStore.get()) {
+    // Step 3: the canvas fades over the rise's last quarter, then is hidden and draws nothing
+    // (the pans' SVG has taken over, its far edge exactly on this horizon line).
+    const riseGoal = riseAt();
+    const gone = riseGoal >= 1 && sr >= 0.999;
+    if (canvasShown) {
+      const o = gone ? 0 : Math.round((1 - smooth(0.75, 1, sr)) * 1000) / 1000;
+      if (o !== shownOpacity) {
+        shownOpacity = o;
+        canvas.style.opacity = String(o);
+        canvas.style.visibility = o > 0 ? 'visible' : 'hidden';
+      }
+    } else shownOpacity = -1;
+    if (!visible || !shown || gone || journeyStore.covered || coveredStore.get()) {
       clock.getDelta(); // don't let time pile up while paused
       return;
     }
@@ -344,6 +340,10 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     sp += (goal - sp) * Math.min(1, dt * 7);
     if (Math.abs(goal - sp) < 1e-5) sp = goal; // settle exactly, so frames repeat exactly
     const p = sp;
+    sr += (riseGoal - sr) * Math.min(1, dt * 7);
+    if (Math.abs(riseGoal - sr) < 1e-5) sr = riseGoal;
+    // the rise: the jar drifts out left and the cap right, faster as the camera climbs
+    const drift = 1.5 * sr * sr;
     // while the Journey lines its engraving up on the jar, the jar holds still
     const calm = journeyStore.calm;
     pointer.x += (target.x * (1 - calm) - pointer.x) * 0.05;
@@ -379,6 +379,10 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       1 - calm,
     );
     poseCap(rig, p, layout, op.glide);
+    if (drift) {
+      rig.pivot.position.x -= drift;
+      rig.lid.matrix.elements[12] += drift;
+    }
     lidRim.intensity = 2.2 * op.rise * rest;
     pour.update(p);
 
@@ -393,7 +397,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     for (const [mat, base] of ground.contactMats)
       mat.opacity = base * lifted * op.rise * op.rise * seen;
     const rest0 = capRest(jarStartX(layout, op.glide));
-    capShadow.group.position.set(rest0[0] - R * 0.15, 0, rest0[2]);
+    capShadow.group.position.set(rest0[0] - R * 0.15 + drift, 0, rest0[2]);
     capShadow.set(smooth(0.2, 0.25, p) * 0.9 * seen);
     const poured = pouredAt(p - FLIGHT);
     moundShadow.group.position.set(pour.mx, 0, 0);
@@ -402,20 +406,13 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     moundShadow.set(Math.sqrt(poured) * seen);
     ground.shadowMat.opacity = 0.12;
     renderer.setClearColor(SKY, 0);
-    if (pans) {
-      pans.update(p);
-      if (pans.group.visible) fogColor.copy(pans.horizon);
-      const blush = blushAt(p);
-      key.color.copy(KEY_COLOR).lerp(KEY_WARM, Math.pow(blush, 0.7));
-      hemi.groundColor.copy(HEMI_GROUND).lerp(HEMI_PINK, blush);
-      hemi.intensity = 0.35 + 0.35 * blush;
-    }
 
-    cameraAt(camera, p, layout, op.glide);
-    if (pans) {
-      camera.updateMatrixWorld();
-      pans.renderReflection(renderer, scene, camera);
-    }
+    if (sr > 0) {
+      // step 3: the camera cranes up over the mound (lib/motion/pans.ts)
+      const { pos, look } = riseCamera(power2InOut(sr), layout, pour.mx);
+      camera.position.set(pos[0], pos[1], pos[2]);
+      camera.lookAt(look[0], look[1], look[2]);
+    } else cameraAt(camera, p, layout, op.glide);
     renderer.render(scene, camera);
 
     frames++;
@@ -534,7 +531,6 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       window.removeEventListener('scroll', onScroll);
       look.dispose();
       label4k?.dispose();
-      pans?.dispose();
       ro.disconnect();
       window.visualViewport?.removeEventListener('resize', resize);
       io.disconnect();
@@ -542,7 +538,6 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       turnCtl.dispose();
       pour.dispose();
       disposeObject(scene);
-      disposeMaterial(ground.crustMat);
       envRT.dispose();
       pmrem.dispose();
       renderer.dispose();
