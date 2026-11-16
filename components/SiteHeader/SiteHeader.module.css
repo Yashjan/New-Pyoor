@@ -60,6 +60,30 @@
   font-variant-numeric: tabular-nums;
 }
 
+.count {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.25em;
+  line-height: 1.25em;
+  vertical-align: bottom;
+}
+
+.roll {
+  animation: roll 0.45s var(--ease-settle);
+}
+
+@keyframes roll {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll {
+    animation: none;
+  }
+}
+
 .bump {
   animation: bump 0.5s var(--ease-settle);
 }

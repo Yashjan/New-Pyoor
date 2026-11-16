@@ -11,8 +11,18 @@
 export const PRICES_INR: Record<string, number | null> = {
   'local:variant:herbal-black-salt-1kg': 249,
   'local:variant:natural-lake-salt-1kg': null,
+  // the 1 kg refill pouches: [PRICE]
+  'local:variant:herbal-black-salt-pouch-1kg': null,
+  'local:variant:natural-lake-salt-pouch-1kg': null,
   'local:variant:the-sambhar-pair': null,
   'local:variant:himalayan-pink-salt-1kg': null, // not in launch
 };
 
 export const FREE_SHIPPING_THRESHOLD_INR: number | null = null;
+
+/**
+ * The pouches' back artwork (it carries health-claim paragraphs until it is corrected): while
+ * false, visitors never see it: the pouch label reader shows only the Front sheet, and the 3D
+ * pouch turns at most ±60°.
+ */
+export const SHOW_POUCH_BACK = false;

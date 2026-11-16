@@ -321,3 +321,51 @@
     font-size: 11px;
   }
 }
+
+/* the pouches: Front / Back, above the sheet (a gold underline under the open one) */
+.tabs {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  left: var(--gutter);
+  display: flex;
+  gap: 6px;
+}
+
+.tab {
+  position: relative;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--slate-500);
+  cursor: pointer;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  height: 1px;
+  background: var(--accent-line);
+  transform: scaleX(0);
+  transition: transform 0.3s var(--ease-settle);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--navy-800);
+}
+
+.tab[aria-selected='true']::after {
+  transform: scaleX(1);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}

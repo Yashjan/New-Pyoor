@@ -7,7 +7,8 @@
   margin: 0 0 0 auto;
   padding: 0;
   border: 0;
-  background: var(--surface-alt);
+  border-top: 1px solid var(--accent-line);
+  background: var(--ivory-100);
   color: var(--text);
   box-shadow: var(--shadow-drawer);
 }
@@ -16,13 +17,45 @@
   background: rgba(18, 26, 59, 0.45);
 }
 
+/* in from the right (0.5 s expo-out), out the same way (useModalDialog's exitMs: 350) */
 .drawer[open] {
-  animation: slide-in var(--duration-base) var(--ease-settle);
+  animation: slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer::backdrop {
+  transition: opacity 0.35s ease;
+}
+
+.drawer[data-state='closing'] {
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+.drawer[data-state='closing']::backdrop {
+  opacity: 0;
 }
 
 @keyframes slide-in {
   from {
     transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer[open] {
+    animation: fade-in 0.2s ease;
+  }
+
+  .drawer[data-state='closing'] {
+    transform: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
   }
 }
 
@@ -86,13 +119,13 @@
   width: 72px;
   height: 90px;
   overflow: hidden;
-  background: var(--surface-sunk);
+  background: var(--ivory-200);
 }
 
 .thumbImg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .thumbBlank {
@@ -202,4 +235,46 @@
   font-size: var(--body-s-size);
   color: var(--text-muted);
   text-align: center;
+}
+
+/* the lines and, under them, the quiet refill suggestion: one scrolling column */
+.linesBox {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.linesBox .lines {
+  overflow: visible;
+}
+
+.suggest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0 var(--space-5);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: var(--body-s-size);
+  color: var(--text-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.suggestAdd {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.suggestAdd:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

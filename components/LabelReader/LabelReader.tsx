@@ -8,10 +8,19 @@ import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
 import { heroShare } from '@/lib/three/heroShare';
 import type { Reader } from './readerScene';
-import { LABEL } from './labelData';
+import { LABELS, type LabelContent } from './labelData';
 import styles from './LabelReader.module.css';
 
-const LABEL_IMG = (w: number) => asset(`/textures/label-herbal-black-salt-${w}.webp`);
+const HERO = 'herbal-black-salt'; // the hero's 3D jar
+const labelImg = (handle: string, w: number) => asset(`/textures/label-${handle}-${w}.webp`);
+
+/**
+ * Opens the reader on a product's label from anywhere (the products section): always the flat
+ * sheet there (the hero's 3D jar is off screen). Focus returns to `from` on close.
+ */
+export const labelReader = {
+  open: null as ((handle: string, from: HTMLElement | null) => void) | null,
+};
 const MAX_ZOOM = 4;
 const noop = () => () => {};
 const yes = () => true;
@@ -33,16 +42,29 @@ export function LabelReader() {
   // the dialog is portalled into <body>: client only (the server renders the button)
   const mounted = useSyncExternalStore(noop, yes, no);
   const [flat, setFlat] = useState(false);
+  const [handle, setHandle] = useState(HERO);
+  const [sheet, setSheet] = useState(0); // the pouches: Front / Back
+  const L = LABELS[handle] ?? LABELS[HERO]!;
   const ctl = useRef<ReturnType<typeof createController> | null>(null);
+  const returnTo = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!mounted || !root.current) return;
     const c = createController(root.current, {
-      button: () => button.current,
+      button: () => returnTo.current ?? button.current,
       setFlat,
     });
     ctl.current = c;
-    return () => c.destroy();
+    labelReader.open = (h, from) => {
+      returnTo.current = from;
+      setHandle(LABELS[h] ? h : HERO);
+      setSheet(0);
+      void c.open(true);
+    };
+    return () => {
+      labelReader.open = null;
+      c.destroy();
+    };
   }, [mounted]);
 
   const prefetch = () => void import('./readerScene');
@@ -58,7 +80,11 @@ export function LabelReader() {
         aria-controls="label-reader"
         onPointerEnter={prefetch}
         onFocus={prefetch}
-        onClick={() => void ctl.current?.open()}
+        onClick={() => {
+          returnTo.current = null;
+          setHandle(HERO);
+          void ctl.current?.open();
+        }}
       >
         Read the label
       </button>
@@ -83,22 +109,54 @@ export function LabelReader() {
                 data-area
                 data-lenis-prevent
                 role="img"
-                aria-label={LABEL.summary}
+                aria-label={L.summary}
               >
-                {flat && (
+                {flat && !L.sheets && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     className={styles.flatImg}
                     data-flat-img
-                    src={LABEL_IMG(4096)}
-                    srcSet={`${LABEL_IMG(4096)} 4096w, ${LABEL_IMG(8192)} 8192w`}
+                    data-aspect={4096 / 1052}
+                    src={labelImg(handle, 4096)}
+                    srcSet={L.widths.map((w) => `${labelImg(handle, w)} ${w}w`).join(', ')}
                     sizes="(min-width: 861px) 62vw, 92vw"
                     alt=""
                     draggable={false}
                   />
                 )}
+                {flat && L.sheets && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={`${handle}-${sheet}`}
+                    className={styles.flatImg}
+                    data-flat-img
+                    data-aspect={L.sheets[sheet]!.width / L.sheets[sheet]!.height}
+                    src={asset(L.sheets[sheet]!.src)}
+                    alt=""
+                    draggable={false}
+                  />
+                )}
               </div>
-              <LabelText />
+              {L.sheets && L.sheets.length > 1 && (
+                <div className={styles.tabs} role="tablist" aria-label="Pouch artwork">
+                  {L.sheets.map((sh, i) => (
+                    <button
+                      key={sh.name}
+                      type="button"
+                      role="tab"
+                      aria-selected={i === sheet}
+                      className={styles.tab}
+                      onClick={() => {
+                        setSheet(i);
+                        ctl.current?.resetView();
+                      }}
+                    >
+                      {sh.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <LabelText L={L} />
             </div>
             <p className={styles.hint} data-fade aria-hidden="true">
               Scroll or pinch to zoom · drag to move · double-tap
@@ -113,8 +171,7 @@ export function LabelReader() {
   );
 }
 
-function LabelText() {
-  const L = LABEL;
+function LabelText({ L }: { L: LabelContent }) {
   return (
     // data-lenis-prevent: Lenis is stopped while the reader is open and would swallow the wheel
     <section
@@ -190,7 +247,7 @@ function LabelText() {
 
 /* ------------------------------------------------------------------------------------------ */
 
-type Opts = { button: () => HTMLButtonElement | null; setFlat: (v: boolean) => void };
+type Opts = { button: () => HTMLElement | null; setFlat: (v: boolean) => void };
 
 function createController(el: HTMLElement, opts: Opts) {
   const html = document.documentElement;
@@ -239,7 +296,8 @@ function createController(el: HTMLElement, opts: Opts) {
   let areaRect = area.getBoundingClientRect();
   const sheetSize = () => {
     if (reader) return reader.sheetPx();
-    const aspect = 4096 / 1052;
+    const img = el.querySelector<HTMLElement>('[data-flat-img]');
+    const aspect = Number(img?.dataset.aspect) || 4096 / 1052;
     const w = Math.min(areaRect.width, areaRect.height * aspect);
     return { w, h: w / aspect };
   };
@@ -404,12 +462,13 @@ function createController(el: HTMLElement, opts: Opts) {
     opts.button()?.focus({ preventScroll: true });
   };
 
-  async function open() {
+  /** `flatOnly`: the flat sheet, never the 3D unroll (opened away from the hero's jar). */
+  async function open(flatOnly = false) {
     if (state !== 'closed') return;
     state = 'opening';
     const share = heroShare.get();
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    flat = reduce || !share;
+    flat = flatOnly || reduce || !share;
     lock();
     listen(true);
     const { gsap } = await loadGsap();
@@ -493,6 +552,12 @@ function createController(el: HTMLElement, opts: Opts) {
 
   return {
     open,
+    /** back to the whole sheet (a new tab) */
+    resetView() {
+      view.zoom = 1;
+      view.x = view.y = 0;
+      pushView();
+    },
     destroy() {
       tl?.kill();
       window.clearTimeout(timer);

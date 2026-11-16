@@ -1,0 +1,460 @@
+/* Step 4, the products (Products.tsx): calm, generous, no card borders. */
+.products {
+  padding-top: clamp(72px, 9vw, 128px);
+}
+
+/* the salt pans' gold horizon, continued: on the seam (it overlaps the pin's last pixel row) */
+.rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+  background: var(--accent-line);
+}
+
+.title {
+  margin: 0 auto clamp(56px, 7vw, 104px);
+  text-align: center;
+  color: var(--navy-800);
+  text-wrap: balance;
+}
+
+.plates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(48px, 7vw, 112px);
+}
+
+.plate {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: clamp(20px, 2.4vw, 32px);
+  text-align: center;
+}
+
+/* the render: a fixed aspect-ratio box (nothing shifts); the blur-up placeholder behind */
+.media {
+  position: relative;
+  width: min(100%, 420px);
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+}
+
+.media picture {
+  display: contents;
+}
+
+.media {
+  isolation: isolate;
+}
+
+.still {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.loaded {
+  opacity: 1;
+}
+
+/* one layer per format (poster + live canvas); the switch turns and fades them (transform,
+   opacity: ProductPlate) */
+.layer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.poster {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  transition: opacity 0.4s var(--ease-settle);
+}
+
+.gl {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  touch-action: pan-y; /* horizontal drags turn it; vertical ones scroll the page */
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  transition: opacity 0.4s var(--ease-settle);
+}
+
+.glOn {
+  opacity: 1;
+}
+
+.gl:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: -2px;
+}
+
+/* the plate's gold horizon: the model stands on it (plateScene.ts PLATE.line: 86%) */
+.ground {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 86%;
+  z-index: 0; /* behind the model: it stands on the line */
+  height: 1px;
+  background: var(--accent-line);
+  pointer-events: none;
+}
+
+.wide .ground {
+  display: none;
+}
+
+/* "Jar · Pouch": a small segmented choice, a gold underline under the active one */
+.formats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.formatItem {
+  display: inline-flex;
+  align-items: center;
+}
+
+.formatDot {
+  padding: 0 4px;
+  color: var(--accent-line);
+}
+
+.format {
+  position: relative;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: 0.04em;
+  color: var(--slate-500);
+  cursor: pointer;
+}
+
+.format::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  height: 1px;
+  background: var(--accent-line);
+  transform: scaleX(0);
+  transition: transform 0.4s var(--ease-settle);
+}
+
+.format[aria-checked='true'] {
+  color: var(--navy-800);
+}
+
+.format[aria-checked='true']::after {
+  transform: scaleX(1);
+}
+
+.format:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 2px;
+}
+
+/* the highlight: one soft sweep across the plate */
+.sweep {
+  position: absolute;
+  z-index: 2;
+  inset: -10% -30%;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 252, 245, 0.38) 50%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-70%);
+}
+
+.plate[data-sweep] .sweep {
+  animation: sweep 1.2s var(--ease-inout);
+}
+
+@keyframes sweep {
+  from {
+    opacity: 1;
+    transform: translateX(-70%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(70%);
+  }
+}
+
+.body {
+  display: grid;
+  justify-items: inherit;
+  gap: 10px;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: clamp(36px, 3.1vw, 44px);
+  line-height: 1.05;
+  color: var(--navy-800);
+}
+
+.hindi {
+  margin: 0;
+  font-family: var(--font-deva);
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--gold-700);
+}
+
+.line {
+  max-width: 34ch;
+  margin: 2px 0 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--slate-500);
+}
+
+.price {
+  margin: 6px 0 4px;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy-800);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.saving {
+  margin-left: 12px;
+  color: var(--gold-700);
+}
+
+.buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: inherit;
+  gap: 14px;
+}
+
+.plate:not(.wide) .buy {
+  justify-content: center;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+}
+
+.stepper button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 100%;
+  border: 0;
+  background: none;
+  font-size: 18px;
+  color: var(--navy-800);
+  cursor: pointer;
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper output {
+  min-width: 2ch;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--navy-800);
+}
+
+/* "Add to bag": a navy pill; on hover, a gold underline sweeps in under the words */
+.add {
+  position: relative;
+  height: 48px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--navy-800);
+  color: var(--ivory-100);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.addText {
+  position: relative;
+  display: inline-block;
+}
+
+.addText::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 1px;
+  background: var(--gold-300);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-settle);
+}
+
+.add:hover:not(:disabled) .addText::after,
+.add:focus-visible .addText::after {
+  transform: scaleX(1);
+}
+
+.add:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.add:focus-visible,
+.stepper button:focus-visible,
+.read:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 3px;
+}
+
+.read {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--navy-800);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+/* The Pair: a wide plate, the render left and the words right */
+.wide {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: clamp(32px, 5vw, 80px);
+  margin-top: clamp(80px, 10vw, 144px);
+  text-align: left;
+}
+
+.wide .media {
+  width: 100%;
+}
+
+.wide .body {
+  justify-items: start;
+}
+
+.trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  row-gap: 10px;
+  margin: clamp(72px, 9vw, 128px) 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate-500);
+}
+
+.trust span + span::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 16px;
+  border-radius: 50%;
+  background: var(--accent-line);
+  vertical-align: middle;
+}
+
+@media (max-width: 860px) {
+  .plates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* phones: the choice above the model; the model at least 55% of the width */
+  .formats {
+    order: -1;
+    margin-top: 0;
+  }
+
+  .media {
+    width: max(55vw, min(78vw, 360px));
+  }
+
+  .wide {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .wide .body {
+    justify-items: center;
+  }
+
+  .wide .media {
+    width: 100%;
+  }
+}
+
+/* the entrance: each element fades up 16px, a short stagger, once (Entrance.tsx) */
+:global(html.motion) [data-products] [data-rise] {
+  transition:
+    opacity 0.8s var(--ease-settle),
+    transform 0.8s var(--ease-settle);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+:global(html.motion) [data-products][data-rise='wait'] [data-rise] {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    display: none;
+  }
+}

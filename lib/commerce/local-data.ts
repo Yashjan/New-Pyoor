@@ -16,6 +16,7 @@ function priceOf(variantId: string): Money | null {
 }
 
 const JAR = { title: '1 kg jar', weightGrams: 1000 } as const;
+const POUCH = { title: '1 kg refill pouch', weightGrams: 1000 } as const;
 const PACKED_BY =
   'Pyoor Global Enterprises, 58-R Shiv Vihar Colony, Phulera Road, Sambhar Lake, Jaipur, Rajasthan 303604';
 
@@ -63,6 +64,13 @@ export const products: Product[] = [
         availableForSale: true,
         ...JAR,
       },
+      {
+        id: 'local:variant:herbal-black-salt-pouch-1kg',
+        sku: 'PYR-HBS-P1KG',
+        price: priceOf('local:variant:herbal-black-salt-pouch-1kg'),
+        availableForSale: true,
+        ...POUCH,
+      },
     ],
     featuredImage: blackSaltPhoto,
     images: [blackSaltPhoto],
@@ -103,6 +111,13 @@ export const products: Product[] = [
         price: priceOf('local:variant:natural-lake-salt-1kg'),
         availableForSale: true,
         ...JAR,
+      },
+      {
+        id: 'local:variant:natural-lake-salt-pouch-1kg',
+        sku: 'PYR-NLS-P1KG',
+        price: priceOf('local:variant:natural-lake-salt-pouch-1kg'),
+        availableForSale: true,
+        ...POUCH,
       },
     ],
     featuredImage: null, // [PHOTO TO SHOOT]

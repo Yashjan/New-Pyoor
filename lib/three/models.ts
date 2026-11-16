@@ -8,6 +8,8 @@ const HASHES: Record<string, string> = {
   'pyoor-herbal-black-salt.glb': '95ba130c1e',
   'pyoor-himalayan-pink-salt.glb': '270ea54f07',
   'pyoor-natural-lake-salt.glb': 'eeed386136',
+  'pyoor-pouch-herbal-black-salt.glb': 'ccba76bb0a',
+  'pyoor-pouch-natural-lake-salt.glb': '253396e08d',
 };
 
 /** URL for a compressed jar in public/models, versioned by its content. */

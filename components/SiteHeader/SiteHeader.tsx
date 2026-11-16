@@ -110,11 +110,19 @@ export function SiteHeader() {
             key={bump}
             className={`${styles.bag} ${bump ? styles.bump : ''}`}
             aria-haspopup="dialog"
+            data-bag-target
             onClick={() => (open ? menu.current?.closeThen(openCart) : openCart())}
           >
             {/* one flex item: the button's gap would otherwise space out "( 0 )" */}
             <span>
-              Bag (<b>{count}</b>)
+              {/* the count rolls in on each add (the key restarts it) */}
+              Bag (
+              <span className={styles.count}>
+                <b key={count} className={bump ? styles.roll : undefined}>
+                  {count}
+                </b>
+              </span>
+              )
             </span>
             <span className="sr-only">, {count === 1 ? '1 item' : `${count} items`}</span>
           </button>
