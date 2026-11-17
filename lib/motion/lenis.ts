@@ -22,6 +22,15 @@ export function scrollToHash(hash: string): boolean {
     return true;
   }
   if (!el) return false;
+  // a target in the hero's pinned stage marked data-pin-end (the products' opening): where the
+  // pin comes to rest
+  const hero = el.hasAttribute('data-pin-end') ? el.closest<HTMLElement>('[data-hero]') : null;
+  if (hero && document.documentElement.classList.contains('motion')) {
+    const y = hero.offsetTop + hero.offsetHeight - window.innerHeight;
+    if (instance) instance.scrollTo(y, { force: true });
+    else window.scrollTo({ top: y, behavior: 'smooth' });
+    return true;
+  }
   // force: the mobile menu stops Lenis while it is open; its links still need to scroll.
   if (instance) instance.scrollTo(el, { offset: -40, force: true });
   else el.scrollIntoView({ behavior: 'smooth' });

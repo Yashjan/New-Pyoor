@@ -14,13 +14,13 @@ export const SPLIT_VH = 1;
 
 /**
  * The Journey panorama (components/sections/Journey) comes straight after the SAMBHAR screen:
- * 50vh to hand over, 250vh of panorama, then 200vh of step 2, in which the engraved jar becomes
+ * 5vh to hand over, 295vh of panorama, then 200vh of step 2, in which the engraved jar becomes
  * the 3D jar (the landscape un-draws, the engraving glides onto the 3D jar, which is revealed
  * under it). The opening's split runs unseen behind it; the jar sequence follows from there.
  */
 export const JOURNEY_VH = 5;
 /** Where the panorama's phases end, as fractions of the Journey's scroll. */
-export const JOURNEY = { in: 0.5 / JOURNEY_VH, out: 3 / JOURNEY_VH } as const;
+export const JOURNEY = { in: 0.05 / JOURNEY_VH, out: 3 / JOURNEY_VH } as const;
 /**
  * Step 2's phases, as fractions of its scroll: the landscape withdraws into the horizon (slowly:
  * lines withdrawing, not a fade), the engraving glides onto the 3D jar, the paper goes, the 3D

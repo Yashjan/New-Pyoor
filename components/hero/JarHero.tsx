@@ -1,14 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { ButtonLink } from '@/components/Button/Button';
-import { Horizon } from '@/components/Horizon/Horizon';
 import { SambharOpening } from '@/components/opening/SambharOpening';
 import { Journey } from '@/components/sections/Journey/Journey';
 import { LabelReader } from '@/components/LabelReader/LabelReader';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
-import { PANS_VH, pansProgress } from '@/lib/motion/pans';
+import { PANS_VH, openVh, pansProgress } from '@/lib/motion/pans';
+import { PANORAMA } from '@/components/sections/Journey/panorama';
+import { Invite, type InviteProps } from './Invite';
 import { SaltPans } from '@/components/sections/SaltPans/SaltPans';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
@@ -34,7 +35,7 @@ const turnedBefore = () => {
 function heroProgress(section: HTMLElement): number {
   const rect = section.getBoundingClientRect();
   const open = window.innerHeight * SEQUENCE_START_VH;
-  const range = rect.height - window.innerHeight * (1 + PANS_VH) - open;
+  const range = rect.height - window.innerHeight * (1 + PANS_VH + openVh()) - open;
   return range > 0 ? Math.min(1, Math.max(0, (-rect.top - open) / range)) : 0;
 }
 
@@ -50,27 +51,43 @@ function heroProgress(section: HTMLElement): number {
  *   the three beats stack below it (CSS keyed on `html.motion`).
  * - The text beats and the progress rail are scrubbed by HomeMotion.
  */
-export function JarHero({ fromPrice }: { fromPrice: string | null }) {
+export function JarHero({
+  fromPrice,
+  invite,
+  lake,
+}: {
+  fromPrice: string | null;
+  /** Shot 4b: the jar to add to the bag beside the settled mound. */
+  invite: InviteProps | null;
+  /** The pin's last layer: the products' opening (Products/LakeOpening), behind the pans. */
+  lake?: ReactNode;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [posterGone, setPosterGone] = useState(false);
   // the "Drag to turn" hint: shown with the first 3D frame, gone after the first turn
   const [hint, setHint] = useState(false);
 
-  // Reduced motion: when the beats come into view, the closed jar crossfades (0.6 s) to the
-  // pour's last frame.
+  // Reduced motion: no camera, no pour, no dive: the key frames crossfade (0.6 s) as the
+  // captions come into view: the closed jar, the open jar (beat 1), the final mound (beat 2).
   useEffect(() => {
     const section = sectionRef.current;
     if (!section || document.documentElement.classList.contains('motion')) return;
-    const beat = section.querySelector('[data-beat="2"]');
-    if (!beat) return;
-    const io = new IntersectionObserver(([e]) => {
-      if (!e?.isIntersecting) return;
-      section.classList.add(styles.poured!);
-      io.disconnect();
+    const steps: [string, string][] = [
+      ['[data-beat="1"]', styles.opened!],
+      ['[data-beat="2"]', styles.poured!],
+    ];
+    const ios = steps.map(([sel, cls]) => {
+      const beat = section.querySelector(sel);
+      const io = new IntersectionObserver(([e]) => {
+        if (!e?.isIntersecting) return;
+        section.classList.add(cls);
+        io.disconnect();
+      });
+      if (beat) io.observe(beat);
+      return io;
     });
-    io.observe(beat);
-    return () => io.disconnect();
+    return () => ios.forEach((io) => io.disconnect());
   }, []);
 
   useEffect(() => {
@@ -145,6 +162,20 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         {/* behind the jar: the dawn glow in the opening, and a fine grain against banding */}
         <div className={styles.glow} aria-hidden="true" data-opening-glow />
         <div className={styles.grain} aria-hidden="true" />
+        {/* shot 1: the jar stands in Sambhar: the Journey's far pans and mounds, very faint,
+            their horizon on the jar's (the film fades it: HomeMotion) */}
+        <div className={styles.backdrop} aria-hidden="true" data-backdrop>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={asset('/engravings/journey-far.svg')}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            style={{
+              transform: `translateX(-${((100 * PANORAMA.layers.far.centers[1]!) / PANORAMA.layers.far.width).toFixed(3)}%)`,
+            }}
+          />
+        </div>
         <div className={styles.jarLayer} data-jar-layer>
           <div className={styles.jarMask} data-jar-mask>
             <div className={styles.jarBack} data-jar-back>
@@ -165,7 +196,17 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
                 sizes="(max-width: 860px) 56vw, min(30vw, 380px)"
                 loading="eager"
               />
-              {/* reduced motion: no pour; the closed jar crossfades to its end (jar, cap, mound) */}
+              {/* reduced motion: the closed jar crossfades to the open one, then to the pour's
+                  end (jar, cap, mound) */}
+              <Image
+                className={styles.posterOpen}
+                src={asset('/images/renders/jar-open.webp')}
+                alt=""
+                width={1800}
+                height={1100}
+                sizes="(max-width: 860px) 90vw, 50vw"
+                loading="lazy"
+              />
               <Image
                 className={styles.posterFinal}
                 src={asset('/images/renders/jar-pour-final.webp')}
@@ -183,10 +224,22 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
 
         <Journey />
 
-        {/* the outer block is faded by the jar sequence, the inner one by the opening */}
+        {/* shot 1's editorial type (the outer block is faded by the film, the inner one by the
+            opening); the headline's words rise from their masks at the hand-over */}
         <div className={styles.copy} data-hero-copy>
           <div className={styles.copyIn} data-copy-in>
-            <h1 className={`py-display py-d-l ${styles.h1}`}>Salt, the way the lake makes it.</h1>
+            <p className={styles.chapter}>01 · The jar</p>
+            <h1 className={`py-display ${styles.h1}`}>
+              {'Salt, the way the lake makes it.'.split(' ').map((w, i) => (
+                <span key={i}>
+                  <span className={styles.wm}>
+                    <span className={styles.w} style={{ '--i': i } as CSSProperties}>
+                      {w}
+                    </span>
+                  </span>{' '}
+                </span>
+              ))}
+            </h1>
             <div className={styles.cta}>
               <ButtonLink variant="primary" href="/#shop">
                 {fromPrice ? `Shop the salts — from ${fromPrice}` : 'Shop the salts'}
@@ -200,7 +253,6 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
               <span>Batch and dates on every jar</span>
               <span>Cash on delivery</span>
             </div>
-            <Horizon className={styles.horizonLine} data-hero-horizon />
           </div>
         </div>
 
@@ -222,35 +274,58 @@ export function JarHero({ fromPrice }: { fromPrice: string | null }) {
         {/* beside the jar: the label reader (faded with the headline by the jar sequence) */}
         <LabelReader />
 
-        {/* the beats and the rail: faded as a whole when step 3 begins (HomeMotion) */}
+        {/* the film's captions and its progress line: faded as a whole when step 3 begins
+            (HomeMotion); phones: in the text zone at the bottom */}
         <div className={styles.beats} data-beats>
           <div className={`${styles.beat} ${styles.b1}`} data-beat="1">
-            <p className="py-eyebrow">01 · The jar</p>
-            <p className="py-display py-d-m">Open a jar of Sambhar.</p>
+            <p className={styles.chapter}>01 · The jar</p>
+            <p className={`py-display ${styles.cap}`}>Open a jar of Sambhar.</p>
           </div>
+          {/* shot 3: the chapter line meets the label's "HERBAL BLACK SALT" (HomeMotion
+              places it: --label-y); shot 4: the line comes in as the stream starts */}
           <div className={`${styles.beat} ${styles.b2}`} data-beat="2">
-            <p className="py-eyebrow">02 · The salt</p>
-            <p className="py-display py-d-m">Every crystal began as brine in an open pan.</p>
+            <p className={styles.chapter} data-beat-chapter>
+              02 · The salt
+            </p>
+            <p className={`py-display ${styles.cap}`} data-beat-line>
+              Every crystal began as brine in an open pan.
+            </p>
           </div>
           <div className={`${styles.beat} ${styles.b3}`} data-beat="3">
-            <p className="py-eyebrow">03 · The lake</p>
-            <p className="py-display py-d-xl">Two salts. One lake.</p>
+            <p className={styles.chapter}>03 · The lake</p>
+            <p className={`py-display ${styles.cap}`}>Two salts. One lake.</p>
             <p className="py-lead">
               India’s largest inland salt lake, in the heart of Rajasthan. This is where every jar
               begins.
             </p>
           </div>
 
+          {/* shot 4b: beside the settled mound (phones: below it) */}
+          {invite && <Invite {...invite} />}
+
+          {/* the film's progress: a thin gold line at the right edge, chapters 01 / 02 / 03 */}
           <div className={styles.rail} aria-hidden="true" data-rail>
-            <span data-rail-text>01 / 03</span>
             <span className={styles.track}>
               <span className={styles.fill} data-rail-fill />
             </span>
+            {['01', '02', '03'].map((c, i) => (
+              <span
+                key={c}
+                className={styles.mark}
+                style={{ '--at': [0, 0.28, 0.82][i] } as CSSProperties}
+                data-rail-mark={i}
+              >
+                {c}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* step 3: the pink salt pans, the last PANS_VH of the pin */}
+        {/* step 4 opens behind the pans ("the lake opens": Products/LakeMotion) */}
+        {lake}
+        {/* step 3: the pink salt pans (PANS_VH), then the split along their seam */}
         <SaltPans />
+        <span className={styles.seam} aria-hidden="true" data-lake-seam />
       </div>
     </section>
   );

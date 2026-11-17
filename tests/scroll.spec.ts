@@ -333,10 +333,10 @@ async function loadAndWaitMore(page: Page, at: number) {
   await page.waitForFunction((t) => performance.now() >= t, at, { polling: 16 });
 }
 
-test('j: through the salt pans: every step scrolls, the scene follows, and scrolling back reverses it', async ({
+test('j: through the product film and the salt pans: every step scrolls, both scenes follow, and scrolling back reverses them', async ({
   page,
 }, info) => {
-  test.setTimeout(240_000);
+  test.setTimeout(300_000);
   const touch = info.project.name === 'phone';
   const cdp = await page.context().newCDPSession(page);
   await loadAndWait(page, 500);
@@ -347,20 +347,22 @@ test('j: through the salt pans: every step scrolls, the scene follows, and scrol
       const vh = window.innerHeight;
       return {
         y: window.scrollY,
-        // where step 3 starts and ends (the hero's last PANS_VH = 2.8 screens)
-        start: h.offsetTop + h.offsetHeight - vh * 3.8,
+        // the film starts after the split and the Journey (6 screens); the pin ends 1 screen
+        // before the hero does
+        start: h.offsetTop + vh * 6,
         end: h.offsetTop + h.offsetHeight - vh,
+        f: window.__pyoorHero?.target ?? 0,
         q: Number(pans?.dataset.progress ?? 0),
       };
     });
   const at = await read();
   await page.evaluate((y) => window.scrollTo(0, y), at.start - 300);
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(1500);
   const dy = touch ? 120 : 100;
   type R = Awaited<ReturnType<typeof read>>;
   const fwd: R[] = [await read()];
   const stuck: string[] = [];
-  for (let i = 0; i < 200 && fwd.at(-1)!.y < at.end + 400; i++) {
+  for (let i = 0; i < 400 && fwd.at(-1)!.y < at.end + 400; i++) {
     await scrollInput(page, cdp, touch, dy);
     await page.waitForTimeout(110);
     const now = await read();
@@ -370,24 +372,150 @@ test('j: through the salt pans: every step scrolls, the scene follows, and scrol
   await page.waitForTimeout(1000);
   const top = await read();
   const back: R[] = [top];
-  for (let i = 0; i < 200 && back.at(-1)!.y > at.start - 200; i++) {
+  for (let i = 0; i < 400 && back.at(-1)!.y > at.start - 200; i++) {
     await scrollInput(page, cdp, touch, -dy);
     await page.waitForTimeout(110);
     const now = await read();
     if (now.y >= back.at(-1)!.y) stuck.push(`back ${i}: y ${back.at(-1)!.y} -> ${now.y}`);
     back.push(now);
   }
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1200);
   const end = await read();
-  const steps = (list: R[]) => list.slice(1).map((s, i) => s.q - list[i]!.q);
+  const steps = (list: R[], k: 'f' | 'q') => list.slice(1).map((s, i) => s[k] - list[i]![k]);
   console.log(
-    `${info.project.name} j: ${fwd.length} steps forward to q ${top.q}, ${back.length} back to q ${end.q};`,
-    `stuck ${stuck.length}; largest q step ${Math.max(...steps(fwd)).toFixed(3)}`,
+    `${info.project.name} j: ${fwd.length} steps forward to f ${top.f.toFixed(3)} q ${top.q}, ${back.length} back to f ${end.f.toFixed(3)} q ${end.q};`,
+    `stuck ${stuck.length}`,
   );
   if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
   expect(stuck, 'every step scrolls, both ways').toEqual([]);
-  expect(top.q, 'the scene played to its end').toBe(1);
-  expect(Math.min(...steps(fwd)), 'forward: the scene never runs back').toBeGreaterThanOrEqual(0);
-  expect(Math.max(...steps(back)), 'back: the scene never runs forward').toBeLessThanOrEqual(0);
-  expect(end.q, 'scrolled back to before it began').toBe(0);
+  expect(top.f, 'the film played to its end').toBeGreaterThan(0.999);
+  expect(top.q, 'the pans played to their end').toBe(1);
+  expect(Math.min(...steps(fwd, 'f')), 'forward: the film never runs back').toBeGreaterThanOrEqual(
+    0,
+  );
+  expect(Math.min(...steps(fwd, 'q')), 'forward: the pans never run back').toBeGreaterThanOrEqual(
+    0,
+  );
+  expect(Math.max(...steps(back, 'f')), 'back: the film never runs forward').toBeLessThanOrEqual(0);
+  expect(Math.max(...steps(back, 'q')), 'back: the pans never run forward').toBeLessThanOrEqual(0);
+  expect(end.f, 'the film scrolled back to its start').toBeLessThan(0.001);
+  expect(end.q, 'the pans scrolled back to before they began').toBe(0);
+});
+
+test('k: no dead scroll: in every 20vh of scroll, top to bottom, something on screen changes', async ({
+  page,
+}, info) => {
+  test.setTimeout(900_000);
+  await loadAndWait(page, 500);
+  const vh = await page.evaluate(() => window.innerHeight);
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  // a small grey thumbnail of the screen (the page decodes its own screenshot)
+  const thumb = async () => {
+    const png = (await page.screenshot({ scale: 'css' })).toString('base64');
+    return page.evaluate(async (b64) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${b64}`;
+      await img.decode();
+      const c = new OffscreenCanvas(96, 60);
+      const g = c.getContext('2d')!;
+      g.drawImage(img, 0, 0, 96, 60);
+      const d = g.getImageData(0, 0, 96, 60).data;
+      const out: number[] = [];
+      for (let i = 0; i < d.length; i += 4) out.push((d[i]! + d[i + 1]! + d[i + 2]!) / 3);
+      return out;
+    }, png);
+  };
+  const step = vh * 0.1;
+  let prev = await thumb();
+  let still = 0;
+  const dead: string[] = [];
+  for (let y = step; y <= total - vh; y += step) {
+    await page.evaluate((y) => window.scrollTo(0, y), y);
+    await page.waitForTimeout(450); // the scrubs' lag (0.6 s smoothing, mostly settled)
+    const now = await thumb();
+    let d = 0;
+    for (let i = 0; i < now.length; i++) d += Math.abs(now[i]! - prev[i]!);
+    d /= now.length;
+    prev = now;
+    still = d < 0.5 ? still + 1 : 0;
+    // two 10vh steps in a row with nothing changing: a dead 20vh
+    if (still >= 2) dead.push(`${((y - 2 * step) / vh).toFixed(1)}–${(y / vh).toFixed(1)}vh`);
+  }
+  console.log(`${info.project.name} k: ${(total / vh).toFixed(1)} screens; dead: ${dead.length}`);
+  if (dead.length) console.log(dead.join('\n'));
+  expect(dead, 'every 20vh of scroll changes something').toEqual([]);
+});
+
+test('l: the lake opens: every wheel step moves it on, both ways, with no layout shift', async ({
+  page,
+}, info) => {
+  test.setTimeout(300_000);
+  const touch = info.project.name === 'phone';
+  const cdp = await page.context().newCDPSession(page);
+  await loadAndWait(page, 500);
+  const read = () =>
+    page.evaluate(() => {
+      const h = document.querySelector<HTMLElement>('[data-hero]')!;
+      const lake = document.querySelector<HTMLElement>('[data-lake]')!;
+      const vh = window.innerHeight;
+      const open = window.matchMedia('(max-width: 699px)').matches ? 1.1 : 1.4;
+      const end = h.offsetTop + h.offsetHeight - vh;
+      return {
+        y: window.scrollY,
+        start: end - open * vh,
+        end,
+        o: Number(lake.dataset.progress ?? 0),
+      };
+    });
+  const at = await read();
+  await page.evaluate((y) => window.scrollTo(0, y), at.start - 200);
+  await page.waitForTimeout(2500);
+  // layout shifts from here on (the products' models may load meanwhile)
+  await page.evaluate(() => {
+    const w = window as Window & { __cls?: number };
+    w.__cls = 0;
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as (PerformanceEntry & { value: number })[])
+        w.__cls! += e.value;
+    }).observe({ type: 'layout-shift', buffered: false });
+  });
+  const dy = touch ? 120 : 100;
+  type R = Awaited<ReturnType<typeof read>>;
+  const fwd: R[] = [await read()];
+  const stuck: string[] = [];
+  for (let i = 0; i < 200 && fwd.at(-1)!.y < at.end + 200; i++) {
+    await scrollInput(page, cdp, touch, dy);
+    await page.waitForTimeout(140);
+    const now = await read();
+    const prev = fwd.at(-1)!;
+    if (now.y <= prev.y) stuck.push(`forward ${i}: y ${prev.y} -> ${now.y}`);
+    // inside the stage, each step moves the scene on
+    if (now.y > at.start + 40 && prev.y < at.end - 40 && now.o <= prev.o)
+      stuck.push(`forward ${i}: o ${prev.o} -> ${now.o}`);
+    fwd.push(now);
+  }
+  await page.waitForTimeout(1200);
+  const top = await read();
+  const back: R[] = [top];
+  for (let i = 0; i < 200 && back.at(-1)!.y > at.start - 150; i++) {
+    await scrollInput(page, cdp, touch, -dy);
+    await page.waitForTimeout(140);
+    const now = await read();
+    const prev = back.at(-1)!;
+    if (now.y >= prev.y) stuck.push(`back ${i}: y ${prev.y} -> ${now.y}`);
+    if (now.y < at.end - 40 && prev.y > at.start + 40 && now.o >= prev.o)
+      stuck.push(`back ${i}: o ${prev.o} -> ${now.o}`);
+    back.push(now);
+  }
+  await page.waitForTimeout(1500);
+  const end = await read();
+  const cls = await page.evaluate(() => (window as Window & { __cls?: number }).__cls ?? 0);
+  console.log(
+    `${info.project.name} l: ${fwd.length} steps to o ${top.o}, ${back.length} back to o ${end.o}; CLS ${cls.toFixed(4)}; stuck ${stuck.length}`,
+  );
+  if (stuck.length) console.log(stuck.slice(0, 10).join('\n'));
+  expect(stuck, 'every step moves the page and the scene').toEqual([]);
+  expect(top.o, 'the lake opened fully').toBe(1);
+  expect(end.o, 'and closed again').toBe(0);
+  expect(cls, 'no layout shift through the stage').toBe(0);
 });

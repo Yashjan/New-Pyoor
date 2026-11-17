@@ -36,6 +36,8 @@ export interface PlateProps {
   saving?: string | null;
   wide?: boolean;
   index: number;
+  /** In the hero's pin (the lake's opening): its model loads once the pans begin (pyoor:lake-arm). */
+  arm?: boolean;
   children?: ReactNode;
 }
 
@@ -121,8 +123,13 @@ export function ProductPlate(p: PlateProps) {
       },
       { rootMargin: '600px 0px' },
     );
-    io.observe(root);
+    const w = window as Window & { __pyoorLakeArmed?: boolean };
+    const observe = () => io.observe(root);
+    if (p.arm && !w.__pyoorLakeArmed)
+      window.addEventListener('pyoor:lake-arm', observe, { once: true });
+    else observe();
     return () => {
+      window.removeEventListener('pyoor:lake-arm', observe);
       io.disconnect();
       if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
       window.clearTimeout(idle);
@@ -206,6 +213,7 @@ export function ProductPlate(p: PlateProps) {
     >
       <div
         className={styles.media}
+        data-plate-media
         style={{ aspectRatio: `${r0.width} / ${r0.height}` }}
         onFocus={sweep}
       >
@@ -261,7 +269,7 @@ export function ProductPlate(p: PlateProps) {
           );
         })}
         {/* the plate's gold horizon: the model stands on it (plateScene PLATE.line) */}
-        <span className={styles.ground} aria-hidden="true" />
+        <span className={styles.ground} aria-hidden="true" data-plate-ground />
         <span
           className={styles.sweep}
           aria-hidden="true"
@@ -270,7 +278,12 @@ export function ProductPlate(p: PlateProps) {
       </div>
 
       {formats.length > 1 && (
-        <div className={styles.formats} role="radiogroup" aria-label={`Format, ${p.title}`}>
+        <div
+          className={styles.formats}
+          data-plate-detail
+          role="radiogroup"
+          aria-label={`Format, ${p.title}`}
+        >
           {formats.map((k, i) => (
             <span key={k} className={styles.formatItem}>
               {i > 0 && (
@@ -293,7 +306,7 @@ export function ProductPlate(p: PlateProps) {
         </div>
       )}
 
-      <div className={styles.body}>
+      <div className={styles.body} data-plate-body>
         <h3 id={`plate-${p.handle}`} className={styles.name}>
           {p.title}
         </h3>

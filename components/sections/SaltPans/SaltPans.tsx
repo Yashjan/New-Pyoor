@@ -4,14 +4,21 @@ import { useEffect, useRef } from 'react';
 import { asset } from '@/lib/basePath';
 import { loadGsap } from '@/lib/motion/gsap';
 import { coveredStore } from '@/lib/motion/covered';
-import { HORIZON_AT, PANS, PANS_VH, clamp01, power2InOut, span } from '@/lib/motion/pans';
+import { PANS, PANS_VH, beforeEnd, clamp01, openVh, power2InOut } from '@/lib/motion/pans';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './SaltPans.module.css';
 
 /** Portrait screens get the narrower field (the hero's own portrait test: w / h < 0.9). */
 const PORTRAIT = '(max-aspect-ratio: 9 / 10)';
 /** When each engraving stage starts (fractions of step 3), and how long one ring takes. */
-const STAGE_AT: Record<string, number> = { 1: 0.15, 2: 0.185, 3: 0.235, 4: 0.28, 5: 0.32, 6: 0.35 };
+const STAGE_AT: Record<string, number> = {
+  1: 0,
+  2: 0.035,
+  3: 0.085,
+  4: 0.13,
+  5: 0.17,
+  6: 0.2,
+};
 const RING_STEP = 0.012;
 const DRAW = 0.05;
 
@@ -140,8 +147,9 @@ function setBand(b: Band, u: number) {
 
 /**
  * Step 3: the pink salt pans (lib/motion/pans.ts). A layer of the hero's pinned stage for its
- * last PANS_VH: after the 3D camera's rise hands its gold horizon over, the pan field engraves
- * itself, fills with brine that turns pink, grows its white crust, and the camera settles into
+ * last PANS_VH: straight after the film's dive onto the jar's crystals, the pan field engraves
+ * itself over them, the crystals soften into its colour fills (brine that turns pink), it grows
+ * its white crust, and the camera settles into
  * one pan as the pink softens to ivory. One scrubbed timeline, created at mount; it only writes
  * its own elements. Under reduced motion (or without JS) it is one still: the coloured field and
  * the line, below the hero's beats.
@@ -151,15 +159,13 @@ export function SaltPans() {
   const artRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLParagraphElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
-  const ruleRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
     const host = artRef.current;
     const line = lineRef.current;
     const paper = paperRef.current;
-    const rule = ruleRef.current;
-    if (!root || !host || !line || !paper || !rule) return;
+    if (!root || !host || !line || !paper) return;
     if (!document.documentElement.classList.contains('motion')) return;
 
     const low = pickQualityTier()?.name === 'weak';
@@ -170,12 +176,23 @@ export function SaltPans() {
     let q = 0;
     let shown = false;
     let size = { w: 1, h: 1 };
-    const last = { paper: -1, hz: -1, line: -1, colour: -1, cam: '', fade: -1, rule: -1 };
+    const last = { paper: -1, hz: -1, line: -1, colour: -1, cam: '', fade: -1 };
 
     /** The whole scene at q (0–1). Only writes what changed; reads no layout. */
+    const hero = root.closest<HTMLElement>('[data-hero]');
     const render = () => {
       root.dataset.progress = q.toFixed(4);
-      const on = q > 0.1 && q < 1;
+      // on from the first stroke; at its end the field stays, for the opening to split it
+      const on = q > 0;
+      // the products' models (the lake's opening, next) start loading, unseen, as the pans begin
+      const w = window as Window & { __pyoorLakeArmed?: boolean };
+      if (q > 0.02 && !w.__pyoorLakeArmed) {
+        w.__pyoorLakeArmed = true;
+        window.dispatchEvent(new Event('pyoor:lake-arm'));
+      }
+      // once the paper covers the stage, nothing of the hero's own backdrop (the dawn glow, the
+      // poster) may show again, not even after the pans have gone
+      hero?.toggleAttribute('data-pans-over', q >= PANS.colour[0] + 0.1);
       if (on !== shown) {
         shown = on;
         root.style.visibility = on ? 'visible' : 'hidden';
@@ -184,11 +201,12 @@ export function SaltPans() {
       if (!on || !art) return;
       const a = art;
 
-      // the paper comes in as the 3D canvas fades (the rise's last quarter: .15–.20)
-      const pp = q3(smooth(0.15, 0.2, q));
+      // the engraving draws over the jar's crystals (the 3D canvas, below); the paper comes in
+      // as they soften into the pans' colour
+      const pp = q3(smooth(PANS.colour[0] - 0.02, PANS.colour[0] + 0.1, q));
       if (pp !== last.paper) paper.style.opacity = String((last.paper = pp));
-      // the far edge: on the 3D horizon line just before the canvas fades
-      const hz = q3(smooth(0.125, 0.15, q));
+      // the far edge: the first line drawn
+      const hz = q3(smooth(0, 0.03, q));
       if (hz !== last.hz) a.horizon.style.opacity = String((last.hz = hz));
 
       for (const g of a.groups) drawGroup(g, q3(clamp01((q - g.at) / g.dur)));
@@ -220,46 +238,19 @@ export function SaltPans() {
         if (v !== g.v) g.el.style.opacity = String((g.v = v));
       }
 
-      // the line: in, held, out as the camera settles
-      const lv = q3(smooth(0.6, 0.66, q) * (1 - smooth(0.85, 0.91, q)));
+      // the line: in, then held (the opening lifts it out of its mask)
+      const lv = q3(smooth(PANS.line[0], PANS.line[0] + 0.06, q));
       if (lv !== last.line) {
         last.line = lv;
         line.style.opacity = String(lv);
-        line.style.transform = `translateY(${(14 * (1 - smooth(0.6, 0.66, q))).toFixed(1)}px)`;
+        line.style.transform = `translateY(${(14 * (1 - smooth(PANS.line[0], PANS.line[0] + 0.06, q))).toFixed(1)}px)`;
       }
-
-      // settle: down into one pan (a glide and a zoom about it), the pink softening to ivory,
-      // then the lines; the gold rule of the next section draws in at the very end
-      const e = power2InOut(span(q, PANS.settle));
-      const { w, h } = size;
-      const s = w / a.vbW; // px per user unit
-      const top = HORIZON_AT * h - a.hz * s;
-      const [x0, y0, x1, y1] = a.settle;
-      const K = Math.max(w / ((x1 - x0) * s), h / ((y1 - y0) * s)) * 0.96;
-      const k = Math.pow(K, e);
-      const Cx = w / 2 / s;
-      const Cy = (h / 2 - top) / s;
-      const px = Cx + ((x0 + x1) / 2 - Cx) * e;
-      const py = Cy + ((y0 + y1) / 2 - Cy) * e;
-      const cam = e > 0 ? `matrix(${k},0,0,${k},${Cx - k * px},${Cy - k * py})` : '';
-      if (cam !== last.cam) {
-        last.cam = cam;
-        a.cam.style.transform = cam;
-        root.style.setProperty('--z', String(k)); // hairlines stay hairlines as it nears
-      }
-      const col = q3(1 - smooth(0.9, 0.97, q));
-      if (col !== last.colour) a.colour.style.opacity = String((last.colour = col));
-      const fade = q3(1 - smooth(0.93, 0.995, q));
-      if (fade !== last.fade) a.cam.style.opacity = String((last.fade = fade));
-      const r = q3(smooth(0.95, 1, q));
-      if (r !== last.rule) rule.style.transform = `scaleX(${(last.rule = r)})`;
     };
 
     // ---- life: only while on screen, coloured, the tab visible and nothing covering the page
     let inView = false;
     const updateLive = () => {
-      const live =
-        inView && q > PANS.colour[0] && q < 0.99 && !document.hidden && !coveredStore.get();
+      const live = inView && q > PANS.colour[0] && q < 1 && !document.hidden && !coveredStore.get();
       if (live !== root.hasAttribute('data-live')) root.toggleAttribute('data-live', live);
     };
     const io = new IntersectionObserver(([e]) => {
@@ -331,8 +322,8 @@ export function SaltPans() {
         },
         scrollTrigger: {
           trigger: hero,
-          start: () => `bottom-=${Math.round(window.innerHeight * PANS_VH)} bottom`,
-          end: 'bottom bottom',
+          start: () => beforeEnd(PANS_VH + openVh()),
+          end: () => beforeEnd(openVh()),
           scrub: 0.6,
           invalidateOnRefresh: true,
         },
@@ -373,10 +364,9 @@ export function SaltPans() {
         </picture>
       </div>
       {/* [CONFIRM COPY] */}
-      <p ref={lineRef} className={`py-display py-d-m ${styles.line}`}>
+      <p ref={lineRef} className={`py-display py-d-m ${styles.line}`} data-pans-line>
         The lake turns pink before it gives salt.
       </p>
-      <span ref={ruleRef} className={styles.rule} aria-hidden="true" />
     </div>
   );
 }

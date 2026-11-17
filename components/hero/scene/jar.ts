@@ -80,14 +80,23 @@ export interface OpeningJar {
   /** The visitor's own turn and tilt (turn.ts), radians. */
   yaw?: number;
   tilt?: number;
+  /** The pour's onset and stop (the simulation's): a 1° counter-wobble as the flow starts and stops. */
+  flow?: { onset: number; stop: number } | null;
 }
+
+/** A small damped swing that starts at t0 (f), 1° at most. */
+const swing = (f: number, t0: number) => {
+  if (f < t0) return 0;
+  const u = f - t0;
+  return Math.sin((2 * Math.PI * u) / 0.012) * Math.exp(-u / 0.008) * ((1 * Math.PI) / 180);
+};
 
 /** The tilt the jar rises with, straightening as it arrives (2.5°). */
 const RISE_TILT = (2.5 * Math.PI) / 180;
 
 /**
- * The jar's pose for progress p (lib/motion/pour.ts). `t` (seconds), the idle turn and the
- * pointer only move it while at rest (p < .14); past that the pose depends on p alone, so
+ * The jar's pose for film progress p (lib/motion/pour.ts). `t` (seconds), the idle turn and
+ * the pointer only move it while at rest (shot 1); past that the pose depends on p alone, so
  * scrolling back reverses it exactly. The label faces the camera throughout the pour. At
  * rest the jar floats ±2 mm.
  */
@@ -103,17 +112,17 @@ export function poseJar(
 ): void {
   const [px, py] = pivotAt(p, jarStartX(layout, opening.glide));
   rig.pivot.position.set(px, py, 0);
-  rig.pivot.rotation.set(0, 0, tiltAt(p));
+  const fl = opening.flow;
+  const wobble = fl ? -swing(p, fl.onset) + swing(p, fl.stop) : 0;
+  rig.pivot.rotation.set(0, 0, tiltAt(p) + wobble);
 
-  const rest = 1 - smooth(0.02, 0.14, p);
+  // at rest through shot 1 (the hold): the float, the idle turn, the visitor's own turn
+  const rest = 1 - smooth(0.06, 0.11, p);
   rig.jar.position.y =
     rest * (0.006 + Math.sin(t * 1.1) * 0.002 * float) - (1 - opening.rise) * opening.riseFrom;
   rig.jar.rotation.z = -(1 - opening.rise) * RISE_TILT;
   rig.jar.rotation.y = rest * (opening.turn + (opening.yaw ?? 0) + pointer.x * 0.35);
   rig.jar.rotation.x = rest * (pointer.y * 0.08 + (opening.tilt ?? 0));
-
-  // the salt level sinks as it pours
-  rig.saltTop.position.y = rig.saltTopY0 - smooth(0.36, 0.84, p) * 0.06;
 }
 
 const capCentre = new Vector3();

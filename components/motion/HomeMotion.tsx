@@ -4,8 +4,10 @@ import { useEffect } from 'react';
 import { loadGsap } from '@/lib/motion/gsap';
 import { SEQUENCE_START_VH } from '@/lib/motion/opening';
 import { refreshOnce } from '@/lib/motion/unlock';
-import { POUR_END, POUR_START } from '@/lib/motion/pour';
-import { PANS_VH } from '@/lib/motion/pans';
+import { LABEL_TITLE, projectFilm } from '@/lib/motion/film';
+import { jarStartX, layoutFor } from '@/lib/motion/heroCamera';
+import { pourStore } from '@/lib/motion/pourStore';
+import { PANS_VH, beforeEnd, openVh } from '@/lib/motion/pans';
 
 /**
  * The homepage's scroll choreography (concept.html), set up once GSAP has loaded.
@@ -21,9 +23,10 @@ import { PANS_VH } from '@/lib/motion/pans';
  *   [data-float]          product renders float and turn while their panel scrolls past
  *   [data-clip-reveal]    product panels open from an inset clip
  *   [data-crystals-bg]    the crystal texture settles from 1.35× to 1×
- *   [data-hero]           text beats and progress rail, scrubbed by the jar sequence's progress
- *                         (after the Journey and the opening: SEQUENCE_START_VH; before
- *                         step 3, the salt pans: PANS_VH, whose start fades them all out)
+ *   [data-hero]           the film's captions and progress line (lib/motion/film.ts), scrubbed
+ *                         by its progress (after the Journey and the opening:
+ *                         SEQUENCE_START_VH; before step 3, the salt pans: PANS_VH, whose
+ *                         start fades them all out)
  */
 export function HomeMotion() {
   useEffect(() => {
@@ -34,6 +37,7 @@ export function HomeMotion() {
     loadGsap().then(({ gsap, ScrollTrigger }) => {
       if (cancelled) return;
       const q = <T extends Element = HTMLElement>(sel: string) => gsap.utils.toArray<T>(sel);
+      const cleanups: (() => void)[] = [];
 
       const ctx = gsap.context(() => {
         // ---- reveals ----
@@ -105,46 +109,116 @@ export function HomeMotion() {
           );
         }
 
-        // ---- hero beats: a paused timeline whose progress is the pour's progress ----
-        // (lib/motion/pour.ts): the first line while the cap comes off, the second as the
-        // stream starts, the third on the finished mound
+        // ---- the film's captions: a paused timeline whose progress is the film's ----
+        // (lib/motion/film.ts): shot 1's headline, shot 2's caption, shot 3's chapter line
+        // meeting the label, shot 4's line as the stream starts, 4b's invitation, shot 5's
         const hero = document.querySelector<HTMLElement>('[data-hero]');
         if (hero) {
           const sel = (s: string) => hero.querySelector(s);
-          const beats = gsap.timeline({ paused: true });
-          beats
-            // the headline leaves before the camera moves in (on phones the jar grows over it)
-            .to(
-              // (and, with it, the "Read the label" button and the "Drag to turn" hint)
-              hero.querySelectorAll(
-                '[data-hero-copy], [data-label-cta], [data-turn-hint], [data-jar-ring]',
-              ),
-              { autoAlpha: 0, y: -40, duration: 0.06, ease: 'power2.in' },
-              0.01,
-            )
-            .fromTo(
-              sel('[data-beat="1"]'),
-              { autoAlpha: 0, y: 30 },
-              { autoAlpha: 1, y: 0, duration: 0.04 },
-              0.06,
-            )
-            .to(sel('[data-beat="1"]'), { autoAlpha: 0, y: -30, duration: 0.04 }, 0.25)
-            .fromTo(
-              sel('[data-beat="2"]'),
-              { autoAlpha: 0, y: 30 },
-              { autoAlpha: 1, y: 0, duration: 0.05 },
-              POUR_START,
-            )
-            .to(sel('[data-beat="2"]'), { autoAlpha: 0, y: -30, duration: 0.04 }, POUR_END)
-            .fromTo(
-              sel('[data-beat="3"]'),
-              { autoAlpha: 0, y: 40 },
-              { autoAlpha: 1, y: 0, duration: 0.03 },
-              0.955, // once the jar has landed: the hold
-            )
-            .to({}, { duration: 0.01 }, 0.99);
+          const copy = hero.querySelectorAll(
+            '[data-hero-copy], [data-label-cta], [data-turn-hint], [data-jar-ring]',
+          );
+          const onset = () => pourStore.shape()?.onset ?? 0.453;
+          const build = () => {
+            const tl = gsap.timeline({ paused: true });
+            tl
+              // shot 1: the backdrop in as the film starts, out as the camera moves in
+              .fromTo(
+                sel('[data-backdrop]'),
+                { autoAlpha: 0 },
+                { autoAlpha: 0.12, duration: 0.02, ease: 'none' },
+                0,
+              )
+              .to(sel('[data-backdrop]'), { autoAlpha: 0, duration: 0.06, ease: 'none' }, 0.08)
+              // the headline leaves as the camera moves in on the cap
+              .to(copy, { autoAlpha: 0, y: -40, duration: 0.04, ease: 'power2.in' }, 0.07)
+              // shot 2
+              .fromTo(
+                sel('[data-beat="1"]'),
+                { autoAlpha: 0, y: 24 },
+                { autoAlpha: 1, y: 0, duration: 0.03 },
+                0.12,
+              )
+              .to(sel('[data-beat="1"]'), { autoAlpha: 0, y: -24, duration: 0.03 }, 0.25)
+              // shot 3: the chapter line as the orbit ends (at the label's title)
+              .fromTo(
+                sel('[data-beat="2"]'),
+                { autoAlpha: 0, y: 16 },
+                { autoAlpha: 1, y: 0, duration: 0.04 },
+                0.34,
+              )
+              // shot 4: its line as the stream starts
+              .fromTo(
+                sel('[data-beat-line]'),
+                { autoAlpha: 0, y: 16 },
+                { autoAlpha: 1, y: 0, duration: 0.03 },
+                onset(),
+              )
+              .to(sel('[data-beat="2"]'), { autoAlpha: 0, y: -24, duration: 0.03 }, 0.72)
+              // 4b: the invitation, once the mound has settled; gone as the dive begins
+              .fromTo(
+                sel('[data-invite]'),
+                { autoAlpha: 0, y: 12 },
+                { autoAlpha: 1, y: 0, duration: 0.025 },
+                0.76,
+              )
+              .to(sel('[data-invite]'), { autoAlpha: 0, y: -12, duration: 0.02 }, 0.81)
+              // shot 5
+              .fromTo(
+                sel('[data-beat="3"]'),
+                { autoAlpha: 0, y: 30 },
+                { autoAlpha: 1, y: 0, duration: 0.04 },
+                0.85,
+              )
+              .to({}, { duration: 0.01 }, 0.99);
+            return tl;
+          };
+          let beats = build();
 
-          // step 3 begins (the camera's rise): the last beat and the rail leave together
+          // shot 3: the chapter line "02 · The salt" on the label's "HERBAL BLACK SALT", and
+          // 4b's panel beside the mound: projected with the film's own camera (pure), on resize
+          const canvas = hero.querySelector<HTMLCanvasElement>('[data-jar-layer] canvas');
+          const place = () => {
+            const w = canvas?.clientWidth || window.innerWidth;
+            const h = canvas?.clientHeight || window.innerHeight;
+            const layout = layoutFor(w, h);
+            const x0 = jarStartX(layout);
+            const shape = pourStore.shape();
+            const [, ly] = projectFilm(
+              0.4,
+              layout,
+              w,
+              h,
+              [x0, LABEL_TITLE.y, LABEL_TITLE.z],
+              shape,
+            );
+            hero.style.setProperty('--label-y', `${Math.round(ly - 8)}px`);
+            const r = pourStore.get();
+            if (r && !layout.portrait) {
+              const [mx, my] = projectFilm(
+                0.78,
+                layout,
+                w,
+                h,
+                [r.mound.x + (r.mound.hEnd / 0.7) * 0.9, r.mound.hEnd * 0.6, 0],
+                shape,
+              );
+              hero.style.setProperty('--invite-x', `${Math.round(Math.min(w - 300, mx + 24))}px`);
+              hero.style.setProperty('--invite-y', `${Math.round(my - 40)}px`);
+            }
+          };
+          place();
+          window.addEventListener('resize', place);
+          const unsubPour = pourStore.subscribe(() => {
+            place();
+            const pr = beats.progress();
+            beats.kill();
+            beats = build();
+            beats.progress(pr);
+          });
+
+          // step 3 begins (the pans engrave over the crystals): the last caption and the
+          // progress line leave together
           const beatsBox = sel('[data-beats]');
           if (beatsBox)
             gsap.fromTo(
@@ -156,20 +230,19 @@ export function HomeMotion() {
                 immediateRender: false,
                 scrollTrigger: {
                   trigger: hero,
-                  start: () => `bottom-=${Math.round(window.innerHeight * PANS_VH)} bottom`,
-                  end: () => `bottom-=${Math.round(window.innerHeight * PANS_VH * 0.94)} bottom`,
+                  start: () => beforeEnd(PANS_VH + openVh()),
+                  end: () => beforeEnd(PANS_VH * 0.94 + openVh()),
                   scrub: true,
                   invalidateOnRefresh: true,
                 },
               },
             );
 
-          const railText = sel('[data-rail-text]');
           const railFill = hero.querySelector<HTMLElement>('[data-rail-fill]');
           ScrollTrigger.create({
             trigger: hero,
             start: () => `top+=${Math.round(window.innerHeight * SEQUENCE_START_VH)} top`,
-            end: () => `bottom-=${Math.round(window.innerHeight * PANS_VH)} bottom`,
+            end: () => beforeEnd(PANS_VH + openVh()),
             scrub: 0.6,
             invalidateOnRefresh: true,
             onUpdate: (s) => {
@@ -186,11 +259,13 @@ export function HomeMotion() {
                   },
                 );
               }
-              if (railFill) railFill.style.transform = `scaleX(${s.progress})`;
-              if (railText)
-                railText.textContent =
-                  (s.progress < POUR_START ? '01' : s.progress < 0.88 ? '02' : '03') + ' / 03';
+              if (railFill) railFill.style.transform = `scaleY(${s.progress.toFixed(4)})`;
             },
+          });
+          cleanups.push(() => {
+            window.removeEventListener('resize', place);
+            unsubPour();
+            beats.kill();
           });
         }
       });
@@ -199,6 +274,7 @@ export function HomeMotion() {
       void refreshOnce();
 
       cleanup = () => {
+        cleanups.forEach((fn) => fn());
         ctx.revert();
       };
     });

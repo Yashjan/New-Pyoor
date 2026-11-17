@@ -4,6 +4,7 @@ import { formatPrice } from '@/lib/format';
 import { modelUrl } from '@/lib/three/models';
 import shell from '../section.module.css';
 import { Entrance } from './Entrance';
+import { LakeMotion } from './LakeMotion';
 import { ProductPlate } from './ProductPlate';
 import styles from './Products.module.css';
 
@@ -48,11 +49,84 @@ function formatsOf(p: Product, name: 'black' | 'lake', alt: string) {
   };
 }
 
+/** The two salts' plates (Black Salt, then Lake Salt). */
+function platesOf(black: Product | null, lake: Product | null) {
+  return [
+    black && {
+      product: black,
+      hindi: 'काला नमक', // [CONFIRM]
+      line: 'Lake salt, slow-processed the traditional way.', // [CONFIRM]
+      formats: formatsOf(black, 'black', 'Pyoor Herbal Black Salt'),
+    },
+    lake && {
+      product: lake,
+      hindi: 'सांभर नमक', // [CONFIRM]
+      line: 'Sun-dried crystals from the pans of Sambhar.', // [CONFIRM]
+      formats: formatsOf(lake, 'lake', 'Pyoor Natural Lake Salt'),
+    },
+  ].filter((x) => !!x);
+}
+
+const HEADLINE = 'From the lake, to your kitchen.'; // [CONFIRM COPY]
+
 /**
- * Step 4, the products, straight after the salt pans: the gold horizon continues as the top
- * rule, two plates (Black Salt, Lake Salt), The Pair below, a trust strip. Prices and the
- * bag come from lib/commerce (pricing.ts is the one place prices are set).
- * COPY: every line marked [CONFIRM] in the reply is awaiting sign-off. No health claims.
+ * Step 4 opens inside the hero's pin ("the lake opens": LakeMotion): the gold rule, the
+ * headline (letter by letter, each in its word's mask) and the two salts' plates. It is the
+ * pinned stage's last layer, behind the pans, which split apart to show it; once the pin
+ * releases it scrolls on as the top of the products, the rest (Products) following.
+ */
+export function LakeOpening({ black, lake }: { black: Product | null; lake: Product | null }) {
+  const plates = platesOf(black, lake);
+  const words = HEADLINE.split(' ');
+  let n = 0;
+  return (
+    <section className={styles.lake} aria-labelledby="shop-title" data-lake>
+      <span id="shop" data-pin-end />
+      <span className={styles.lakeRule} aria-hidden="true" data-lake-rule />
+      <div className="py-wrap">
+        <h2 id="shop-title" className={`py-display py-d-l ${styles.title}`} aria-label={HEADLINE}>
+          {words.map((w, i) => (
+            <span key={i} aria-hidden="true">
+              <span className={styles.word}>
+                {[...w].map((c) => (
+                  <span
+                    key={n}
+                    className={styles.ch}
+                    data-lake-ch
+                    style={{ '--n': n++ } as React.CSSProperties}
+                  >
+                    {c}
+                  </span>
+                ))}
+              </span>
+              {i < words.length - 1 ? ' ' : ''}
+            </span>
+          ))}
+        </h2>
+        <div className={styles.plates}>
+          {plates.map((x, i) => (
+            <ProductPlate
+              key={x.product.handle}
+              arm
+              index={i + 1}
+              handle={x.product.handle}
+              title={x.product.title}
+              hindi={x.hindi}
+              line={x.line}
+              formats={x.formats}
+            />
+          ))}
+        </div>
+      </div>
+      <LakeMotion />
+    </section>
+  );
+}
+
+/**
+ * The rest of the products, after the hero's pin (the two salts open in it: LakeOpening): The
+ * Pair, a trust strip. Prices and the bag come from lib/commerce (pricing.ts is the one place
+ * prices are set). COPY: every line marked [CONFIRM] is awaiting sign-off. No health claims.
  */
 export function Products({
   black,
@@ -68,48 +142,10 @@ export function Products({
   const pp = priceOf(pair);
   // the pair's saving against one of each, when all three prices are set
   const save = pb && pl && pp ? pb.amount + pl.amount - pp.amount : 0;
-  const plates = [
-    black && {
-      product: black,
-      hindi: 'काला नमक', // [CONFIRM]
-      line: 'Lake salt, slow-processed the traditional way.', // [CONFIRM]
-      formats: formatsOf(black, 'black', 'Pyoor Herbal Black Salt'),
-    },
-    lake && {
-      product: lake,
-      hindi: 'सांभर नमक', // [CONFIRM]
-      line: 'Sun-dried crystals from the pans of Sambhar.', // [CONFIRM]
-      formats: formatsOf(lake, 'lake', 'Pyoor Natural Lake Salt'),
-    },
-  ].filter((x) => !!x);
 
   return (
-    <section
-      className={`${shell.blk} ${styles.products}`}
-      id="shop"
-      aria-labelledby="shop-title"
-      data-products
-    >
-      {/* the pans' gold horizon, continued */}
-      <span className={styles.rule} aria-hidden="true" />
+    <section className={`${shell.blk} ${styles.products}`} aria-label="The Pair" data-products>
       <div className="py-wrap">
-        {/* [CONFIRM COPY] */}
-        <h2 id="shop-title" className={`py-display py-d-l ${styles.title}`} data-rise>
-          From the lake, to your kitchen.
-        </h2>
-        <div className={styles.plates}>
-          {plates.map((x, i) => (
-            <ProductPlate
-              key={x.product.handle}
-              index={i + 1}
-              handle={x.product.handle}
-              title={x.product.title}
-              hindi={x.hindi}
-              line={x.line}
-              formats={x.formats}
-            />
-          ))}
-        </div>
         {pair && (
           <ProductPlate
             wide

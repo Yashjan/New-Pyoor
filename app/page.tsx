@@ -2,7 +2,7 @@ import { JarHero } from '@/components/hero/JarHero';
 import { HomeMotion } from '@/components/motion/HomeMotion';
 import { Crystals } from '@/components/sections/Crystals/Crystals';
 import { Recipes } from '@/components/sections/Recipes/Recipes';
-import { Products } from '@/components/sections/Products/Products';
+import { LakeOpening, Products } from '@/components/sections/Products/Products';
 import { Roots } from '@/components/sections/Roots/Roots';
 import { getProduct, getProducts, isPurchasable, type Money } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
@@ -25,8 +25,23 @@ export default async function HomePage() {
   return (
     <>
       <main id="main" suppressHydrationWarning>
-        <JarHero fromPrice={lowest ? formatPrice(lowest) : null} />
-        {/* the salt pans (the hero's step 3) release straight into the products */}
+        <JarHero
+          fromPrice={lowest ? formatPrice(lowest) : null}
+          invite={
+            black?.variants[0]
+              ? {
+                  title: black.title,
+                  size: '1 kg jar',
+                  price: isPurchasable(black.variants[0])
+                    ? formatPrice(black.variants[0].price)
+                    : null,
+                  variantId: black.variants[0].id,
+                }
+              : null
+          }
+          lake={<LakeOpening black={black} lake={lake} />}
+        />
+        {/* the products' opening is the hero's last layer ("the lake opens"); the rest follows */}
         <Products black={black} lake={lake} pair={pair} />
         <Roots />
         <Crystals />

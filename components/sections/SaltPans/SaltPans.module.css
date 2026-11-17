@@ -16,10 +16,6 @@
 
 .paper,
 .art,
-.rule {
-  display: none;
-}
-
 .field {
   width: 100%;
 }
@@ -231,14 +227,40 @@
   }
 }
 
-/* the next section's top rule: drawn in from the centre at the very end */
-:global(html.motion) .rule {
+/* "the lake opens" (Products/LakeMotion): the line lifts out of its mask (--lift 0–1) */
+:global(html.motion) .line {
+  translate: -50% calc(-50% - var(--lift, 0) * 100%);
+  clip-path: inset(calc(var(--lift, 0) * 140%) -40% -40% -40%);
+}
+
+/* the split: the field (upper half) and its copy (lower half, Products/LakeMotion) each keep one half, a
+   1px gold line on the cut */
+:global(html.motion) .pans[data-pans-half='l'] {
+  clip-path: inset(0 0 50% 0);
+}
+
+:global(html.motion) [data-pans-half='r'] {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: inset(50% 0 0 0);
+  pointer-events: none;
+}
+
+:global(html.motion) [data-pans-half='r'] > .pans {
+  visibility: visible !important;
+}
+
+:global(html.motion) [data-lake-edge] {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  display: block;
+  top: calc(50% - 1px);
+  z-index: 5;
   height: 1px;
-  background: var(--accent-line);
-  transform: scaleX(0);
+  background: var(--gold-500);
+}
+
+:global(html.motion) [data-lake-edge='r'] {
+  top: 50%;
 }

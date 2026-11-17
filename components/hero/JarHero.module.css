@@ -37,7 +37,8 @@
 .gl,
 .rail,
 .glow,
-.grain {
+.grain,
+.backdrop {
   display: none;
 }
 
@@ -110,6 +111,27 @@
   transition: opacity 0.6s var(--ease-settle);
 }
 
+.posterOpen {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: center;
+  justify-self: center;
+  width: min(48vw, 640px);
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s var(--ease-settle);
+}
+
+.opened .posterOpen {
+  opacity: 1;
+}
+
+.opened .poster,
+.poured .posterOpen {
+  opacity: 0;
+}
+
 .poured .posterFinal {
   opacity: 1;
 }
@@ -118,8 +140,96 @@
   opacity: 0;
 }
 
-:global(html.motion) .posterFinal {
+:global(html.motion) .posterFinal,
+:global(html.motion) .posterOpen {
   display: none;
+}
+
+/* the film's chapter lines: Manrope, gold-700, tracked */
+.chapter {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.cap {
+  margin: 0;
+  font-size: clamp(32px, 3.4vw, 52px);
+  line-height: 1.08;
+  color: var(--navy-800);
+  text-wrap: balance;
+}
+
+/* the headline's words, each in its mask (they rise at the hand-over: --step-copy) */
+.wm {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+  vertical-align: top;
+}
+
+.w {
+  display: inline-block;
+}
+
+:global([data-hero][data-step]) .w {
+  transform: translateY(calc((1 - var(--step-copy, 0)) * 105%));
+  transition: none;
+}
+
+/* shot 4b: the invitation (static: under the beats) */
+.invite {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  font-family: var(--font-sans);
+}
+
+.inviteLine {
+  margin: 0;
+  font-size: 15px;
+  color: var(--navy-800);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.invitePrice {
+  font-weight: 600;
+}
+
+.inviteAdd {
+  height: 44px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--navy-800);
+  color: var(--ivory-100);
+  font: 600 14px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.inviteAdd:focus-visible,
+.inviteLink:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 3px;
+}
+
+.inviteSoon {
+  margin: 0;
+  font-size: 14px;
+  color: var(--slate-500);
+}
+
+.inviteLink {
+  font-size: 14px;
+  color: var(--navy-800);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 4px;
 }
 
 /* static: the beats are grid items of the stage */
@@ -138,7 +248,8 @@
   margin: 0;
 }
 
-.b3 {
+.b3,
+.invite {
   grid-column: 1 / -1;
   max-width: 900px;
   margin: 0 auto;
@@ -174,9 +285,15 @@
 
 /* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
-  /* the split's 100vh, the Journey's 500vh, the pour's 300vh, the salt pans' 280vh (PANS_VH),
-     the pinned screen */
-  height: 1280vh;
+  /* the split's 100vh, the Journey's 500vh, the film's 600vh (FILM_VH), the salt pans' 100vh
+     (PANS_VH), the lake opening's 140vh (openVh; phones 110vh), the pinned screen */
+  height: 1540vh;
+}
+
+@media (max-width: 699px) {
+  :global(html.motion) .hero {
+    height: 1510vh;
+  }
 }
 
 :global(html.motion) .stage {
@@ -187,8 +304,31 @@
   height: 100svh;
   min-height: 0;
   padding: 0;
-  overflow: hidden;
-  contain: paint; /* the pinned stage repaints on its own */
+  /* clipped at the sides (the pans' halves leave sideways); below, the products' opening (the
+     last layer) hangs on past the screen, to scroll on when the pin releases */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* the lake opening's seam: a gold line across the middle, then lifted down into the top rule
+   (Products/LakeMotion) */
+.seam {
+  display: none;
+}
+
+:global(html.motion) .seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 0.5px);
+  z-index: 6;
+  display: block;
+  height: 1px;
+  background: var(--gold-500);
+  box-shadow: 0 0 4px 1px rgba(168, 130, 63, 0.28);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
 }
 
 /* the dawn glow behind the jar: gold-500, ~11% in the centre */
@@ -211,6 +351,35 @@
   inset: 0;
   display: block;
   background: url('../../public/images/grain.png');
+}
+
+/* shot 1: the Journey's far pans and mounds behind the jar, faint and soft, their horizon on the
+   jar's (its foot: 70.8% down; phones 61.05%), faded by the film (HomeMotion) */
+:global(html.motion) .backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  --hz: 70.8%;
+}
+
+:global(html.motion) .backdrop img {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--hz) - 70vh * 190 / 512); /* the drawing's horizon: y 190 of 512 */
+  width: auto;
+  max-width: none;
+  height: 70vh;
+  filter: blur(1.2px);
+}
+
+@media (max-width: 860px) {
+  :global(html.motion) .backdrop {
+    --hz: 61.05%;
+  }
 }
 
 /* The jar (3D or poster). Under the Journey until step 2, which reveals it (its own mask on
@@ -303,9 +472,10 @@
 }
 
 :global(html.motion) .h1 {
-  font-size: clamp(44px, 4.45vw, 64px);
-  line-height: 1;
-  letter-spacing: -0.01em;
+  font-size: clamp(48px, 5.5vw, 88px);
+  line-height: 0.98;
+  letter-spacing: -0.012em;
+  color: var(--navy-800);
 }
 
 :global(html.motion) .trust,
@@ -333,42 +503,104 @@
   visibility: hidden;
 }
 
-:global(html.motion) .b1 {
-  left: var(--gutter);
-  bottom: 16%;
+/* desktop: the captions on the left third, editorial */
+:global(html.motion) .b1,
+:global(html.motion) .b2,
+:global(html.motion) .b3 {
+  left: 8vw;
+  width: min(32vw, 520px);
+  max-width: none;
+  align-items: flex-start;
+  text-align: left;
+  gap: 18px;
 }
 
+:global(html.motion) .b1 {
+  top: 50%;
+  translate: 0 -50%; /* (GSAP owns transform) */
+}
+
+/* the chapter line at the label's title (--label-y, HomeMotion); the line below it */
 :global(html.motion) .b2 {
-  right: var(--gutter);
-  top: 30%;
-  align-items: flex-end;
-  text-align: right;
+  top: var(--label-y, 40%);
+}
+
+:global(html.motion) .b2 [data-beat-line] {
+  opacity: 0;
 }
 
 :global(html.motion) .b3 {
-  left: 0;
-  right: 0;
-  top: 16%;
+  top: 50%;
+  bottom: auto;
+  right: auto;
+  translate: 0 -50%;
 }
 
+:global(html.motion) .b3 :global(.py-lead) {
+  max-width: 34ch;
+}
+
+/* shot 4b: beside the mound (--invite-x/y, HomeMotion) */
+:global(html.motion) .invite {
+  position: absolute;
+  z-index: 3;
+  left: var(--invite-x, 62%);
+  top: var(--invite-y, 58%);
+  padding: 18px 20px;
+  border-left: 1px solid var(--accent-line);
+  background: rgba(245, 241, 232, 0.86);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: auto;
+}
+
+/* the film's progress: a thin gold line at the right edge, chapters 01 / 02 / 03 */
 :global(html.motion) .rail {
   position: absolute;
   z-index: 3;
-  left: var(--gutter);
-  bottom: 34px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: var(--eyebrow-size);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  right: 28px;
+  top: 22%;
+  bottom: 22%;
+  display: block;
+  width: 24px;
+}
+
+:global(html.motion) .track {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  height: auto;
+}
+
+:global(html.motion) .fill {
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+.mark {
+  position: absolute;
+  right: 8px;
+  top: calc(var(--at) * 100%);
+  font: 500 10px/1 var(--font-sans);
+  letter-spacing: 0.12em;
+  color: var(--slate-500);
+  transform: translateY(-50%);
+}
+
+.mark::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  width: 5px;
+  height: 1px;
+  background: var(--accent-line);
 }
 
 .track {
   position: relative;
-  width: 120px;
-  height: 1px;
   overflow: hidden;
   background: var(--hairline-strong);
 }
@@ -407,20 +639,39 @@
     height: 22.1%;
   }
 
+  /* phones: the film's text in the bottom 34svh (above the safe area), bottom-aligned, the 3D
+     zone above it (the camera's image shift: lib/motion/film.ts) */
   :global(html.motion) .b1,
-  :global(html.motion) .b2 {
+  :global(html.motion) .b2,
+  :global(html.motion) .b3,
+  :global(html.motion) .invite {
     top: auto;
-    bottom: 84px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
     left: var(--gutter);
     right: var(--gutter);
-    max-width: none;
-    align-items: flex-start;
-    text-align: left;
+    width: auto;
+    max-height: 34svh;
+    translate: none;
+    gap: 12px;
   }
 
-  :global(html.motion) .b3 {
-    top: 92px;
-    padding: 0 var(--gutter);
+  :global(html.motion) .b2 {
+    top: auto;
+  }
+
+  :global(html.motion) .cap {
+    font-size: clamp(28px, 7.4vw, 36px);
+  }
+
+  :global(html.motion) .invite {
+    border-left: 0;
+    border-top: 1px solid var(--accent-line);
+    padding: 14px 0 0;
+    background: none;
+  }
+
+  :global(html.motion) .rail {
+    display: none;
   }
 }
 
@@ -492,4 +743,15 @@
     top: 38.6%;
     width: min(90vw, 44vh);
   }
+}
+
+/* the pans' paper has covered the stage: the dawn glow and the poster never show again */
+:global(html.motion) .hero[data-pans-over] :is(.glow, .poster, .posterOpen, .posterFinal) {
+  visibility: hidden;
+}
+
+/* over the next section: the products' opening hangs below the pinned screen into its top
+   padding (Products: --lake-over) and must stay on top as the pin releases */
+:global(html.motion) .hero {
+  z-index: 2;
 }

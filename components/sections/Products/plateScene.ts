@@ -75,8 +75,9 @@ export interface PlateModel {
   /** metres */
   height: number;
   width: number;
-  /** turn (y) and tilt (x), radians, about its own upright axis */
-  pose(yaw: number, tilt: number): void;
+  /** turn (y) and tilt (x), radians, about its own upright axis; `open`: the cap off, resting
+   *  beside the jar (the film's shot 3: a reduced-motion still) */
+  pose(yaw: number, tilt: number, open?: boolean): void;
 }
 
 /** Loads a jar (the hero's rig and materials) or a pouch (as built), on y = 0. */
@@ -96,10 +97,15 @@ export async function loadPlateModel(
     root.add(rig.pivot, rig.lid);
     shadow.group.scale.set(0.55, 1, 0.8);
     const layout = { portrait: false, jx: 0 };
-    const pose = (yaw: number, tilt: number) => {
+    const pose = (yaw: number, tilt: number, open = false) => {
       rig.jar.rotation.set(tilt, yaw, 0);
-      rig.pivot.updateMatrixWorld(true);
-      poseCap(rig, 0, layout, 1);
+      // the cap is posed in the root's own frame (it's the root's child): lay the root at the
+      // origin while it's worked out, or its offset (the pair) would be applied twice
+      const at = root.position.clone();
+      root.position.set(0, 0, 0);
+      root.updateMatrixWorld(true);
+      poseCap(rig, open ? 0.3 : 0, layout, 1);
+      root.position.copy(at);
     };
     pose(0, 0);
     return { root, height: 0.122, width: 0.104, pose };

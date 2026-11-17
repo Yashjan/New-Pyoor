@@ -63,6 +63,19 @@ await save(
     yaw: 0,
   }),
 );
+// the reduced-motion hero's open jar (the cap resting beside it): /images/renders/jar-open.webp
+{
+  const png = await shot({
+    items: [{ format: 'jar', file: 'pyoor-herbal-black-salt.glb', open: true }],
+    width: 1800,
+    height: 1100,
+    yaw: 0,
+  });
+  await sharp(png)
+    .webp({ quality: 82, alphaQuality: 90, effort: 6 })
+    .toFile(join(OUT, 'jar-open.webp'));
+  console.log('jar-open');
+}
 await browser.close();
 
 for (const [name, salt] of Object.entries(SALTS)) {

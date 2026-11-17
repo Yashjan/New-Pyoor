@@ -14,7 +14,7 @@ import { FOV } from '@/lib/motion/heroCamera';
 
 /** A shot: the models (left to right), the frame in px, the turn (degrees) of every model. */
 interface Shot {
-  items: { format: Format; file: string }[];
+  items: { format: Format; file: string; open?: boolean }[];
   width: number;
   height: number;
   yaw: number;
@@ -58,14 +58,22 @@ export function Studio() {
       const gap = 0.15; // the pair: centre to centre
       all.forEach((m, i) => {
         m.root.position.x = (i - (all.length - 1) / 2) * gap;
-        m.pose((yaw * Math.PI) / 180 + (all.length > 1 ? (i ? -0.12 : 0.12) : 0), 0);
+        m.pose(
+          (yaw * Math.PI) / 180 + (all.length > 1 ? (i ? -0.12 : 0.12) : 0),
+          0,
+          items[i]!.open,
+        );
         studio.scene.add(m.root);
       });
-      if (all.length === 1) plateCamera(camera, all[0]!);
+      const open = items.some((i) => i.open);
+      if (all.length === 1 && !open) plateCamera(camera, all[0]!);
       else {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        const span = Math.max(0.122 / 0.78, ((all.length - 1) * gap + 0.2) / camera.aspect);
+        // the pair, or the open jar with its cap beside it (both a little to the right)
+        if (open) all[0]!.root.position.x = -0.05;
+        const wide = open ? 0.32 : (all.length - 1) * gap + 0.2;
+        const span = Math.max(0.122 / 0.78, wide / camera.aspect);
         const d = span / 2 / Math.tan((FOV * Math.PI) / 360);
         camera.position.set(0, 0.061 + d * 0.12, d);
         camera.lookAt(0, 0.059, 0);

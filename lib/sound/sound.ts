@@ -15,8 +15,10 @@ import {
   STEP,
   clamp01,
 } from '@/lib/motion/opening';
-import { pourRate } from '@/lib/motion/pour';
-import { PANS, PANS_VH } from '@/lib/motion/pans';
+import { CAP_TURNS, unscrewAt } from '@/lib/motion/pour';
+import { flowAt } from '@/lib/motion/pourSim';
+import { pourStore } from '@/lib/motion/pourStore';
+import { PANS, PANS_VH, openVh } from '@/lib/motion/pans';
 import { asset } from '@/lib/basePath';
 
 export type SoundName =
@@ -62,7 +64,7 @@ function emit() {
 }
 
 /* ---------------- the mix, from the scroll position ---------------- */
-const prev = { pan: NaN, rise: NaN, p: NaN };
+const prev = { pan: NaN, rise: NaN, p: NaN, quarter: NaN };
 let lastRake = -Infinity;
 const targets: Record<Loop, number> = { 'wind-loop': -1, 'water-loop': -1, 'pour-loop': -1 };
 
@@ -82,7 +84,7 @@ function mix() {
     // step 2 (the end of the Journey): the 3D jar revealed under the engraving
     const rise = phase(phase(s, JOURNEY.out, 1), ...STEP.reveal);
     const seqAt = vh * SEQUENCE_START_VH;
-    const pansAt = hero.offsetHeight - vh * (1 + PANS_VH);
+    const pansAt = hero.offsetHeight - vh * (1 + PANS_VH + openVh());
     const range = pansAt - seqAt;
     const p = range > 0 ? clamp01((y - seqAt) / range) : 0;
     const q = clamp01((y - pansAt) / (vh * PANS_VH)); // step 3, the salt pans
@@ -92,12 +94,15 @@ function mix() {
     if (y > 0 && y < seqAt) wind = inP * (0.35 + (0.12 - 0.35) * rise);
     // water: scene 01, gone halfway to scene 02
     if (y > 0 && s < 1) water = inP * 0.4 * (1 - clamp01((pan * 4) / 0.5));
-    // the pour: follows the stream (0 -> 0.45 -> 0), silent once it stops or scrolls back
-    if (y >= seqAt) pouring = 0.45 * pourRate(p);
-    // the salt pans: wind (0.25) and water (0.15) while they colour, out as the camera settles
-    if (q > 0 && q < 1) {
-      const k =
-        phase(q, PANS.colour[0] - 0.05, PANS.colour[0] + 0.05) * (1 - phase(q, ...PANS.settle));
+    // the pour: follows the simulated flow (0 -> 0.45 -> 0), silent once it stops
+    const sim = pourStore.get();
+    if (y >= seqAt && sim) pouring = 0.45 * flowAt(sim, p);
+    // the cap: one soft click per quarter turn as it unscrews (forward only)
+    const quarter = Math.floor(unscrewAt(p) * CAP_TURNS * 4);
+    // the salt pans: wind (0.25) and water (0.15) while they colour, out as the lake opens
+    const o = clamp01((y - pansAt - vh * PANS_VH) / (vh * openVh()));
+    if (q > 0 && o < 1) {
+      const k = phase(q, PANS.colour[0] - 0.05, PANS.colour[0] + 0.05) * (1 - phase(o, 0, 0.6));
       wind = Math.max(wind, 0.25 * k);
       water = Math.max(water, 0.15 * k);
     }
@@ -110,11 +115,12 @@ function mix() {
         play('rake');
       }
       if (prev.rise < 0.5 && rise >= 0.5) play('jar-tone');
-      if (prev.p < 0.005 && p >= 0.005) play('cap-clicks'); // the cap starts to turn
+      if (quarter > prev.quarter && p > prev.p) play('cap-clicks', 0.92 + Math.random() * 0.16); // a slightly different pitch each time
     }
     prev.pan = pan;
     prev.rise = rise;
     prev.p = p;
+    prev.quarter = quarter;
   }
   const want: Record<Loop, number> = {
     'wind-loop': wind,
@@ -162,7 +168,7 @@ async function load() {
     src.start();
     loops[name] = g;
   }
-  prev.pan = prev.rise = prev.p = NaN; // the first reading only sets where we are
+  prev.pan = prev.rise = prev.p = prev.quarter = NaN; // the first reading only sets where we are
   schedule();
 }
 
@@ -230,8 +236,8 @@ function readStored() {
   if (on) armGesture();
 }
 
-/** Plays a one-shot (when sound is on and loaded). */
-export function play(name: SoundName) {
+/** Plays a one-shot (when sound is on and loaded), at an optional playback rate (its pitch). */
+export function play(name: SoundName, rate = 1) {
   const gain = ONE_SHOT_GAIN[name];
   if (!on || !ctx || !master || !buffers?.[name] || gain === undefined) return;
   if (ctx.state !== 'running') return;
@@ -240,6 +246,7 @@ export function play(name: SoundName) {
   g.connect(master);
   const src = ctx.createBufferSource();
   src.buffer = buffers[name]!;
+  src.playbackRate.value = rate;
   src.connect(g);
   src.onended = () => g.disconnect();
   src.start();
