@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const OUT = join(ROOT, 'public/images/renders');
 const BASE = process.argv[2] ?? 'http://localhost:3006';
-const SALTS = { black: 'herbal-black-salt', lake: 'natural-lake-salt' };
+const SALTS = { black: 'herbal-black-salt', lake: 'natural-lake-salt', pink: 'pink-rock-salt' };
 
 const browser = await chromium.launch({
   channel: 'chrome',
@@ -57,7 +57,7 @@ for (const [name, salt] of Object.entries(SALTS)) {
 await save(
   'pair',
   await shot({
-    items: Object.values(SALTS).map((s) => ({ format: 'jar', file: `pyoor-${s}.glb` })),
+    items: [SALTS.black, SALTS.lake].map((s) => ({ format: 'jar', file: `pyoor-${s}.glb` })),
     width: 1800,
     height: 1100,
     yaw: 0,

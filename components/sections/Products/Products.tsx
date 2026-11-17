@@ -20,7 +20,7 @@ const priceText = (v: Product['variants'][number] | null) =>
   v && isPurchasable(v) ? formatPrice(v.price) : null;
 
 /** A salt's two formats for its plate: the jar (its 3D model) and the 1 kg refill pouch. */
-function formatsOf(p: Product, name: 'black' | 'lake', alt: string) {
+function formatsOf(p: Product, name: 'black' | 'lake' | 'pink', alt: string) {
   const jar = variant(p, false)!;
   const pouch = variant(p, true);
   return {
@@ -131,10 +131,13 @@ export function LakeOpening({ black, lake }: { black: Product | null; lake: Prod
 export function Products({
   black,
   lake,
+  pink,
   pair,
 }: {
   black: Product | null;
   lake: Product | null;
+  /** Pink Rock Salt: null while hidden (SHOW_PINK_SALT, lib/commerce/pricing.ts) */
+  pink: Product | null;
   pair: Product | null;
 }) {
   const pb = priceOf(black);
@@ -146,6 +149,24 @@ export function Products({
   return (
     <section className={`${shell.blk} ${styles.products}`} aria-label="The Pair" data-products>
       <div className="py-wrap">
+        {/* beyond the lake: a third plate, set apart */}
+        {pink && (
+          <div className={styles.beyond}>
+            <p className={styles.chapter}>Beyond the lake</p>
+            {/* [CONFIRM COPY] */}
+            <p className={styles.beyondLine}>A rock salt we pack with the same care.</p>
+            <div className={styles.beyondPlate}>
+              <ProductPlate
+                index={3}
+                handle={pink.handle}
+                title={pink.title}
+                hindi="सेंधा नमक"
+                line="Rock salt (sendha namak), in a jar or a refill pouch."
+                formats={formatsOf(pink, 'pink', 'Pyoor Pink Rock Salt')}
+              />
+            </div>
+          </div>
+        )}
         {pair && (
           <ProductPlate
             wide

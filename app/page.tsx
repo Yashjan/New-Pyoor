@@ -9,10 +9,11 @@ import { formatPrice } from '@/lib/format';
 
 /** Homepage (docs/design-handoff/hero-reference/concept.html): one idea per screen. */
 export default async function HomePage() {
-  const [products, black, lake, pair] = await Promise.all([
+  const [products, black, lake, pink, pair] = await Promise.all([
     getProducts(),
     getProduct('herbal-black-salt'),
     getProduct('natural-lake-salt'),
+    getProduct('pink-rock-salt'), // null while hidden (SHOW_PINK_SALT)
     getProduct('the-sambhar-pair'),
   ]);
 
@@ -42,7 +43,7 @@ export default async function HomePage() {
           lake={<LakeOpening black={black} lake={lake} />}
         />
         {/* the products' opening is the hero's last layer ("the lake opens"); the rest follows */}
-        <Products black={black} lake={lake} pair={pair} />
+        <Products black={black} lake={lake} pink={pink} pair={pair} />
         <Roots />
         <Crystals />
         <Recipes />

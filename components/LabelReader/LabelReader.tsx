@@ -185,37 +185,45 @@ function LabelText({ L }: { L: LabelContent }) {
       <h2 id="label-reader-title" className={styles.title}>
         {L.name} <span lang="hi">({L.nameHindi})</span>
       </h2>
-      <p className={styles.line}>{L.line}</p>
+      {L.line && <p className={styles.line}>{L.line}</p>}
 
       <h3>Ingredients</h3>
       <p>{L.ingredients}</p>
 
-      <h3>{L.nutrition.title}</h3>
-      <table className={styles.table}>
-        <caption>{L.nutrition.note}</caption>
-        <tbody>
-          {L.nutrition.rows.map(([k, v]) => (
-            <tr key={k}>
-              <th scope="row">{k}</th>
-              <td>{v}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {L.nutrition && (
+        <>
+          <h3>{L.nutrition!.title}</h3>
+          <table className={styles.table}>
+            <caption>{L.nutrition!.note}</caption>
+            <tbody>
+              {L.nutrition!.rows.map(([k, v]) => (
+                <tr key={k}>
+                  <th scope="row">{k}</th>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
       <dl className={styles.facts}>
         <div>
           <dt>Net weight</dt>
           <dd>{L.netWeight}</dd>
         </div>
-        <div>
-          <dt>Use</dt>
-          <dd>{L.use}</dd>
-        </div>
-        <div>
-          <dt>Storage</dt>
-          <dd>{L.storage}</dd>
-        </div>
+        {L.use && (
+          <div>
+            <dt>Use</dt>
+            <dd>{L.use}</dd>
+          </div>
+        )}
+        {L.storage && (
+          <div>
+            <dt>Storage</dt>
+            <dd>{L.storage}</dd>
+          </div>
+        )}
         <div>
           <dt>FSSAI Lic. No.</dt>
           <dd>{L.fssai}</dd>
@@ -240,7 +248,7 @@ function LabelText({ L }: { L: LabelContent }) {
         ))}
         {L.packer.phone} · {L.packer.email}
       </address>
-      <p className={styles.origin}>{L.origin}</p>
+      {L.origin && <p className={styles.origin}>{L.origin}</p>}
     </section>
   );
 }

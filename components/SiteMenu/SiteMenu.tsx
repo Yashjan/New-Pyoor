@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { SHOW_PINK_SALT } from '@/lib/commerce/pricing';
 import { useRouter } from 'next/navigation';
 import {
   forwardRef,
@@ -32,7 +33,9 @@ type Plate = (typeof PLATES)[number];
 const PRODUCTS = [
   { href: '/product/herbal-black-salt', name: 'Black Salt' },
   { href: '/product/natural-lake-salt', name: 'Lake Salt' },
-] as const;
+  // behind the switch (lib/commerce/pricing.ts)
+  ...(SHOW_PINK_SALT ? [{ href: '/product/pink-rock-salt', name: 'Pink Rock Salt' }] : []),
+];
 
 const MARQUEE = ['सांभर', 'Sambhar Lake', 'Rajasthan'];
 

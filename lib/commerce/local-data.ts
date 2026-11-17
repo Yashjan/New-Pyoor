@@ -4,7 +4,7 @@
  * COPY RULES (strict): factual only. Origin, ingredients, process, size, price, taste, use.
  * No health, medicinal or nutritional claims. Unknown values use [BRACKETED] placeholders.
  */
-import { PRICES_INR } from './pricing';
+import { PRICES_INR, SHOW_PINK_SALT } from './pricing';
 import type { Image, Money, Product } from './types';
 import { modelUrl } from '@/lib/three/models';
 import { asset } from '@/lib/basePath';
@@ -179,29 +179,46 @@ export const products: Product[] = [
     },
   },
   {
-    // NOT IN LAUNCH: sourcing under review. Kept for later; never listed or routable.
-    id: 'local:product:himalayan-pink-salt',
-    handle: 'himalayan-pink-salt',
-    title: 'Himalayan Pink Salt',
+    // behind SHOW_PINK_SALT (pricing.ts). COPY: no origin text until confirmed; no claims.
+    id: 'local:product:pink-rock-salt',
+    handle: 'pink-rock-salt',
+    title: 'Pink Rock Salt',
     titleHindi: 'सेंधा नमक',
-    summary: '[SUMMARY]',
-    description: '[DESCRIPTION: sourcing under review]',
-    published: false,
+    summary: 'Rock salt (sendha namak), packed with the same care. [CONFIRM COPY]',
+    description:
+      'Pink rock salt (sendha namak), in a 1 kg clear jar or a 1 kg refill pouch. [CONFIRM COPY]',
+    published: SHOW_PINK_SALT,
     variants: [
       {
-        id: 'local:variant:himalayan-pink-salt-1kg',
-        sku: 'PYR-HPS-1KG',
-        price: priceOf('local:variant:himalayan-pink-salt-1kg'),
-        availableForSale: false,
+        id: 'local:variant:pink-rock-salt-1kg',
+        sku: 'PYR-PRS-1KG',
+        price: priceOf('local:variant:pink-rock-salt-1kg'),
+        availableForSale: true,
         ...JAR,
+      },
+      {
+        id: 'local:variant:pink-rock-salt-pouch-1kg',
+        sku: 'PYR-PRS-P1KG',
+        price: priceOf('local:variant:pink-rock-salt-pouch-1kg'),
+        availableForSale: true,
+        ...POUCH,
       },
     ],
     featuredImage: null,
     images: [],
-    model: modelUrl('pyoor-himalayan-pink-salt.glb'),
-    ingredients: ['[SOURCE UNDER REVIEW]'],
-    facts: [{ label: 'Status', value: 'Not for sale: sourcing under review' }],
-    tags: ['pink-salt'],
-    seo: { title: 'Himalayan Pink Salt', description: '[DESCRIPTION]' },
+    model: modelUrl('pyoor-pink-rock-salt.glb'),
+    ingredients: ['Rock salt (sendha namak) [CONFIRM]'],
+    facts: [
+      { label: 'Product', value: 'Pink rock salt (सेंधा नमक)' },
+      { label: 'Ingredients', value: 'Rock salt (sendha namak) [CONFIRM]' },
+      { label: 'Net weight', value: '1 kg' },
+      { label: 'Packed by', value: `${PACKED_BY} [CONFIRM]` },
+      { label: 'FSSAI Lic. No.', value: '12224999000443 [CONFIRM]' },
+    ],
+    tags: ['rock-salt', 'sendha-namak'],
+    seo: {
+      title: 'Pink Rock Salt (सेंधा नमक), 1 kg',
+      description: 'Pink rock salt (sendha namak) by Pyoor: 1 kg clear jar or 1 kg refill pouch.',
+    },
   },
 ];

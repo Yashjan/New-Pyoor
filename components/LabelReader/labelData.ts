@@ -15,7 +15,8 @@ export interface LabelContent {
   line: string;
   summary: string;
   ingredients: string;
-  nutrition: { title: string; note: string; rows: readonly (readonly [string, string])[] };
+  /** null: not shown (Pink Rock Salt: only name, ingredients, weight, licence, packer) */
+  nutrition: { title: string; note: string; rows: readonly (readonly [string, string])[] } | null;
   netWeight: string;
   use: string;
   storage: string;
@@ -145,6 +146,33 @@ const pouch = (L: LabelContent, handle: string, sizes: [number, number][]): Labe
 });
 
 /** The labels the reader can show, by product handle (pouches: "<handle>:pouch"). */
+/**
+ * Pink Rock Salt (behind SHOW_PINK_SALT): its artwork's front panel only, jar and pouch (the
+ * rest of its artwork carries claims and an origin the site doesn't state), and a short text
+ * panel. Every value [CONFIRM].
+ */
+const PINK: LabelContent = {
+  name: 'Pink Rock Salt',
+  nameHindi: 'सेंधा नमक',
+  brand: 'Pyoor',
+  line: '',
+  summary:
+    'The front of the Pyoor Pink Rock Salt (सेंधा नमक) pack, flat, with the name, ingredients, net weight, FSSAI licence and packer as text. [CONFIRM]',
+  ingredients: 'Rock salt (sendha namak) [CONFIRM]',
+  nutrition: null,
+  netWeight: '1 kg [CONFIRM]',
+  use: '',
+  storage: '',
+  fssai: '12224999000443 [CONFIRM]',
+  packer: { ...LABEL.packer, title: 'Packed and marketed by [CONFIRM]' },
+  perJar: [],
+  origin: '',
+  widths: [],
+  sheets: [
+    { name: 'Front', src: '/textures/label-pink-rock-salt-front.webp', width: 2000, height: 1404 },
+  ],
+};
+
 export const LABELS: Record<string, LabelContent> = {
   'herbal-black-salt': LABEL,
   'natural-lake-salt': LAKE,
@@ -156,4 +184,16 @@ export const LABELS: Record<string, LabelContent> = {
     [2496, 3274],
     [2500, 3309],
   ]),
+  'pink-rock-salt': PINK,
+  'pink-rock-salt:pouch': {
+    ...PINK,
+    sheets: [
+      {
+        name: 'Front',
+        src: '/textures/pouch-pink-rock-salt-front.webp',
+        width: 2497,
+        height: 3622,
+      },
+    ],
+  },
 };

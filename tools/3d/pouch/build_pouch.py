@@ -171,7 +171,9 @@ def film_material(w, name, tex, mr, nrm, transmission_tex=None):
     return len(w.gltf.materials) - 1
 
 
-def build(key, salt_name, out_path):
+def build(key, salt_name, out_path, aspect=0.754):
+    global H
+    H = W / aspect
     P = "/home/claude/pouch/"; T = "/home/claude/jar/tex/"
     front = Image.open(P + f"{key}_front_raw.png").convert("RGB")
     back = Image.open(P + f"{key}_back.png").convert("RGB")
@@ -206,3 +208,4 @@ if __name__ == "__main__":
     O = sys.argv[1]
     build("black", "black", O + "/pyoor-pouch-herbal-black-salt.glb")
     build("lake", "white", O + "/pyoor-pouch-natural-lake-salt.glb")
+    build("pink", "pink", O + "/pyoor-pouch-pink-rock-salt.glb", aspect=2497 / 3622)
