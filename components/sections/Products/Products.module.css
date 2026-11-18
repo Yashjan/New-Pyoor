@@ -178,7 +178,7 @@
   justify-content: center;
   margin-top: -8px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .formatItem {
@@ -270,7 +270,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: var(--display-weight);
-  font-size: clamp(36px, 3.1vw, 44px);
+  font-size: clamp(2.25rem, 3.1vw, 2.75rem);
   line-height: 1.05;
   color: var(--navy-800);
 }
@@ -278,7 +278,7 @@
 .hindi {
   margin: 0;
   font-family: var(--font-deva);
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1.4;
   color: var(--gold-700);
 }
@@ -287,7 +287,7 @@
   max-width: 34ch;
   margin: 2px 0 0;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.55;
   color: var(--slate-500);
 }
@@ -295,7 +295,7 @@
 .price {
   margin: 6px 0 4px;
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: 1.0625rem;
   font-weight: 600;
   color: var(--navy-800);
   font-variant-numeric: lining-nums tabular-nums;
@@ -334,7 +334,7 @@
   height: 100%;
   border: 0;
   background: none;
-  font-size: 18px;
+  font-size: 1.125rem;
   color: var(--navy-800);
   cursor: pointer;
 }
@@ -347,7 +347,7 @@
 .stepper output {
   min-width: 2ch;
   text-align: center;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--navy-800);
@@ -363,7 +363,7 @@
   background: var(--navy-800);
   color: var(--ivory-100);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -410,7 +410,7 @@
   border: 0;
   background: none;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--navy-800);
   text-decoration: underline;
   text-decoration-color: var(--accent-line);
@@ -444,7 +444,7 @@
   row-gap: 10px;
   margin: clamp(32px, 4vw, 56px) 0 0;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--slate-500);
@@ -473,7 +473,7 @@
 .chapter {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold-700);
@@ -482,7 +482,7 @@
 .beyondLine {
   margin: 0 0 clamp(20px, 3vw, 40px);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   color: var(--slate-500);
 }
 

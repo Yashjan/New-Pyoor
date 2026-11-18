@@ -15,7 +15,7 @@
 .chapter {
   margin: 0 0 14px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -35,7 +35,7 @@
 .still {
   margin: 18px 0 0;
   font-family: var(--font-display);
-  font-size: clamp(40px, 6vw, 72px);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
   line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--gold-500);
@@ -45,7 +45,7 @@
   display: inline-block;
   margin-top: 24px;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   color: var(--navy-800);
   text-decoration: underline;
   text-decoration-color: var(--accent-line);
@@ -88,7 +88,7 @@
   max-width: 36em;
   margin-top: 16px;
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--slate-500);
 }
@@ -124,7 +124,7 @@
 
 .hours {
   font-family: var(--font-display);
-  font-size: clamp(80px, 12vw, 180px);
+  font-size: clamp(5rem, 12vw, 11.25rem);
   font-weight: var(--display-weight);
   line-height: 0.95;
   font-variant-numeric: lining-nums tabular-nums;
@@ -133,7 +133,7 @@
 
 .hoursLabel {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold-700);
@@ -146,7 +146,7 @@
   height: 8.2em;
   margin-top: clamp(16px, 3vh, 32px);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
 }
 
@@ -355,7 +355,7 @@
   }
 
   :global(html.motion) .title {
-    font-size: 34px;
+    font-size: 2.125rem;
   }
 
   :global(html.motion) .chapter {
@@ -371,13 +371,13 @@
   }
 
   .hours {
-    font-size: 56px;
+    font-size: 3.5rem;
   }
 
   :global(html.motion) .texts {
     height: 9.6em;
     margin-top: 12px;
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.55;
   }
 }

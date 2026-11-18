@@ -22,7 +22,6 @@ import { PANS_VH, beforeEnd, openVh } from '@/lib/motion/pans';
  *   [data-parallax]       placeholder labels drift
  *   [data-float]          product renders float and turn while their panel scrolls past
  *   [data-clip-reveal]    product panels open from an inset clip
- *   [data-crystals-bg]    the crystal texture settles from 1.35× to 1×
  *   [data-hero]           the film's captions and progress line (lib/motion/film.ts), scrubbed
  *                         by its progress (after the Journey and the opening:
  *                         SEQUENCE_START_VH; before step 3, the salt pans: PANS_VH, whose
@@ -95,19 +94,6 @@ export function HomeMotion() {
             scrollTrigger: { trigger: el, start: 'top 80%' },
           }),
         );
-        const crystals = document.querySelector('[data-crystals-bg]');
-        if (crystals) {
-          gsap.fromTo(
-            crystals,
-            { scale: 1.35, rotate: -2 },
-            {
-              scale: 1,
-              rotate: 0,
-              ease: 'none',
-              scrollTrigger: { trigger: crystals.parentElement, scrub: 0.6 },
-            },
-          );
-        }
 
         // ---- the film's captions: a paused timeline whose progress is the film's ----
         // (lib/motion/film.ts): shot 1's headline, shot 2's caption, shot 3's chapter line

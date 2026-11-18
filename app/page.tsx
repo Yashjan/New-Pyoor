@@ -46,8 +46,8 @@ export default async function HomePage() {
         {/* the products' opening is the hero's last layer ("the lake opens"); the rest follows */}
         <Products black={black} lake={lake} pink={pink} pair={pair} />
         <Fire />
-        <Roots />
         <Crystals />
+        <Roots />
         <Recipes />
         <HomeMotion />
       </main>

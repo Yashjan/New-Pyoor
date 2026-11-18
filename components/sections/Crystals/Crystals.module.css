@@ -1,38 +1,233 @@
+/* "Look closer" (Crystals.tsx, Loupe.tsx): flat navy, the salt field and its loupe. */
 .crystals {
-  display: flex;
-  align-items: center;
-  min-height: 120vh;
+  position: relative;
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(3.5rem, 7vw, 6rem);
+  background: #121a3b;
+  color: var(--ivory-100);
+}
+
+.head {
+  padding: 0 var(--gutter);
+  margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  text-align: center;
+}
+
+.head :global(.py-eyebrow) {
+  color: var(--gold-300);
+}
+
+.title {
+  margin: 0.5rem auto 0;
+  color: var(--ivory-100);
+}
+
+/* the field: full width, a fixed height (nothing shifts as the layers load) */
+.field {
+  position: relative;
+  height: 60vh;
   overflow: hidden;
-  padding-top: 0;
-  padding-bottom: 0;
+  background: #121a3b;
+  touch-action: pan-y; /* horizontal drags pan it (phones); vertical ones scroll the page */
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
 }
 
-.bg {
+.field:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--gold-300);
+}
+
+.world {
   position: absolute;
-  inset: -10%;
-  background: url('../../../public/images/textures/crystals.jpg') center / 520px repeat;
-  opacity: 0.55;
-  will-change: transform;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.veil {
+.layer,
+.layer img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.layer img {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* a loupe: the sharp field, magnified about its centre (Loupe.tsx), cut to a circle */
+.lens {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    70% 60% at 50% 50%,
-    rgba(24, 33, 74, 0.25),
-    rgba(18, 26, 59, 0.92) 75%
-  );
+  clip-path: circle(0 at 50% 50%);
+  pointer-events: none;
 }
 
-.copy {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
-  max-width: 780px;
-  margin: 0 auto;
+.mag {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+.ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 240px;
+  border: 1px solid var(--gold-300);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 250, 235, 0.14),
+    inset 0 12px 22px -14px rgba(255, 250, 235, 0.35),
+    0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* a few tiny glints inside it: opacity only, only on screen */
+.glint {
+  position: absolute;
+  left: calc(22% + var(--g) * 17%);
+  top: calc(30% + (var(--g) * 37%) - (var(--g) * var(--g) * 9%));
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fffaf0;
+  box-shadow: 0 0 6px 1px rgba(255, 250, 240, 0.8);
+  opacity: 0;
+}
+
+.crystals[data-live] .glint {
+  animation: glint 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--g) * -0.7s);
+}
+
+@keyframes glint {
+  0%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+
+  82% {
+    opacity: 0.9;
+  }
+}
+
+/* one loupe in motion; two still ones otherwise (reduced motion) */
+.crystals[data-one] [data-lens='1'],
+.crystals[data-one] [data-ring='1'] {
+  display: none;
+}
+
+/* a soft navy fade along the bottom, so the labels read on the bright lake salt */
+.field::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 72px;
+  background: linear-gradient(to top, rgba(18, 26, 59, 0.78), rgba(18, 26, 59, 0));
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  z-index: 1;
+  bottom: 14px;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--gold-300);
+  pointer-events: none;
+}
+
+.label span {
+  letter-spacing: 0;
+}
+
+.labelL {
+  left: var(--gutter);
+}
+
+.labelR {
+  right: var(--gutter);
+}
+
+/* under the field: the words for the loupe's side, and the link */
+.foot {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  padding: 0 var(--gutter);
   text-align: center;
+}
+
+.captions {
+  display: grid;
+  max-width: 36em;
+}
+
+.caption {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(245, 241, 232, 0.82);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.crystals:not([data-side]) [data-caption='0'],
+.crystals[data-side='0'] [data-caption='0'],
+.crystals[data-side='1'] [data-caption='1'] {
+  opacity: 1;
+}
+
+/* still: both captions, one under the other */
+.crystals[data-still] .caption,
+:global(html:not(.motion)) .caption {
+  grid-area: auto;
+  opacity: 1;
+}
+
+.shop {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--ivory-100);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-300);
+  text-underline-offset: 5px;
+}
+
+.shop:focus-visible {
+  outline: 2px solid var(--gold-300);
+  outline-offset: 4px;
+}
+
+@media (max-width: 699px) {
+  .field {
+    height: 55svh;
+  }
+
+  .ring {
+    width: 180px;
+    height: 180px;
+  }
+
+  .label {
+    bottom: 10px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glint {
+    animation: none !important;
+  }
 }

@@ -99,8 +99,8 @@
   top: calc(var(--seam) - var(--word-w) * var(--cap-w) - 54px);
   margin: 0;
   font-family: var(--font-deva);
-  font-size: 20px;
-  line-height: 24px;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
   text-align: center;
   color: var(--gold-700);
 }

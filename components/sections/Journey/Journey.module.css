@@ -109,7 +109,7 @@
 
 .num {
   font-family: var(--font-display);
-  font-size: clamp(40px, 4vw, 56px);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
   line-height: 1;
   font-variant-numeric: lining-nums;
   color: var(--accent-line);

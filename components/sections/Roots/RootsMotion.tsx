@@ -41,6 +41,27 @@ export function RootsMotion() {
       const lines = $$('[data-letter] [data-line]');
       const sign = $('[data-sign]');
       const write = $('[data-write]');
+      // the reading size and place: between the header and the link (both grow with the
+      // visitor's font size). A letter taller than that room shrinks, but never below 0.8 (it
+      // stays readable); beyond that it hangs below the pinned screen, the link under it, and
+      // the section makes room for it (its own margin), so it scrolls on when the pin releases.
+      const scene = letter.parentElement!;
+      const layout = () => {
+        const top = (document.querySelector('header')?.getBoundingClientRect().bottom ?? 64) + 12;
+        const bottom = write.offsetTop - 14; // the stage's frame: its top is the screen's
+        const h = Math.max(1, letter.offsetHeight);
+        const s = Math.max(0.8, Math.min(1, (bottom - top) / h));
+        const fits = h * s <= bottom - top + 1;
+        const centre = fits ? (top + bottom) / 2 : top + (h * s) / 2;
+        const linkY = fits ? 0 : top + h * s + 14 - write.offsetTop;
+        const over = fits
+          ? 0
+          : Math.max(0, write.offsetTop + linkY + write.offsetHeight + 16 - window.innerHeight);
+        return { s, y: centre - scene.offsetTop, linkY, over };
+      };
+      let L = layout();
+      const fit = () => (L = layout()).s;
+      const place = () => L.y;
       const eh = () => root.querySelector<HTMLElement>('[data-env]')!.offsetHeight || 400;
 
       const tl = gsap.timeline({
@@ -65,8 +86,8 @@ export function RootsMotion() {
       );
       tl.fromTo(
         letter,
-        { y: () => window.innerHeight * 0.55, rotation: -4, scale: 0.86 },
-        { y: 0, rotation: 0, duration: 0.15, ease: 'power2.out' },
+        { y: () => window.innerHeight * 0.55, yPercent: -50, rotation: -4, scale: 0.86 },
+        { y: 0, yPercent: -50, rotation: 0, duration: 0.15, ease: 'power2.out' },
         0,
       );
       tl.set(p1, { rotationX: -180 }, 0);
@@ -105,12 +126,12 @@ export function RootsMotion() {
         { y: () => window.innerHeight * 0.5, opacity: 0, duration: 0.12, ease: 'power1.in' },
         0.48,
       );
-      tl.to(letter, { y: 0, duration: 0.05, ease: 'power1.inOut' }, 0.56);
+      tl.to(letter, { y: place, duration: 0.05, ease: 'power1.inOut' }, 0.56);
       // 5: it unfolds, then settles at its reading size; the heading makes room
       tl.to(head, { opacity: 0, y: -12, duration: 0.05 }, 0.31);
       tl.to(p1, { rotationX: 0, duration: 0.12, ease: 'power2.inOut' }, 0.6);
       tl.to(p3, { rotationX: 0, duration: 0.12, ease: 'power2.inOut' }, 0.66);
-      tl.to(letter, { scale: 1, duration: 0.08, ease: 'power2.out' }, 0.72);
+      tl.to(letter, { scale: fit, duration: 0.08, ease: 'power2.out' }, 0.72);
       // 6: the words, line by line; the signature signs itself; the P.S.
       const words = lines.filter((l) => !l.matches('[class*="ps"]'));
       const ps = lines.filter((l) => l.matches('[class*="ps"]'));
@@ -131,8 +152,29 @@ export function RootsMotion() {
         tl.fromTo(l, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.03 }, 0.92),
       );
       // 7: write back
-      tl.fromTo(write, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.05 }, 0.95);
+      tl.fromTo(
+        write,
+        { autoAlpha: 0, y: () => L.linkY + 8 },
+        { autoAlpha: 1, y: () => L.linkY, duration: 0.05 },
+        0.95,
+      );
+      // the room a long letter needs below the pin (this section's own margin)
+      const room = () => {
+        L = layout();
+        root.style.marginBottom = L.over ? `${Math.ceil(L.over)}px` : '';
+      };
+      room();
+      // the letter's size settles once its fonts load (and follows the visitor's text size):
+      // the place, the scale and the room are worked out again, the timeline keeps its place
+      const ro = new ResizeObserver(() => {
+        room();
+        const p = tl.progress();
+        tl.invalidate();
+        tl.progress(p);
+      });
+      ro.observe(letter);
       kill = () => {
+        ro.disconnect();
         tl.scrollTrigger?.kill();
         tl.kill();
       };

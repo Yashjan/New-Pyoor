@@ -210,8 +210,9 @@ html:has(dialog[open]) {
 .py-ln {
   display: inline-block;
   overflow: hidden;
-  padding-bottom: 0.06em;
-  margin-bottom: -0.06em;
+  /* room for the descenders (g, y, p) inside the mask */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
   vertical-align: top;
 }
 

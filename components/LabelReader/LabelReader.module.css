@@ -186,14 +186,14 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .table caption {
   caption-side: top;
   padding-bottom: 6px;
   text-align: left;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -216,7 +216,7 @@
   display: grid;
   gap: 10px;
   margin: 26px 0 0;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .facts div {
@@ -235,7 +235,7 @@
 
 .address {
   font-style: normal;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .origin {
@@ -318,7 +318,7 @@
   .hint {
     top: calc(72px + 34svh - 14px);
     bottom: auto;
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
 }
 
@@ -339,7 +339,7 @@
   border: 0;
   background: none;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   color: var(--slate-500);
   cursor: pointer;

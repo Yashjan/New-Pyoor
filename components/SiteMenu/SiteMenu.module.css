@@ -123,7 +123,7 @@
   position: relative;
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(44px, 7vw, 96px);
+  font-size: clamp(2.75rem, 7vw, 6rem);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -235,7 +235,7 @@
 }
 
 .price {
-  font-size: 13px;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   color: var(--gold-700);
 }
@@ -385,7 +385,7 @@
 
 .run > .hi {
   font-family: var(--font-deva);
-  font-size: 13px;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em; /* wider tracking would break the Devanagari's joins */
 }
 
@@ -425,7 +425,7 @@
   padding: 2px;
   border: 1px solid var(--hairline-strong);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 0.625rem;
   letter-spacing: 0.12em;
 }
 

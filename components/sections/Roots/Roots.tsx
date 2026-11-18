@@ -101,8 +101,9 @@ export function Roots() {
                   </span>
                 </p>
                 <p className={styles.note} data-line>
-                  Pyoor packs its salt on Phulera Road, Sambhar, a few kilometres from the pans
-                  where it crystallises.
+                  I grew up on the edge of Sambhar Lake. Every season I watched the pans turn from
+                  white to pink, and every year I watched salt from our lake leave in sacks, with no
+                  one ever knowing where it came from.
                 </p>
               </div>
               <div className={styles.back} />
@@ -110,13 +111,18 @@ export function Roots() {
             <div className={`${styles.panel} ${styles.p2}`} data-panel="2">
               <div className={styles.face}>
                 <p className={styles.note} data-line>
-                  Salt has been made here by hand for generations; we simply bring it to your table
-                  without a long journey in between.
+                  Pyoor is my family&rsquo;s way of putting our name on it. The lake salt is ours.
+                  The black salt is fired by my family for thirty-two hours in clay pots, the way it
+                  has always been done.
                 </p>
               </div>
             </div>
             <div className={`${styles.panel} ${styles.p3}`} data-panel="3">
               <div className={styles.face}>
+                <p className={styles.note} data-line>
+                  When you open a jar of Pyoor, you open a little of Sambhar. Thank you for letting
+                  it into your kitchen.
+                </p>
                 <div
                   className={styles.signature}
                   role="img"

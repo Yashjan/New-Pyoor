@@ -4,7 +4,6 @@
   --ew: min(640px, 86vw); /* the envelope */
   --eh: calc(var(--ew) * 2 / 3);
   --lw: min(600px, calc(100vw - 40px)); /* the letter */
-  --ph: 184px; /* one of its three panels */
   position: relative;
   padding: clamp(56px, 7vw, 104px) 20px;
   background: var(--ivory-100);
@@ -37,7 +36,7 @@
 .chapter {
   margin: 0 0 12px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -69,13 +68,12 @@
 
 .panel {
   position: relative;
-  min-height: var(--ph);
 }
 
 .face {
   position: relative;
-  min-height: var(--ph);
-  padding: 22px clamp(20px, 4vw, 40px);
+  /* each panel as tall as its words: the folds follow them, nothing leaves the paper */
+  padding: 22px clamp(20px, 4vw, 40px) 32px;
   /* the paper: ivory, a fine procedural grain, faint laid lines */
   background-color: #f8f4ea;
   /* a warm edge and a soft shadow: the paper lifts off the page */
@@ -112,7 +110,7 @@
   align-items: baseline;
   gap: 10px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold-700);
@@ -120,17 +118,17 @@
 
 .hindi {
   font-family: var(--font-deva);
-  font-size: 15px;
+  font-size: 0.9375rem;
   letter-spacing: 0;
   text-transform: none;
 }
 
 .note {
-  max-width: 34ch;
+  max-width: 46ch;
   margin: 0;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(20px, 1.6vw, 26px);
+  font-size: clamp(1.25rem, 1.6vw, 1.625rem);
   line-height: 1.38;
   color: var(--navy-800);
 }
@@ -149,7 +147,7 @@
 .byline {
   margin: 6px 0 0;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--slate-500);
 }
 
@@ -157,14 +155,14 @@
   margin: 10px 0 0;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 17px;
+  font-size: 1.0625rem;
   color: var(--slate-500);
 }
 
 .write {
   position: relative;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   color: var(--navy-800);
   text-decoration: underline;
   text-decoration-color: var(--accent-line);
@@ -179,7 +177,6 @@
 @media (max-width: 699px) {
   .roots {
     --ew: 90vw;
-    --ph: 186px;
   }
 
   .signature {
@@ -200,7 +197,9 @@
   display: block;
   height: 100vh;
   height: 100svh;
-  overflow: hidden;
+  /* clipped at the sides; below, a letter taller than the screen (large text) hangs on */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 :global(html.motion) .head {
@@ -214,7 +213,8 @@
 :global(html.motion) .scene {
   position: absolute;
   left: 50%;
-  top: 57%;
+  /* midway between the header and the link under the letter */
+  top: calc(50% + (var(--header-height) - 56px) / 2);
   width: 0;
   height: 0;
   perspective: 1200px;
@@ -239,7 +239,7 @@
 :global(html.motion) .letter {
   position: absolute;
   left: calc(var(--lw) / -2);
-  top: calc(var(--ph) * -1.5);
+  top: 0; /* centred on the scene by its transform (RootsMotion: yPercent −50) */
   z-index: 2;
   transform-style: preserve-3d;
 }
@@ -311,7 +311,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(18px, 2.2vw, 26px);
+  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
   color: var(--ivory-100);
 }
 
@@ -411,12 +411,6 @@
   transform-origin: 50% 0;
 }
 
-:global(html.motion) .panel,
-:global(html.motion) .face {
-  height: var(--ph);
-  min-height: 0;
-}
-
 :global(html.motion) .back {
   position: absolute;
   inset: 0;
@@ -451,12 +445,12 @@
   }
 
   :global(html.motion) .scene {
-    /* the open letter just under the header, the link under it */
-    top: calc(var(--header-height-mobile) + var(--ph) * 1.5 + 6px);
+    /* the middle of the screen under the header */
+    top: calc(50% + (var(--header-height-mobile) - 48px) / 2);
   }
 
   .face {
-    padding: 16px 18px;
+    padding: 16px 18px 32px;
   }
 
   .p1 .face {
@@ -472,7 +466,7 @@
   }
 
   .ps {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   :global(html.motion) .write {

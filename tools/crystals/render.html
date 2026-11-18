@@ -1,0 +1,69 @@
+<!doctype html>
+<meta charset="utf-8" />
+<script type="importmap">
+  { "imports": { "three": "../../node_modules/three/build/three.module.js" } }
+</script>
+<canvas id="c"></canvas>
+<script type="module">
+  // "Look closer" (components/sections/Crystals): the salt field, top-down, Herbal Black Salt
+  // on the left (fine pinkish-brown grains), Natural Lake Salt on the right (small bright
+  // crystals), meeting in a soft diagonal. One scene, rendered at any size (render.mjs), so the
+  // soft field and the sharp macro line up exactly.
+  import * as THREE from 'three';
+  const W = 800, H = 300; // the field, in scene units (8:3)
+  let s = 97;
+  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#121a3b');
+  const cam = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 1, 2000);
+  cam.position.set(0, -60, 600);
+  cam.lookAt(0, 0, 0);
+  // a warm key light from the upper left, a cool low fill
+  const key = new THREE.DirectionalLight('#ffecd2', 3.0);
+  key.position.set(-300, 260, 320);
+  const top = new THREE.DirectionalLight('#ffffff', 0.9);
+  top.position.set(80, -40, 500);
+  scene.add(key, top, new THREE.HemisphereLight('#8a94c4', '#1a1420', 0.6));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.6, H * 1.6), new THREE.MeshStandardMaterial({ color: '#141b3c', roughness: 1 }));
+  scene.add(ground);
+  // which salt is at (x, y): left of a soft diagonal is black salt
+  const blackAt = (x, y) => x + gauss() * 34 < y * 0.45 + Math.sin(y * 0.03) * 18;
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color();
+  function field(geo, mat, n, keep, size, color) {
+    const mesh = new THREE.InstancedMesh(geo, mat, n);
+    let k = 0;
+    for (let i = 0; i < n * 3 && k < n; i++) {
+      const x = (rnd() - 0.5) * W * 1.08, y = (rnd() - 0.5) * H * 1.12;
+      if (!keep(x, y)) continue;
+      const r = size();
+      p.set(x, y, rnd() * 3);
+      e.set(rnd() * 6, rnd() * 6, rnd() * 6);
+      q.setFromEuler(e);
+      m4.compose(p, q, sc.set(r, r * (0.7 + rnd() * 0.5), r * (0.6 + rnd() * 0.5)));
+      mesh.setMatrixAt(k, m4);
+      mesh.setColorAt(k, color(col));
+      k++;
+    }
+    mesh.count = k;
+    scene.add(mesh);
+  }
+  // kala namak: ground fine, pinkish-brown, matt
+  const browns = ['#8a6a5e', '#946e66', '#9b7a6c', '#7a5650', '#a8847c'];
+  field(new THREE.DodecahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ roughness: 0.78, flatShading: true }), 60000,
+    (x, y) => blackAt(x, y), () => 0.9 + rnd() * 1.1,
+    (c) => c.set(browns[Math.floor(rnd() * browns.length)]).multiplyScalar(0.75 + rnd() * 0.5));
+  // lake salt: small bright crystals (halite: near-cubes), glinting
+  field(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ roughness: 0.22, metalness: 0.05, flatShading: true }), 34000,
+    (x, y) => !blackAt(x, y), () => 1.6 + rnd() * 1.9,
+    (c) => c.set('#ffffff').multiplyScalar(0.9 + rnd() * 0.1));
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  window.renderAt = (w, h) => {
+    renderer.setPixelRatio(1);
+    renderer.setSize(w, h, false);
+    renderer.render(scene, cam);
+    return renderer.domElement.toDataURL('image/png');
+  };
+  document.documentElement.dataset.ready = '1';
+</script>
