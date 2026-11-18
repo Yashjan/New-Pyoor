@@ -13,6 +13,7 @@ import { Plate, curve, rect, clamp, lerp, inside, mound, H } from './engrave.mjs
 import { CAM, projectJar } from './jar3d.mjs';
 import { buildMenu } from './menu.mjs';
 import { buildPans } from './pans.mjs';
+import { buildFire } from './fire.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '../../public/engravings');
@@ -1568,3 +1569,4 @@ export const LIVE = ${JSON.stringify(LIVE)} as const;
 buildMenu({ layers: built, L, rake: LIVE.rake });
 
 buildPans();
+buildFire();

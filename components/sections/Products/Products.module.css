@@ -1,6 +1,7 @@
 /* Step 4, the products (Products.tsx): calm, generous, no card borders. */
 .products {
   position: relative;
+  padding-bottom: clamp(40px, 5vw, 72px);
 }
 
 /* after the pin: the part of the opening that hangs below the pinned screen comes first */
@@ -423,7 +424,7 @@
   align-items: center;
   justify-items: start;
   gap: clamp(32px, 5vw, 80px);
-  margin-top: clamp(80px, 10vw, 144px);
+  margin-top: clamp(40px, 5vw, 72px);
   text-align: left;
 }
 
@@ -441,7 +442,7 @@
   justify-content: center;
   align-items: center;
   row-gap: 10px;
-  margin: clamp(72px, 9vw, 128px) 0 0;
+  margin: clamp(32px, 4vw, 56px) 0 0;
   font-family: var(--font-sans);
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -465,7 +466,7 @@
   display: grid;
   justify-items: center;
   gap: 10px;
-  margin-top: clamp(64px, 8vw, 120px);
+  margin-top: clamp(32px, 4vw, 56px);
   text-align: center;
 }
 
@@ -561,5 +562,24 @@
 
   :global(html.motion) .lake .media {
     width: min(78vw, 340px, calc((100svh - var(--header-height-mobile) - 12svh - 220px) * 0.75));
+  }
+}
+
+/* beyond the lake: a smaller plate than the two salts (its render has room above the jar) */
+.beyond .media {
+  width: min(100%, 300px);
+}
+
+.beyond .plate {
+  gap: clamp(12px, 1.6vw, 20px);
+}
+
+.beyondLine {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 860px) {
+  .beyond .media {
+    width: min(70vw, 280px);
   }
 }

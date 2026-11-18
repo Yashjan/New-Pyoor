@@ -31,10 +31,6 @@ export const SHOW_POUCH_BACK = false;
 
 /**
  * Pink Rock Salt: listed only while true (products, menu, bag, sitemap, structured data,
- * routes). NEXT_PUBLIC_SHOW_PINK_SALT=true|false sets it; unset, it is on in development and
- * off in production builds.
+ * routes). Live.
  */
-export const SHOW_PINK_SALT =
-  process.env.NEXT_PUBLIC_SHOW_PINK_SALT != null && process.env.NEXT_PUBLIC_SHOW_PINK_SALT !== ''
-    ? process.env.NEXT_PUBLIC_SHOW_PINK_SALT === 'true'
-    : process.env.NODE_ENV !== 'production';
+export const SHOW_PINK_SALT: boolean = true;

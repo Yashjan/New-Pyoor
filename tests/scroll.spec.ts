@@ -402,48 +402,69 @@ test('j: through the product film and the salt pans: every step scrolls, both sc
   expect(end.q, 'the pans scrolled back to before they began').toBe(0);
 });
 
-test('k: no dead scroll: in every 20vh of scroll, top to bottom, something on screen changes', async ({
+test('k: no dead scroll: every 20vh step changes at least ~0.5% of the screen', async ({
   page,
 }, info) => {
   test.setTimeout(900_000);
-  await loadAndWait(page, 500);
+  // ?still: the ambient loops (the jar's idle sway, the plates' sway) hold still, and every CSS
+  // animation is paused: only what scrolling changes counts
+  await page.goto('/?still', { waitUntil: 'commit' });
+  await page.waitForFunction(() => !!document.querySelector('[data-opening]'));
+  await page.addStyleTag({
+    content:
+      '*,*::before,*::after{animation-play-state:paused!important;transition-duration:0s!important;caret-color:transparent!important}',
+  });
+  await page.waitForTimeout(4000);
   const vh = await page.evaluate(() => window.innerHeight);
+  const vw = await page.evaluate(() => window.innerWidth);
+  const head = await page.evaluate(() =>
+    Math.ceil(document.querySelector('header')?.getBoundingClientRect().bottom ?? 0),
+  );
   const total = await page.evaluate(() => document.documentElement.scrollHeight);
-  // a small grey thumbnail of the screen (the page decodes its own screenshot)
-  const thumb = async () => {
-    const png = (await page.screenshot({ scale: 'css' })).toString('base64');
+  // the screen below the header, as RGB bytes (the page decodes its own screenshot)
+  const grab = async () => {
+    const png = (
+      await page.screenshot({ clip: { x: 0, y: head, width: vw, height: vh - head } })
+    ).toString('base64');
     return page.evaluate(async (b64) => {
       const img = new Image();
       img.src = `data:image/png;base64,${b64}`;
       await img.decode();
-      const c = new OffscreenCanvas(96, 60);
+      const c = new OffscreenCanvas(img.width, img.height);
       const g = c.getContext('2d')!;
-      g.drawImage(img, 0, 0, 96, 60);
-      const d = g.getImageData(0, 0, 96, 60).data;
-      const out: number[] = [];
-      for (let i = 0; i < d.length; i += 4) out.push((d[i]! + d[i + 1]! + d[i + 2]!) / 3);
-      return out;
+      g.drawImage(img, 0, 0);
+      const w = window as Window & { __k?: Uint8ClampedArray };
+      const now = g.getImageData(0, 0, img.width, img.height).data;
+      const was = w.__k;
+      w.__k = now;
+      if (!was || was.length !== now.length) return 1;
+      // a pixel has changed when any channel moved by more than 10 (of 255)
+      let n = 0;
+      for (let i = 0; i < now.length; i += 4)
+        if (
+          Math.abs(now[i]! - was[i]!) > 10 ||
+          Math.abs(now[i + 1]! - was[i + 1]!) > 10 ||
+          Math.abs(now[i + 2]! - was[i + 2]!) > 10
+        )
+          n++;
+      return n / (now.length / 4);
     }, png);
   };
-  const step = vh * 0.1;
-  let prev = await thumb();
-  let still = 0;
+  const step = vh * 0.2;
+  await grab();
   const dead: string[] = [];
   for (let y = step; y <= total - vh; y += step) {
     await page.evaluate((y) => window.scrollTo(0, y), y);
-    await page.waitForTimeout(450); // the scrubs' lag (0.6 s smoothing, mostly settled)
-    const now = await thumb();
-    let d = 0;
-    for (let i = 0; i < now.length; i++) d += Math.abs(now[i]! - prev[i]!);
-    d /= now.length;
-    prev = now;
-    still = d < 0.5 ? still + 1 : 0;
-    // two 10vh steps in a row with nothing changing: a dead 20vh
-    if (still >= 2) dead.push(`${((y - 2 * step) / vh).toFixed(1)}–${(y / vh).toFixed(1)}vh`);
+    await page.waitForTimeout(900); // the scrubs' smoothing settles
+    const changed = await grab();
+    if (changed < 0.005)
+      dead.push(
+        `${((y - step) / vh).toFixed(1)}–${(y / vh).toFixed(1)} screens: ${(changed * 100).toFixed(2)}%`,
+      );
   }
   console.log(`${info.project.name} k: ${(total / vh).toFixed(1)} screens; dead: ${dead.length}`);
   if (dead.length) console.log(dead.join('\n'));
-  expect(dead, 'every 20vh of scroll changes something').toEqual([]);
+  expect(dead, 'every 20vh of scroll changes at least ~0.5% of the screen').toEqual([]);
 });
 
 test('l: the lake opens: every wheel step moves it on, both ways, with no layout shift', async ({

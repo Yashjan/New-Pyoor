@@ -3,6 +3,9 @@ import { createTurn } from '@/components/hero/scene/turn';
 import { coveredStore } from '@/lib/motion/covered';
 import { pickQualityTier } from '@/lib/three/quality';
 import { SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
+
+/** `?still`: no idle sway (the dead-scroll test measures only what scrolling changes). */
+const STILL = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('still');
 import { loadPlateModel, plateCamera, studioScene, type Format } from './plateScene';
 
 /** The hold's slow turn, as the hero jar's: ±7° on y over 9 s. */
@@ -85,7 +88,7 @@ export async function createStage(
     last = now;
     if (!visible || !active || document.hidden || coveredStore.get()) return;
     turn.update(dt, awayP === 0);
-    t += dt * turn.sway;
+    if (!STILL) t += dt * turn.sway;
     const sway = Math.sin((2 * Math.PI * t) / SWAY_PERIOD) * SWAY * turn.sway;
     // the pouch's back stays out of sight while its artwork is being corrected
     if (format === 'pouch' && !SHOW_POUCH_BACK)

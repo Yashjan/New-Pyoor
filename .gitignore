@@ -30,3 +30,7 @@ __pycache__/
 # playwright
 /test-results/
 /playwright-report/
+
+# stray working files in the project root (assets live in public/)
+/*.png
+/*.svg

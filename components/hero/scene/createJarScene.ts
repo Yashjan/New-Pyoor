@@ -109,8 +109,10 @@ const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() 
  */
 export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const { canvas, tier, signal } = opts;
-  // `?heroStill` freezes the idle float and pointer parallax (for screenshots).
-  const still = new URLSearchParams(window.location.search).has('heroStill');
+  // `?heroStill` (or `?still`: every ambient loop, for the dead-scroll test) freezes the idle
+  // float and pointer parallax (for screenshots).
+  const qs = new URLSearchParams(window.location.search);
+  const still = qs.has('heroStill') || qs.has('still');
   const weak = tier.name === 'weak';
   // Start the download first so it overlaps the renderer and environment setup below.
   const modelLoad = loadJarModel(opts.modelUrl, signal, opts.onModelProgress);

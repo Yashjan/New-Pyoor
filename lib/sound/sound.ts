@@ -277,3 +277,81 @@ export const sound = {
     emit();
   },
 };
+
+/* ---------------- 05 · The fire: a procedural crackle (no file) ---------------- */
+let fireGain: GainNode | null = null;
+let fireWant = 0;
+
+/** Four seconds of fire, made once: a low rumble and sparse crackles (filtered noise bursts). */
+function fireBuffer(c: AudioContext) {
+  const sr = c.sampleRate;
+  const n = sr * 4;
+  const buf = c.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    let brown = 0;
+    let lp = 0;
+    for (let i = 0; i < n; i++) {
+      // the rumble: brown noise, kept low
+      brown = (brown + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+      d[i] = brown * 1.6;
+    }
+    // the crackles: short decaying bursts at random moments
+    const pops = 26 + Math.floor(Math.random() * 10);
+    for (let k = 0; k < pops; k++) {
+      const at = Math.floor(Math.random() * (n - sr * 0.05));
+      const len = Math.floor(sr * (0.004 + Math.random() * 0.02));
+      const amp = 0.25 + Math.random() * 0.55;
+      for (let j = 0; j < len; j++) {
+        const e = Math.exp((-6 * j) / len);
+        lp += 0.55 * (Math.random() * 2 - 1 - lp); // a little softened
+        d[at + j]! += amp * e * lp;
+      }
+    }
+    // the loop's seam: fade both ends a touch
+    const f = Math.floor(sr * 0.05);
+    for (let i = 0; i < f; i++) {
+      d[i]! *= i / f;
+      d[n - 1 - i]! *= i / f;
+    }
+  }
+  return buf;
+}
+
+/** The fire's crackle (0–1 of its 0.3 gain), ramped; silent when sound is off. */
+export function fireLevel(v: number) {
+  fireWant = v;
+  if (!on || !ctx || !master) return;
+  if (!fireGain) {
+    if (v <= 0) return;
+    fireGain = ctx.createGain();
+    fireGain.gain.value = 0;
+    fireGain.connect(master);
+    const src = ctx.createBufferSource();
+    src.buffer = fireBuffer(ctx);
+    src.loop = true;
+    src.connect(fireGain);
+    src.start();
+  }
+  ramp(fireGain.gain, 0.3 * fireWant, 0.6);
+}
+
+/** One soft crack: the lump breaking. */
+export function fireCrack() {
+  if (!on || !ctx || !master || ctx.state !== 'running') return;
+  const sr = ctx.sampleRate;
+  const len = Math.floor(sr * 0.18);
+  const buf = ctx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.exp((-9 * i) / len);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 1400;
+  bp.Q.value = 0.9;
+  const g = ctx.createGain();
+  g.gain.value = 0.35;
+  src.connect(bp).connect(g).connect(master);
+  src.start();
+}

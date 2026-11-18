@@ -80,10 +80,15 @@ export const products: Product[] = [
       'Harad (Terminalia chebula)',
       'Baheda (Terminalia bellirica)',
       'Amla (Phyllanthus emblica)',
+      'Babul bark',
+      'Nausadar (ammonium chloride)',
     ],
     facts: [
       { label: 'Product', value: 'Herbal black salt (काला नमक)' },
-      { label: 'Ingredients', value: 'Sambhar Lake salt, harad, baheda, amla' },
+      {
+        label: 'Ingredients',
+        value: 'Sambhar lake salt, harad, baheda, amla, babul bark, nausadar (ammonium chloride)',
+      },
       { label: 'Iodised', value: '[CONFIRM]' },
       ...commonFacts,
     ],

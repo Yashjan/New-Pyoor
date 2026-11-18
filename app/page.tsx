@@ -1,5 +1,6 @@
 import { JarHero } from '@/components/hero/JarHero';
 import { HomeMotion } from '@/components/motion/HomeMotion';
+import { Fire } from '@/components/sections/Fire/Fire';
 import { Crystals } from '@/components/sections/Crystals/Crystals';
 import { Recipes } from '@/components/sections/Recipes/Recipes';
 import { LakeOpening, Products } from '@/components/sections/Products/Products';
@@ -44,6 +45,7 @@ export default async function HomePage() {
         />
         {/* the products' opening is the hero's last layer ("the lake opens"); the rest follows */}
         <Products black={black} lake={lake} pink={pink} pair={pair} />
+        <Fire />
         <Roots />
         <Crystals />
         <Recipes />

@@ -44,7 +44,7 @@ export const LABEL: LabelContent = {
   line: 'Created from Sambhar Lake salt',
   summary:
     'The jar’s printed label, unrolled flat: the Pyoor Herbal Black Salt (काला नमक) front panel, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the right-hand panels.',
-  ingredients: 'Herbal Black Salt (Amla + Harad + Baheda)',
+  ingredients: 'Sambhar lake salt, harad, baheda, amla, babul bark, nausadar (ammonium chloride)',
   nutrition: {
     title: 'Nutritional information',
     note: 'Approximate values, per 100 g',
