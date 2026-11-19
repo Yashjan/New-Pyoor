@@ -1,7 +1,6 @@
 'use client';
 
 import { useId, useState, type FormEvent } from 'react';
-import { Button } from '@/components/Button/Button';
 import styles from './Footer.module.css';
 
 /** Newsletter sign-up. No backend yet: it validates and thanks, with no network call. */
@@ -21,11 +20,22 @@ export function NewsletterForm() {
 
   return (
     <form className={styles.news} onSubmit={handleSubmit} noValidate>
-      <label htmlFor={id}>Recipes and new batches, once a month</label>
-      <input id={id} name="email" type="email" placeholder="you@example.com" autoComplete="email" />
-      <Button variant="primary" type="submit">
-        Join
-      </Button>
+      <p className={styles.newsLine}>Recipes and new batches, once a month.</p>
+      <label htmlFor={id} className="sr-only">
+        Email address
+      </label>
+      <div className={styles.field}>
+        <input
+          id={id}
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+        />
+        <button type="submit" className={styles.subscribe}>
+          Subscribe <span aria-hidden="true">→</span>
+        </button>
+      </div>
       <p className={styles.msg} role="status">
         {msg}
       </p>

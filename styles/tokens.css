@@ -11,6 +11,7 @@
   /* ---- raw palette ---- */
   --ivory-100: #f5f1e8;
   --ivory-200: #ece5d6;
+  --ivory-2: var(--ivory-200);
   --ivory-300: #e0d6c2;
   --navy-800: #18214a;
   --navy-900: #121a3b;
