@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
 import { asset } from '@/lib/basePath';
-import { FireMotion } from './FireMotion';
+import { FireMotionLazy } from './FireMotionLazy';
 import styles from './Fire.module.css';
 
 /** The five frames (tools/engravings/fire.mjs) and their words. [CONFIRM COPY] No claims. */
@@ -81,7 +81,7 @@ export function Fire() {
           ))}
         </div>
       </div>
-      <FireMotion />
+      <FireMotionLazy />
     </section>
   );
 }

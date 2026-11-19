@@ -39,6 +39,10 @@ function heroProgress(section: HTMLElement): number {
   return range > 0 ? Math.min(1, Math.max(0, (-rect.top - open) / range)) : 0;
 }
 
+/** Left alone, the 3D jar starts building this long after navigation (ms): after the intro and
+ * a quiet stretch, so the first screens stay light. A gesture starts it sooner. */
+const QUIET_START_MS = 5200;
+
 /**
  * The signature moment (concept.html), after the opening (SAMBHAR engraved, the horizon
  * opening, the jar rising out of it: components/opening): the jar floats, the cap unscrews and flies off, the jar
@@ -95,7 +99,10 @@ export function JarHero({
     const canvas = canvasRef.current;
     if (!section || !canvas) return;
     const tier = document.documentElement.classList.contains('motion') ? pickQualityTier() : null;
-    if (!tier) return; // no 3D on this device: the poster stays
+    if (!tier) {
+      section.toggleAttribute('data-no3d', true); // no 3D on this device: the poster stays
+      return;
+    }
 
     const controller = new AbortController();
     let dispose: (() => void) | undefined;
@@ -103,6 +110,7 @@ export function JarHero({
     // Built in idle time right after first paint, independent of the intro (nothing waits for
     // it, and it waits for nothing): createJarScene works in idle chunks, and the canvas stays
     // hidden until step 2's reveal, where the engraving stands in if it isn't ready yet.
+    let urgent = false;
     const start = async () => {
       if (controller.signal.aborted) return;
       const { createJarScene } = await import('./scene/createJarScene');
@@ -112,6 +120,7 @@ export function JarHero({
           canvas,
           tier,
           modelUrl: MODEL_URL,
+          linkWait: urgent ? 0 : 250,
           getProgress: () => heroProgress(section),
           getPans: () => pansProgress(section),
           onFirstFrame: () => {
@@ -134,15 +143,33 @@ export function JarHero({
         if ((err as Error).name !== 'AbortError') console.error('Jar hero failed to start', err);
       }
     };
-    const useIdle = !!window.requestIdleCallback;
-    const idle = useIdle
-      ? window.requestIdleCallback(() => void start(), { timeout: 1000 })
-      : window.setTimeout(() => void start(), 200);
+    // Not during the intro: compiling the jar's shaders blocks the main thread (seconds on a
+    // phone), so the loader and SAMBHAR stay light. It starts on the visitor's first gesture
+    // (scrolling starts the film, which is long enough to build it under the engraving) or,
+    // left alone, once the page has been quiet for a while after the intro.
+    const GESTURES = ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'] as const;
+    let begun = false;
+    let idle = 0;
+    const go = (e?: Event) => {
+      if (begun) return;
+      urgent = !!e || window.scrollY > 0; // a gesture: the visitor is on the way
+      begun = true;
+      GESTURES.forEach((g) => window.removeEventListener(g, go));
+      window.clearTimeout(timer);
+      if (window.requestIdleCallback)
+        idle = window.requestIdleCallback(() => void start(), { timeout: 600 });
+      else idle = window.setTimeout(() => void start(), 50);
+    };
+    GESTURES.forEach((g) => window.addEventListener(g, go, { passive: true, once: true }));
+    const timer = window.setTimeout(() => go(), Math.max(0, QUIET_START_MS - performance.now()));
+    if (window.scrollY > 0) go();
 
     return () => {
       controller.abort();
-      if (useIdle) window.cancelIdleCallback(idle);
-      else window.clearTimeout(idle);
+      GESTURES.forEach((g) => window.removeEventListener(g, go));
+      window.clearTimeout(timer);
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      window.clearTimeout(idle);
       dispose?.();
     };
   }, []);
@@ -194,7 +221,7 @@ export function JarHero({
                 width={1206}
                 height={1570}
                 sizes="(max-width: 860px) 56vw, min(30vw, 380px)"
-                loading="eager"
+                fetchPriority="low"
               />
               {/* reduced motion: the closed jar crossfades to the open one, then to the pour's
                   end (jar, cap, mound) */}

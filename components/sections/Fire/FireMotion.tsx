@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { whenCalm } from '@/lib/three/calm';
 import { asset } from '@/lib/basePath';
 import { loadGsap } from '@/lib/motion/gsap';
 import { fireCrack, fireLevel } from '@/lib/sound/sound';
@@ -67,8 +68,10 @@ export function FireMotion() {
           return res.ok ? res.text() : '';
         }),
       );
-      got.forEach((text, i) => {
-        if (!text) return;
+      // one frame per calm moment: measuring every line (getTotalLength) at once stalls a frame
+      for (const [i, text] of got.entries()) {
+        await whenCalm(controller.signal);
+        if (!text) continue;
         const art = arts[i]!;
         const alt = art.querySelector('img')?.alt ?? '';
         art.innerHTML = text;
@@ -89,7 +92,7 @@ export function FireMotion() {
           sparks = [...svg.querySelectorAll<SVGCircleElement>('[data-sparks] circle')];
           soot = svg.querySelector<SVGGElement>('[data-soot]');
         }
-      });
+      }
       art0();
       render();
     };

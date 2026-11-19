@@ -11,8 +11,9 @@ import { loadGsap } from '@/lib/motion/gsap';
  *   .15–.30  the wax seal cracks (the line draws), its halves part and drop, a few crumbs
  *   .30–.45  the flap opens (rotateX 0 → −170°, from its top edge)
  *   .45–.60  the letter slides up out of it; the envelope slides down and goes
- *   .60–.80  the letter unfolds its three panels, then settles at its reading size
- *   .80–.95  its lines fade up, the signature writes itself (a slanted wipe), the P.S.
+ *   .60–.80  the letter unfolds its three panels, then settles at its reading size; its lines
+ *            fade up as the panels open (from .64), so the paper is never blank for long
+ *   .82–.93  the signature writes itself (a slanted wipe), the P.S.
  *   .95–1    "Write back to us"; the pin releases at 1
  *
  * Transform, opacity, clip-path and stroke-dashoffset only; nothing here changes layout.
@@ -132,11 +133,13 @@ export function RootsMotion() {
       tl.to(p1, { rotationX: 0, duration: 0.12, ease: 'power2.inOut' }, 0.6);
       tl.to(p3, { rotationX: 0, duration: 0.12, ease: 'power2.inOut' }, 0.66);
       tl.to(letter, { scale: fit, duration: 0.08, ease: 'power2.out' }, 0.72);
+      // then a slow push-in while it is read (so the last screens still move)
+      tl.to(letter, { scale: () => fit() * 1.02, duration: 0.2, ease: 'none' }, 0.8);
       // 6: the words, line by line; the signature signs itself; the P.S.
       const words = lines.filter((l) => !l.matches('[class*="ps"]'));
       const ps = lines.filter((l) => l.matches('[class*="ps"]'));
       words.forEach((l, i) =>
-        tl.fromTo(l, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.04 }, 0.8 + i * 0.025),
+        tl.fromTo(l, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.04 }, 0.64 + i * 0.035),
       );
       tl.fromTo(
         sign,
@@ -146,10 +149,10 @@ export function RootsMotion() {
           duration: 0.06,
           ease: 'power1.inOut',
         },
-        0.86,
+        0.82,
       );
       ps.forEach((l) =>
-        tl.fromTo(l, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.03 }, 0.92),
+        tl.fromTo(l, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.03 }, 0.9),
       );
       // 7: write back
       tl.fromTo(

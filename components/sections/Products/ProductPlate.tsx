@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { labelReader } from '@/components/LabelReader/LabelReader';
+import { calmQueue } from '@/lib/three/calm';
 import { useCart } from '@/components/providers/CartProvider';
 import { asset } from '@/lib/basePath';
 import { MAX_LINE_QUANTITY } from '@/lib/commerce';
@@ -105,34 +106,34 @@ export function ProductPlate(p: PlateProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // the jar's model when the plate nears the viewport; the pouch's after idle time
+  // The jar's model: built ahead, one plate at a time and only in calm moments
+  // (lib/three/calm.ts). In the hero's pin (the lake's opening) from the moment the hero's 3D
+  // jar is ready (pyoor:lake-arm), well before the pans; elsewhere when the plate is within
+  // ~2 screens. The pouch's model only when it is asked for (hover or the Jar · Pouch switch).
   useEffect(() => {
     const root = plate.current;
     if (!root || !p.formats.jar.model) return;
-    let idle = 0;
+    const build = () => void calmQueue(() => stageFor('jar'));
     const io = new IntersectionObserver(
       ([e]) => {
         if (!e?.isIntersecting) return;
         io.disconnect();
-        void stageFor('jar').then(() => {
-          if (!p.formats.pouch?.model) return;
-          const go = () => void stageFor('pouch');
-          if (window.requestIdleCallback) idle = window.requestIdleCallback(go, { timeout: 4000 });
-          else idle = window.setTimeout(go, 1500);
-        });
+        build();
       },
-      { rootMargin: '600px 0px' },
+      { rootMargin: '200% 0px' },
     );
     const w = window as Window & { __pyoorLakeArmed?: boolean };
-    const observe = () => io.observe(root);
-    if (p.arm && !w.__pyoorLakeArmed)
-      window.addEventListener('pyoor:lake-arm', observe, { once: true });
-    else observe();
-    return () => {
-      window.removeEventListener('pyoor:lake-arm', observe);
+    const armed = () => {
       io.disconnect();
-      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
-      window.clearTimeout(idle);
+      build();
+    };
+    if (p.arm && !w.__pyoorLakeArmed)
+      window.addEventListener('pyoor:lake-arm', armed, { once: true });
+    else if (p.arm) armed();
+    else io.observe(root);
+    return () => {
+      window.removeEventListener('pyoor:lake-arm', armed);
+      io.disconnect();
       cancelAnimationFrame(anim.current);
       ctrl.current?.abort();
       made.current.forEach((s) => s.dispose());

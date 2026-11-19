@@ -1,0 +1,2022 @@
+{
+ "375": [
+  {
+   "name": "375-000-loader-0-4s.jpg",
+   "label": "loader-0.4s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-001-loader-1-7s.jpg",
+   "label": "loader-1.7s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-002-split-5s.jpg",
+   "label": "split-5s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-003-home-y600.jpg",
+   "label": "home-y600",
+   "section": "hero",
+   "scrollY": 591,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-004-home-y1200.jpg",
+   "label": "home-y1200",
+   "section": "hero",
+   "scrollY": 1191,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-005-home-y1800.jpg",
+   "label": "home-y1800",
+   "section": "hero",
+   "scrollY": 1791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-006-home-y2400.jpg",
+   "label": "home-y2400",
+   "section": "hero",
+   "scrollY": 2391,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-007-home-y3000.jpg",
+   "label": "home-y3000",
+   "section": "hero",
+   "scrollY": 2991,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-008-home-y3600.jpg",
+   "label": "home-y3600",
+   "section": "hero",
+   "scrollY": 3591,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-009-home-y4200.jpg",
+   "label": "home-y4200",
+   "section": "hero",
+   "scrollY": 4193,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-010-home-y4800.jpg",
+   "label": "home-y4800",
+   "section": "hero",
+   "scrollY": 4791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-011-home-y5400.jpg",
+   "label": "home-y5400",
+   "section": "hero",
+   "scrollY": 5391,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-012-home-y6000.jpg",
+   "label": "home-y6000",
+   "section": "hero",
+   "scrollY": 5991,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-013-home-y6600.jpg",
+   "label": "home-y6600",
+   "section": "hero",
+   "scrollY": 6591,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-014-home-y7200.jpg",
+   "label": "home-y7200",
+   "section": "hero",
+   "scrollY": 7191,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-015-home-y7800.jpg",
+   "label": "home-y7800",
+   "section": "hero",
+   "scrollY": 7791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-016-home-y8400.jpg",
+   "label": "home-y8400",
+   "section": "hero",
+   "scrollY": 8396,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-017-home-y9000.jpg",
+   "label": "home-y9000",
+   "section": "hero",
+   "scrollY": 8991,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-018-home-y9600.jpg",
+   "label": "home-y9600",
+   "section": "shop-title",
+   "scrollY": 9591,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-019-home-y10200.jpg",
+   "label": "home-y10200",
+   "section": "shop-title",
+   "scrollY": 10191,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-020-home-y10800.jpg",
+   "label": "home-y10800",
+   "section": "The Pair",
+   "scrollY": 10791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-021-home-y11400.jpg",
+   "label": "home-y11400",
+   "section": "The Pair",
+   "scrollY": 11391,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-022-home-y12000.jpg",
+   "label": "home-y12000",
+   "section": "fire",
+   "scrollY": 11991,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-023-home-y12600.jpg",
+   "label": "home-y12600",
+   "section": "fire",
+   "scrollY": 12593,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-024-home-y13200.jpg",
+   "label": "home-y13200",
+   "section": "fire",
+   "scrollY": 13193,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-025-home-y13800.jpg",
+   "label": "home-y13800",
+   "section": "crystals",
+   "scrollY": 13791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-026-home-y14400.jpg",
+   "label": "home-y14400",
+   "section": "crystals",
+   "scrollY": 14391,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-027-home-y15000.jpg",
+   "label": "home-y15000",
+   "section": "roots",
+   "scrollY": 14991,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-028-home-y15600.jpg",
+   "label": "home-y15600",
+   "section": "roots",
+   "scrollY": 15591,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-029-home-y16200.jpg",
+   "label": "home-y16200",
+   "section": "roots",
+   "scrollY": 16191,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-030-home-y16800.jpg",
+   "label": "home-y16800",
+   "section": "recipes",
+   "scrollY": 16791,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-031-home-y17400.jpg",
+   "label": "home-y17400",
+   "section": "footer",
+   "scrollY": 17391,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "375-032-home-y18000.jpg",
+   "label": "home-y18000",
+   "section": "footer",
+   "scrollY": 17989,
+   "overflowX": -15,
+   "small": [
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "375-033-home-y18600.jpg",
+   "label": "home-y18600",
+   "section": "footer",
+   "scrollY": 17998,
+   "overflowX": -15,
+   "small": [
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "375-034-home-bottom.jpg",
+   "label": "home-bottom",
+   "section": "footer",
+   "scrollY": 17998,
+   "overflowX": -15,
+   "small": [
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "375-035-page-recipes.jpg",
+   "label": "page/recipes",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-036-page-recipes-mid.jpg",
+   "label": "page/recipes-mid",
+   "section": "footer",
+   "scrollY": 1560,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-037-page-recipes-nimbu-pani.jpg",
+   "label": "page/recipes/nimbu-pani",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-038-page-recipes-nimbu-pani-mid.jpg",
+   "label": "page/recipes/nimbu-pani-mid",
+   "section": "footer",
+   "scrollY": 1445,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "375-039-page-product-herbal-black-salt.jpg",
+   "label": "page/product/herbal-black-salt",
+   "section": "footer",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-040-page-product-herbal-black-salt-mid.jpg",
+   "label": "page/product/herbal-black-salt-mid",
+   "section": "footer",
+   "scrollY": 861,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "375-041-page-nope-404.jpg",
+   "label": "page/nope-404",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-042-menu-open.jpg",
+   "label": "menu-open",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-043-bag-drawer.jpg",
+   "label": "bag-drawer",
+   "section": "salt-title",
+   "scrollY": 1385,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-044-label-jar.jpg",
+   "label": "label-jar",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-045-products-pouch.jpg",
+   "label": "products-pouch",
+   "section": "The Pair",
+   "scrollY": 10832,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "375-046-label-pouch.jpg",
+   "label": "label-pouch",
+   "section": "The Pair",
+   "scrollY": 10832,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "",
+   "label": "console",
+   "errors": [
+    "warning: THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "warning: THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead.",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "warning: WARNING: Too many active WebGL contexts. Oldest context will be lost."
+   ]
+  }
+ ],
+ "390": [
+  {
+   "name": "390-000-loader-0-4s.jpg",
+   "label": "loader-0.4s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-001-loader-1-7s.jpg",
+   "label": "loader-1.7s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-002-split-5s.jpg",
+   "label": "split-5s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-003-home-y760.jpg",
+   "label": "home-y760",
+   "section": "hero",
+   "scrollY": 749,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-004-home-y1520.jpg",
+   "label": "home-y1520",
+   "section": "hero",
+   "scrollY": 1508,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-005-home-y2280.jpg",
+   "label": "home-y2280",
+   "section": "hero",
+   "scrollY": 2268,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-006-home-y3040.jpg",
+   "label": "home-y3040",
+   "section": "hero",
+   "scrollY": 3029,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-007-home-y3800.jpg",
+   "label": "home-y3800",
+   "section": "hero",
+   "scrollY": 3788,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-008-home-y4560.jpg",
+   "label": "home-y4560",
+   "section": "hero",
+   "scrollY": 4548,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-009-home-y5320.jpg",
+   "label": "home-y5320",
+   "section": "hero",
+   "scrollY": 5311,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-010-home-y6080.jpg",
+   "label": "home-y6080",
+   "section": "hero",
+   "scrollY": 6068,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-011-home-y6840.jpg",
+   "label": "home-y6840",
+   "section": "hero",
+   "scrollY": 6828,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-012-home-y7600.jpg",
+   "label": "home-y7600",
+   "section": "hero",
+   "scrollY": 7588,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-013-home-y8360.jpg",
+   "label": "home-y8360",
+   "section": "hero",
+   "scrollY": 8348,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-014-home-y9120.jpg",
+   "label": "home-y9120",
+   "section": "hero",
+   "scrollY": 9108,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-015-home-y9880.jpg",
+   "label": "home-y9880",
+   "section": "hero",
+   "scrollY": 9868,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-016-home-y10640.jpg",
+   "label": "home-y10640",
+   "section": "hero",
+   "scrollY": 10632,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-017-home-y11400.jpg",
+   "label": "home-y11400",
+   "section": "hero",
+   "scrollY": 11388,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-018-home-y12160.jpg",
+   "label": "home-y12160",
+   "section": "shop-title",
+   "scrollY": 12149,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-019-home-y12920.jpg",
+   "label": "home-y12920",
+   "section": "The Pair",
+   "scrollY": 12908,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-020-home-y13680.jpg",
+   "label": "home-y13680",
+   "section": "The Pair",
+   "scrollY": 13669,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-021-home-y14440.jpg",
+   "label": "home-y14440",
+   "section": "fire",
+   "scrollY": 14428,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-022-home-y15200.jpg",
+   "label": "home-y15200",
+   "section": "fire",
+   "scrollY": 15188,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-023-home-y15960.jpg",
+   "label": "home-y15960",
+   "section": "fire",
+   "scrollY": 15949,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-024-home-y16720.jpg",
+   "label": "home-y16720",
+   "section": "fire",
+   "scrollY": 16708,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-025-home-y17480.jpg",
+   "label": "home-y17480",
+   "section": "crystals",
+   "scrollY": 17468,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-026-home-y18240.jpg",
+   "label": "home-y18240",
+   "section": "roots",
+   "scrollY": 18228,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-027-home-y19000.jpg",
+   "label": "home-y19000",
+   "section": "roots",
+   "scrollY": 18990,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-028-home-y19760.jpg",
+   "label": "home-y19760",
+   "section": "roots",
+   "scrollY": 19748,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-029-home-y20520.jpg",
+   "label": "home-y20520",
+   "section": "recipes",
+   "scrollY": 20508,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-030-home-y21280.jpg",
+   "label": "home-y21280",
+   "section": "footer",
+   "scrollY": 21268,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "390-031-home-y22040.jpg",
+   "label": "home-y22040",
+   "section": "footer",
+   "scrollY": 21592,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "390-032-home-bottom.jpg",
+   "label": "home-bottom",
+   "section": "footer",
+   "scrollY": 21597,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "390-033-page-recipes.jpg",
+   "label": "page/recipes",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-034-page-recipes-mid.jpg",
+   "label": "page/recipes-mid",
+   "section": "footer",
+   "scrollY": 1577,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "390-035-page-recipes-nimbu-pani.jpg",
+   "label": "page/recipes/nimbu-pani",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Serves\"",
+    "11px \"Time\"",
+    "11px \"Salt\""
+   ]
+  },
+  {
+   "name": "390-036-page-recipes-nimbu-pani-mid.jpg",
+   "label": "page/recipes/nimbu-pani-mid",
+   "section": "footer",
+   "scrollY": 1456,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "390-037-page-product-herbal-black-salt.jpg",
+   "label": "page/product/herbal-black-salt",
+   "section": "footer",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-038-page-product-herbal-black-salt-mid.jpg",
+   "label": "page/product/herbal-black-salt-mid",
+   "section": "footer",
+   "scrollY": 847,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "390-039-page-nope-404.jpg",
+   "label": "page/nope-404",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-040-menu-open.jpg",
+   "label": "menu-open",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Serves\"",
+    "11px \"Time\"",
+    "11px \"Salt\""
+   ]
+  },
+  {
+   "name": "390-041-bag-drawer.jpg",
+   "label": "bag-drawer",
+   "section": "salt-title",
+   "scrollY": 1292,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-042-label-jar.jpg",
+   "label": "label-jar",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-043-products-pouch.jpg",
+   "label": "products-pouch",
+   "section": "The Pair",
+   "scrollY": 13466,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "390-044-label-pouch.jpg",
+   "label": "label-pouch",
+   "section": "The Pair",
+   "scrollY": 13466,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "",
+   "label": "console",
+   "errors": [
+    "warning: THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "warning: THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead.",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "warning: WARNING: Too many active WebGL contexts. Oldest context will be lost."
+   ]
+  }
+ ],
+ "768": [
+  {
+   "name": "768-000-loader-0-4s.jpg",
+   "label": "loader-0.4s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-001-loader-1-7s.jpg",
+   "label": "loader-1.7s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-002-split-5s.jpg",
+   "label": "split-5s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-003-home-y922.jpg",
+   "label": "home-y922",
+   "section": "hero",
+   "scrollY": 908,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-004-home-y1844.jpg",
+   "label": "home-y1844",
+   "section": "hero",
+   "scrollY": 1830,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-005-home-y2766.jpg",
+   "label": "home-y2766",
+   "section": "hero",
+   "scrollY": 2752,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-006-home-y3688.jpg",
+   "label": "home-y3688",
+   "section": "hero",
+   "scrollY": 3676,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-007-home-y4610.jpg",
+   "label": "home-y4610",
+   "section": "hero",
+   "scrollY": 4598,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-008-home-y5532.jpg",
+   "label": "home-y5532",
+   "section": "hero",
+   "scrollY": 5518,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-009-home-y6454.jpg",
+   "label": "home-y6454",
+   "section": "hero",
+   "scrollY": 6444,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-010-home-y7376.jpg",
+   "label": "home-y7376",
+   "section": "hero",
+   "scrollY": 7363,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-011-home-y8298.jpg",
+   "label": "home-y8298",
+   "section": "hero",
+   "scrollY": 8284,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-012-home-y9220.jpg",
+   "label": "home-y9220",
+   "section": "hero",
+   "scrollY": 9207,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-013-home-y10142.jpg",
+   "label": "home-y10142",
+   "section": "hero",
+   "scrollY": 10131,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-014-home-y11064.jpg",
+   "label": "home-y11064",
+   "section": "hero",
+   "scrollY": 11049,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-015-home-y11986.jpg",
+   "label": "home-y11986",
+   "section": "hero",
+   "scrollY": 11973,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-016-home-y12908.jpg",
+   "label": "home-y12908",
+   "section": "hero",
+   "scrollY": 12902,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-017-home-y13830.jpg",
+   "label": "home-y13830",
+   "section": "hero",
+   "scrollY": 13817,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-018-home-y14752.jpg",
+   "label": "home-y14752",
+   "section": "hero",
+   "scrollY": 14738,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-019-home-y15674.jpg",
+   "label": "home-y15674",
+   "section": "shop-title",
+   "scrollY": 15664,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-020-home-y16596.jpg",
+   "label": "home-y16596",
+   "section": "The Pair",
+   "scrollY": 16582,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-021-home-y17518.jpg",
+   "label": "home-y17518",
+   "section": "fire",
+   "scrollY": 17504,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-022-home-y18440.jpg",
+   "label": "home-y18440",
+   "section": "fire",
+   "scrollY": 18426,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-023-home-y19362.jpg",
+   "label": "home-y19362",
+   "section": "fire",
+   "scrollY": 19349,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-024-home-y20284.jpg",
+   "label": "home-y20284",
+   "section": "fire",
+   "scrollY": 20270,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-025-home-y21206.jpg",
+   "label": "home-y21206",
+   "section": "crystals",
+   "scrollY": 21192,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-026-home-y22128.jpg",
+   "label": "home-y22128",
+   "section": "roots",
+   "scrollY": 22114,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-027-home-y23050.jpg",
+   "label": "home-y23050",
+   "section": "roots",
+   "scrollY": 23036,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-028-home-y23972.jpg",
+   "label": "home-y23972",
+   "section": "roots",
+   "scrollY": 23958,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-029-home-y24894.jpg",
+   "label": "home-y24894",
+   "section": "recipes",
+   "scrollY": 24880,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-030-home-y25816.jpg",
+   "label": "home-y25816",
+   "section": "recipes",
+   "scrollY": 25802,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "768-031-home-y26738.jpg",
+   "label": "home-y26738",
+   "section": "footer",
+   "scrollY": 26445,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "768-032-home-bottom.jpg",
+   "label": "home-bottom",
+   "section": "footer",
+   "scrollY": 26455,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "768-033-page-recipes.jpg",
+   "label": "page/recipes",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-034-page-recipes-mid.jpg",
+   "label": "page/recipes-mid",
+   "section": null,
+   "scrollY": 2228,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-035-page-recipes-nimbu-pani.jpg",
+   "label": "page/recipes/nimbu-pani",
+   "section": "ingredients-title",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Serves\"",
+    "11px \"Time\"",
+    "11px \"Salt\""
+   ]
+  },
+  {
+   "name": "768-036-page-recipes-nimbu-pani-mid.jpg",
+   "label": "page/recipes/nimbu-pani-mid",
+   "section": "footer",
+   "scrollY": 1447,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "768-037-page-product-herbal-black-salt.jpg",
+   "label": "page/product/herbal-black-salt",
+   "section": "footer",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "768-038-page-product-herbal-black-salt-mid.jpg",
+   "label": "page/product/herbal-black-salt-mid",
+   "section": "footer",
+   "scrollY": 711,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "768-039-page-nope-404.jpg",
+   "label": "page/nope-404",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-040-menu-open.jpg",
+   "label": "menu-open",
+   "section": "ingredients-title",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Serves\"",
+    "11px \"Time\"",
+    "11px \"Salt\""
+   ]
+  },
+  {
+   "name": "768-041-bag-drawer.jpg",
+   "label": "bag-drawer",
+   "section": "salt-title",
+   "scrollY": 1164,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\""
+   ]
+  },
+  {
+   "name": "768-042-label-jar.jpg",
+   "label": "label-jar",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-043-products-pouch.jpg",
+   "label": "products-pouch",
+   "section": "The Pair",
+   "scrollY": 16431,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "768-044-label-pouch.jpg",
+   "label": "label-pouch",
+   "section": "The Pair",
+   "scrollY": 16431,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "",
+   "label": "console",
+   "errors": [
+    "warning: THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "warning: THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead.",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "warning: The resource http://localhost:3001/_next/image?url=%2Fbrand%2Fpyoor-logo.png&w=96&q=75 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure",
+    "warning: WARNING: Too many active WebGL contexts. Oldest context will be lost."
+   ]
+  }
+ ],
+ "1280": [
+  {
+   "name": "1280-000-loader-0-4s.jpg",
+   "label": "loader-0.4s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-001-loader-1-7s.jpg",
+   "label": "loader-1.7s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-002-split-5s.jpg",
+   "label": "split-5s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-003-home-y648.jpg",
+   "label": "home-y648",
+   "section": "hero",
+   "scrollY": 639,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-004-home-y1296.jpg",
+   "label": "home-y1296",
+   "section": "hero",
+   "scrollY": 1287,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-005-home-y1944.jpg",
+   "label": "home-y1944",
+   "section": "hero",
+   "scrollY": 1935,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-006-home-y2592.jpg",
+   "label": "home-y2592",
+   "section": "hero",
+   "scrollY": 2583,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-007-home-y3240.jpg",
+   "label": "home-y3240",
+   "section": "hero",
+   "scrollY": 3231,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-008-home-y3888.jpg",
+   "label": "home-y3888",
+   "section": "hero",
+   "scrollY": 3879,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-009-home-y4536.jpg",
+   "label": "home-y4536",
+   "section": "hero",
+   "scrollY": 4529,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-010-home-y5184.jpg",
+   "label": "home-y5184",
+   "section": "hero",
+   "scrollY": 5175,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-011-home-y5832.jpg",
+   "label": "home-y5832",
+   "section": "hero",
+   "scrollY": 5823,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-012-home-y6480.jpg",
+   "label": "home-y6480",
+   "section": "hero",
+   "scrollY": 6471,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-013-home-y7128.jpg",
+   "label": "home-y7128",
+   "section": "hero",
+   "scrollY": 7118,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-014-home-y7776.jpg",
+   "label": "home-y7776",
+   "section": "hero",
+   "scrollY": 7766,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-015-home-y8424.jpg",
+   "label": "home-y8424",
+   "section": "hero",
+   "scrollY": 8415,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-016-home-y9072.jpg",
+   "label": "home-y9072",
+   "section": "hero",
+   "scrollY": 9070,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-017-home-y9720.jpg",
+   "label": "home-y9720",
+   "section": "hero",
+   "scrollY": 9715,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-018-home-y10368.jpg",
+   "label": "home-y10368",
+   "section": "hero",
+   "scrollY": 10362,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-019-home-y11016.jpg",
+   "label": "home-y11016",
+   "section": "The Pair",
+   "scrollY": 11008,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-020-home-y11664.jpg",
+   "label": "home-y11664",
+   "section": "The Pair",
+   "scrollY": 11655,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-021-home-y12312.jpg",
+   "label": "home-y12312",
+   "section": "fire",
+   "scrollY": 12304,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-022-home-y12960.jpg",
+   "label": "home-y12960",
+   "section": "fire",
+   "scrollY": 12950,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-023-home-y13608.jpg",
+   "label": "home-y13608",
+   "section": "fire",
+   "scrollY": 13602,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-024-home-y14256.jpg",
+   "label": "home-y14256",
+   "section": "fire",
+   "scrollY": 14247,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-025-home-y14904.jpg",
+   "label": "home-y14904",
+   "section": "crystals",
+   "scrollY": 14895,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-026-home-y15552.jpg",
+   "label": "home-y15552",
+   "section": "roots",
+   "scrollY": 15542,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-027-home-y16200.jpg",
+   "label": "home-y16200",
+   "section": "roots",
+   "scrollY": 16190,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-028-home-y16848.jpg",
+   "label": "home-y16848",
+   "section": "roots",
+   "scrollY": 16838,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-029-home-y17496.jpg",
+   "label": "home-y17496",
+   "section": "roots",
+   "scrollY": 17486,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-030-home-y18144.jpg",
+   "label": "home-y18144",
+   "section": "recipes",
+   "scrollY": 18135,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-031-home-y18792.jpg",
+   "label": "home-y18792",
+   "section": "footer",
+   "scrollY": 18782,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1280-032-home-y19440.jpg",
+   "label": "home-y19440",
+   "section": "footer",
+   "scrollY": 18964,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1280-033-home-bottom.jpg",
+   "label": "home-bottom",
+   "section": "footer",
+   "scrollY": 18967,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1280-034-page-recipes.jpg",
+   "label": "page/recipes",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-035-page-recipes-mid.jpg",
+   "label": "page/recipes-mid",
+   "section": "footer",
+   "scrollY": 895,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1280-036-page-recipes-nimbu-pani.jpg",
+   "label": "page/recipes/nimbu-pani",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-037-page-recipes-nimbu-pani-mid.jpg",
+   "label": "page/recipes/nimbu-pani-mid",
+   "section": "steps-title",
+   "scrollY": 1380,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-038-page-product-herbal-black-salt.jpg",
+   "label": "page/product/herbal-black-salt",
+   "section": "footer",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-039-page-product-herbal-black-salt-mid.jpg",
+   "label": "page/product/herbal-black-salt-mid",
+   "section": "footer",
+   "scrollY": 653,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1280-040-page-nope-404.jpg",
+   "label": "page/nope-404",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-041-menu-open.jpg",
+   "label": "menu-open",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-042-bag-drawer.jpg",
+   "label": "bag-drawer",
+   "section": "salt-title",
+   "scrollY": 1420,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-043-label-jar.jpg",
+   "label": "label-jar",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-044-products-pouch.jpg",
+   "label": "products-pouch",
+   "section": "The Pair",
+   "scrollY": 11517,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1280-045-label-pouch.jpg",
+   "label": "label-pouch",
+   "section": "The Pair",
+   "scrollY": 10894,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "",
+   "label": "console",
+   "errors": [
+    "warning: THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "warning: THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead.",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "warning: WARNING: Too many active WebGL contexts. Oldest context will be lost."
+   ]
+  }
+ ],
+ "1440": [
+  {
+   "name": "1440-000-loader-0-4s.jpg",
+   "label": "loader-0.4s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-001-loader-1-7s.jpg",
+   "label": "loader-1.7s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-002-split-5s.jpg",
+   "label": "split-5s",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-003-home-y810.jpg",
+   "label": "home-y810",
+   "section": "hero",
+   "scrollY": 799,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-004-home-y1620.jpg",
+   "label": "home-y1620",
+   "section": "hero",
+   "scrollY": 1609,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-005-home-y2430.jpg",
+   "label": "home-y2430",
+   "section": "hero",
+   "scrollY": 2419,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-006-home-y3240.jpg",
+   "label": "home-y3240",
+   "section": "hero",
+   "scrollY": 3229,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-007-home-y4050.jpg",
+   "label": "home-y4050",
+   "section": "hero",
+   "scrollY": 4039,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-008-home-y4860.jpg",
+   "label": "home-y4860",
+   "section": "hero",
+   "scrollY": 4860,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-009-home-y5670.jpg",
+   "label": "home-y5670",
+   "section": "hero",
+   "scrollY": 5661,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-010-home-y6480.jpg",
+   "label": "home-y6480",
+   "section": "hero",
+   "scrollY": 6469,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-011-home-y7290.jpg",
+   "label": "home-y7290",
+   "section": "hero",
+   "scrollY": 7279,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-012-home-y8100.jpg",
+   "label": "home-y8100",
+   "section": "hero",
+   "scrollY": 8093,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-013-home-y8910.jpg",
+   "label": "home-y8910",
+   "section": "hero",
+   "scrollY": 8899,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-014-home-y9720.jpg",
+   "label": "home-y9720",
+   "section": "hero",
+   "scrollY": 9709,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-015-home-y10530.jpg",
+   "label": "home-y10530",
+   "section": "hero",
+   "scrollY": 10520,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-016-home-y11340.jpg",
+   "label": "home-y11340",
+   "section": "hero",
+   "scrollY": 11340,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-017-home-y12150.jpg",
+   "label": "home-y12150",
+   "section": "hero",
+   "scrollY": 12147,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-018-home-y12960.jpg",
+   "label": "home-y12960",
+   "section": "hero",
+   "scrollY": 12953,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-019-home-y13770.jpg",
+   "label": "home-y13770",
+   "section": "The Pair",
+   "scrollY": 13759,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-020-home-y14580.jpg",
+   "label": "home-y14580",
+   "section": "The Pair",
+   "scrollY": 14569,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-021-home-y15390.jpg",
+   "label": "home-y15390",
+   "section": "fire",
+   "scrollY": 15380,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-022-home-y16200.jpg",
+   "label": "home-y16200",
+   "section": "fire",
+   "scrollY": 16194,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-023-home-y17010.jpg",
+   "label": "home-y17010",
+   "section": "fire",
+   "scrollY": 17002,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-024-home-y17820.jpg",
+   "label": "home-y17820",
+   "section": "crystals",
+   "scrollY": 17809,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-025-home-y18630.jpg",
+   "label": "home-y18630",
+   "section": "crystals",
+   "scrollY": 18620,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-026-home-y19440.jpg",
+   "label": "home-y19440",
+   "section": "roots",
+   "scrollY": 19429,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-027-home-y20250.jpg",
+   "label": "home-y20250",
+   "section": "roots",
+   "scrollY": 20239,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-028-home-y21060.jpg",
+   "label": "home-y21060",
+   "section": "roots",
+   "scrollY": 21049,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-029-home-y21870.jpg",
+   "label": "home-y21870",
+   "section": "recipes",
+   "scrollY": 21859,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-030-home-y22680.jpg",
+   "label": "home-y22680",
+   "section": "footer",
+   "scrollY": 22669,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-031-home-y23490.jpg",
+   "label": "home-y23490",
+   "section": "footer",
+   "scrollY": 22887,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-032-home-bottom.jpg",
+   "label": "home-bottom",
+   "section": "footer",
+   "scrollY": 22890,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-033-page-recipes.jpg",
+   "label": "page/recipes",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-034-page-recipes-mid.jpg",
+   "label": "page/recipes-mid",
+   "section": "footer",
+   "scrollY": 932,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-035-page-recipes-nimbu-pani.jpg",
+   "label": "page/recipes/nimbu-pani",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-036-page-recipes-nimbu-pani-mid.jpg",
+   "label": "page/recipes/nimbu-pani-mid",
+   "section": "steps-title",
+   "scrollY": 1395,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-037-page-product-herbal-black-salt.jpg",
+   "label": "page/product/herbal-black-salt",
+   "section": "footer",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-038-page-product-herbal-black-salt-mid.jpg",
+   "label": "page/product/herbal-black-salt-mid",
+   "section": "footer",
+   "scrollY": 490,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-039-page-nope-404.jpg",
+   "label": "page/nope-404",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-040-menu-open.jpg",
+   "label": "menu-open",
+   "section": null,
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": [
+    "11px \"Serves\"",
+    "11px \"Time\"",
+    "11px \"Salt\""
+   ]
+  },
+  {
+   "name": "1440-041-bag-drawer.jpg",
+   "label": "bag-drawer",
+   "section": "salt-title",
+   "scrollY": 1340,
+   "overflowX": -15,
+   "small": [
+    "11px \"Shop\"",
+    "11px \"Pyoor\"",
+    "11px \"Letters from the lake\""
+   ]
+  },
+  {
+   "name": "1440-042-label-jar.jpg",
+   "label": "label-jar",
+   "section": "hero",
+   "scrollY": 0,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-043-products-pouch.jpg",
+   "label": "products-pouch",
+   "section": "The Pair",
+   "scrollY": 14134,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "1440-044-label-pouch.jpg",
+   "label": "label-pouch",
+   "section": "The Pair",
+   "scrollY": 13506,
+   "overflowX": -15,
+   "small": []
+  },
+  {
+   "name": "",
+   "label": "console",
+   "errors": [
+    "warning: THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+    "warning: THREE.WebGLShadowMap: PCFSoftShadowMap has been removed. Using PCFShadowMap instead.",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "warning: WARNING: Too many active WebGL contexts. Oldest context will be lost."
+   ]
+  }
+ ]
+}

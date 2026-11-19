@@ -16,7 +16,6 @@ import {
   Scene,
   SRGBColorSpace,
   WebGLRenderer,
-  WebGLRenderTarget,
   Vector3,
   BufferGeometry,
   Float32BufferAttribute,
@@ -35,6 +34,7 @@ import { loadJarModel } from '@/lib/three/loaders';
 import type { QualityTier } from '@/lib/three/quality';
 import { loadGsap } from '@/lib/motion/gsap';
 import { createPour, type Pour } from './grains';
+import { precompile } from '@/lib/three/precompile';
 import { createSaltBody, type SaltBody } from './saltBody';
 import { createContact, createGround } from './ground';
 import { createJarRig, poseCap, poseJar } from './jar';
@@ -51,6 +51,11 @@ export interface JarSceneOptions {
   canvas: HTMLCanvasElement;
   tier: QualityTier;
   modelUrl: string;
+  /**
+   * How long each shader link may wait for a pause in scrolling (ms): 0 when the visitor is
+   * already scrolling towards the film (the jar is needed now), longer when built at rest.
+   */
+  linkWait?: number;
   /** The film's progress, 0–1 (lib/motion/film.ts). Read every frame. */
   getProgress: () => number;
   /** Called once, after the first frame is on screen (hide the poster then). */
@@ -392,10 +397,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     turnCtl.update(dt, !!canvasShown && rest >= 0.999 && calm === 0 && !still);
     if (!still && rest >= 1 && op.rise > 0) lifeT += dt * turnCtl.sway;
     const turn = Math.sin((2 * Math.PI * lifeT) / TURN_PERIOD) * TURN * (1 - calm) * turnCtl.sway;
-    // sharpness: the tier's DPR while scrolling, up to 2 once the page has rested 300 ms
+    // sharpness: up to 2 only on the hero's first screen once the page has rested 300 ms; from
+    // the film on, the tier's DPR throughout (each switch reallocates the full-screen canvas,
+    // which stalls a frame, so it never switches back and forth while scrolling)
     const resting = performance.now() - lastScroll > 300;
-    if (resting && dpr !== restDpr) setDpr(restDpr);
-    else if (!resting && dpr !== scrollDpr) setDpr(scrollDpr);
+    const wantDpr = p < 0.02 ? (resting ? restDpr : dpr) : scrollDpr;
+    if (dpr !== wantDpr) setDpr(wantDpr);
     // the view's height at the jar (the lens changes fov and distance together: the same height)
     const viewH = 2 * Math.tan((15 * Math.PI) / 180) * 0.62 * (layout.portrait ? 0.92 : 1);
     poseJar(
@@ -483,25 +490,20 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   await nextFrame();
   pour.mound.visible = true; // compile it too
   await idle();
-  try {
-    await renderer.compileAsync(scene, camera);
-  } catch {
-    // older drivers: the render below compiles them instead
-  }
-  // Warm-up, invisibly: one render into an offscreen target (textures upload, pipelines and
-  // shadow maps build), never to the visible canvas.
+  // each link waits at most opts.linkWait for a pause (the jar is needed by the film)
+  await precompile(renderer, scene, camera, signal, opts.linkWait ?? 250);
+  // Warm-up, invisibly: renders to the canvas while it is still hidden (textures upload,
+  // shadow maps build), cleared afterwards. Never to an offscreen target: three.js builds other
+  // shader variants for one (no tone mapping, linear output), compiled synchronously, which is
+  // exactly the freeze compileAsync above avoids.
   {
-    const w = Math.max(2, renderer.domElement.width);
-    const h = Math.max(2, renderer.domElement.height);
     await idle();
-    const warm = new WebGLRenderTarget(w, h);
     const fc = filmCamera(0, layout, camera.aspect, pourStore.shape());
     camera.position.set(fc.pos[0], fc.pos[1], fc.pos[2]);
     camera.lookAt(fc.look[0], fc.look[1], fc.look[2]);
     // everything that only appears later (the mound) is drawn once here too, so its programs
     // and shadow pass are built now rather than mid-scroll
     pour.mound.visible = true;
-    renderer.setRenderTarget(warm);
     // One object per idle moment: without parallel compile (many phones, software GL) linking
     // every program in one render freezes the page for 1–2 s, which stalls scrolling.
     const mats = new Map<Material, boolean>();
@@ -518,10 +520,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     mats.forEach((v, x) => (x.visible = v));
     pour.mound.visible = true;
     renderer.render(scene, camera);
-    renderer.setRenderTarget(null);
-    renderer.clear(); // the visible canvas never holds a warm-up frame
+    renderer.clear(); // the canvas never shows a warm-up frame
     pour.mound.visible = false;
-    warm.dispose();
   }
   if (signal.aborted) {
     disposeObject(scene);
@@ -533,6 +533,12 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   const { gsap } = await loadGsap();
   gsap.ticker.add(frame);
   journeyStore.ready3d = true;
+  // the products' plates (the lake's opening) may start building now, in calm moments
+  const w = window as Window & { __pyoorLakeArmed?: boolean };
+  if (!w.__pyoorLakeArmed) {
+    w.__pyoorLakeArmed = true;
+    window.dispatchEvent(new Event('pyoor:lake-arm'));
+  }
 
   heroShare.set({
     jar: rig.jar,

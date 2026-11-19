@@ -186,7 +186,7 @@
 
 /* ---------------- motion: pinned, scrubbed ---------------- */
 :global(html.motion) .roots {
-  height: 300vh; /* the screen and 200vh of scroll */
+  height: 260vh; /* the screen and 160vh of scroll */
   padding: 0;
   overflow: visible; /* (hidden would stop the stage sticking) */
 }

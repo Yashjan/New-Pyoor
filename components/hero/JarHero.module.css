@@ -98,6 +98,12 @@
   transition: opacity 0.6s var(--ease-settle);
 }
 
+/* with motion and 3D, the poster isn't shown (the engraving stands in until the 3D jar is
+   ready), so it is never the first screen's largest paint */
+:global(html.motion) .hero:not([data-no3d]) .poster {
+  visibility: hidden;
+}
+
 /* reduced motion: the pour's end, over the closed jar, crossfaded in (JarHero.tsx) */
 .posterFinal {
   grid-column: 2;
@@ -286,13 +292,13 @@
 /* ---------------- motion: the opening, then the pinned 3D sequence ---------------- */
 :global(html.motion) .hero {
   /* the split's 100vh, the Journey's 500vh, the film's 600vh (FILM_VH), the salt pans' 100vh
-     (PANS_VH), the lake opening's 140vh (openVh; phones 110vh), the pinned screen */
-  height: 1540vh;
+     (PANS_VH), the lake opening's 115vh (openVh; phones 95vh), the pinned screen */
+  height: 1515vh;
 }
 
 @media (max-width: 699px) {
   :global(html.motion) .hero {
-    height: 1510vh;
+    height: 1495vh;
   }
 }
 

@@ -20,10 +20,10 @@ export const PANS = {
 
 /**
  * "The lake opens" (components/sections/Products/LakeOpening): the last of the hero's pin, after
- * the pans: the field splits along its canal and the products rise. ~140vh (phones ~110vh).
+ * the pans: the field splits along its canal and the products rise. ~115vh (phones ~95vh).
  */
 export const openVh = () =>
-  typeof window !== 'undefined' && window.matchMedia('(max-width: 699px)').matches ? 1.1 : 1.4;
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 699px)').matches ? 0.95 : 1.15;
 /** A ScrollTrigger position `vhs` screens before the pin's end (the hero's bottom at the bottom). */
 export const beforeEnd = (vhs: number) => `bottom-=${Math.round(window.innerHeight * vhs)} bottom`;
 

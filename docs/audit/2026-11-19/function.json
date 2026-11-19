@@ -1,0 +1,1161 @@
+{
+ "links": [
+  {
+   "href": "/#main",
+   "status": 200,
+   "from": [
+    "/"
+   ],
+   "anchor": "ok"
+  },
+  {
+   "href": "/#top",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ],
+   "anchor": "MISSING"
+  },
+  {
+   "href": "/#shop",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ],
+   "anchor": "ok"
+  },
+  {
+   "href": "/#roots",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ],
+   "anchor": "ok"
+  },
+  {
+   "href": "/#journey",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ],
+   "anchor": "ok"
+  },
+  {
+   "href": "/recipes",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/product/herbal-black-salt",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/product/natural-lake-salt",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/product/pink-rock-salt",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "https://wa.me/917665009882",
+   "status": "external",
+   "from": [
+    "/",
+    "/recipes"
+   ]
+  },
+  {
+   "href": "https://www.instagram.com/pyoorglobal",
+   "status": "external",
+   "from": [
+    "/",
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/recipes/nimbu-pani",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/recipes/fruit-chaat",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/recipes/masala-chaas",
+   "status": 200,
+   "from": [
+    "/",
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/shipping",
+   "status": 404,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/returns",
+   "status": 404,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/faq",
+   "status": 404,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/privacy",
+   "status": 404,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/terms",
+   "status": 404,
+   "from": [
+    "/",
+    "/recipes",
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/recipes#main",
+   "status": 200,
+   "from": [
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/recipes#top",
+   "status": 200,
+   "from": [
+    "/recipes"
+   ]
+  },
+  {
+   "href": "/recipes/nimbu-pani#main",
+   "status": 200,
+   "from": [
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/recipes/nimbu-pani#top",
+   "status": 200,
+   "from": [
+    "/recipes/nimbu-pani"
+   ]
+  },
+  {
+   "href": "/recipes/fruit-chaat#main",
+   "status": 200,
+   "from": [
+    "/recipes/fruit-chaat"
+   ]
+  },
+  {
+   "href": "/recipes/fruit-chaat#top",
+   "status": 200,
+   "from": [
+    "/recipes/fruit-chaat"
+   ]
+  },
+  {
+   "href": "/recipes/masala-chaas#main",
+   "status": 200,
+   "from": [
+    "/recipes/masala-chaas"
+   ]
+  },
+  {
+   "href": "/recipes/masala-chaas#top",
+   "status": 200,
+   "from": [
+    "/recipes/masala-chaas"
+   ]
+  },
+  {
+   "href": "/product/herbal-black-salt#main",
+   "status": 200,
+   "from": [
+    "/product/herbal-black-salt"
+   ]
+  },
+  {
+   "href": "/product/herbal-black-salt#top",
+   "status": 200,
+   "from": [
+    "/product/herbal-black-salt"
+   ]
+  },
+  {
+   "href": "/product/natural-lake-salt#main",
+   "status": 200,
+   "from": [
+    "/product/natural-lake-salt"
+   ]
+  },
+  {
+   "href": "/product/natural-lake-salt#top",
+   "status": 200,
+   "from": [
+    "/product/natural-lake-salt"
+   ]
+  },
+  {
+   "href": "/product/pink-rock-salt#main",
+   "status": 200,
+   "from": [
+    "/product/pink-rock-salt"
+   ]
+  },
+  {
+   "href": "/product/pink-rock-salt#top",
+   "status": 200,
+   "from": [
+    "/product/pink-rock-salt"
+   ]
+  }
+ ],
+ "seo": [
+  {
+   "p": "/",
+   "status": 200,
+   "title": "Pyoor: Salt from Sambhar Lake",
+   "desc": "Salt from Sambhar Lake, Rajasthan. Herbal black salt and natural lake salt, packed at the source in 1 kg jars.",
+   "canonical": null,
+   "ogImage": null,
+   "ogTitle": "Pyoor: Salt from Sambhar Lake",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/recipes",
+   "status": 200,
+   "title": "Recipes · Pyoor",
+   "desc": "Simple things we make at home with Pyoor salt: nimbu pani, fruit chaat and masala chaas.",
+   "canonical": "http://localhost:3000/recipes",
+   "ogImage": null,
+   "ogTitle": "Recipes · Pyoor",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/recipes/nimbu-pani",
+   "status": 200,
+   "title": "Nimbu pani: a recipe · Pyoor",
+   "desc": "Cold lemon water with sugar, roasted cumin and a pinch of Herbal Black Salt. Ready in five minutes.",
+   "canonical": "http://localhost:3000/recipes/nimbu-pani",
+   "ogImage": "http://localhost:3000/engravings/recipe-nimbu-pani.png",
+   "ogTitle": "Nimbu pani",
+   "twCard": "summary_large_image",
+   "twImage": "http://localhost:3000/engravings/recipe-nimbu-pani.png",
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Recipe"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/recipes/fruit-chaat",
+   "status": 200,
+   "title": "Fruit chaat: a recipe · Pyoor",
+   "desc": "Cut fruit with lemon, roasted cumin, a little chilli and Herbal Black Salt, tossed and topped with mint.",
+   "canonical": "http://localhost:3000/recipes/fruit-chaat",
+   "ogImage": "http://localhost:3000/engravings/recipe-fruit-chaat.png",
+   "ogTitle": "Fruit chaat",
+   "twCard": "summary_large_image",
+   "twImage": "http://localhost:3000/engravings/recipe-fruit-chaat.png",
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Recipe"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/recipes/masala-chaas",
+   "status": 200,
+   "title": "Masala chaas: a recipe · Pyoor",
+   "desc": "Whisked curd and cold water with roasted cumin, coriander and both our salts. Served cold.",
+   "canonical": "http://localhost:3000/recipes/masala-chaas",
+   "ogImage": "http://localhost:3000/engravings/recipe-masala-chaas.png",
+   "ogTitle": "Masala chaas",
+   "twCard": "summary_large_image",
+   "twImage": "http://localhost:3000/engravings/recipe-masala-chaas.png",
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Recipe"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/product/herbal-black-salt",
+   "status": 200,
+   "title": "Herbal Black Salt (काला नमक), 1 kg · Pyoor",
+   "desc": "Black salt made from Sambhar Lake salt with harad, baheda and amla. 1 kg clear jar, packed at Sambhar Lake, Rajasthan.",
+   "canonical": null,
+   "ogImage": null,
+   "ogTitle": "Herbal Black Salt (काला नमक), 1 kg · Pyoor",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Product"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/product/natural-lake-salt",
+   "status": 200,
+   "title": "Natural Lake Salt (सफ़ेद नमक), 1 kg · Pyoor",
+   "desc": "Salt harvested from Sambhar Lake, Rajasthan, and sun-dried. 1 kg clear jar, packed at the lake.",
+   "canonical": null,
+   "ogImage": null,
+   "ogTitle": "Natural Lake Salt (सफ़ेद नमक), 1 kg · Pyoor",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Product"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/product/pink-rock-salt",
+   "status": 200,
+   "title": "Pink Rock Salt (सेंधा नमक), 1 kg · Pyoor",
+   "desc": "Pink rock salt (sendha namak) by Pyoor: 1 kg clear jar or 1 kg refill pouch.",
+   "canonical": null,
+   "ogImage": null,
+   "ogTitle": "Pink Rock Salt (सेंधा नमक), 1 kg · Pyoor",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization",
+    "Product"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "p": "/nope",
+   "status": 404,
+   "title": "Pyoor: Salt from Sambhar Lake",
+   "desc": "Salt from Sambhar Lake, Rajasthan. Herbal black salt and natural lake salt, packed at the source in 1 kg jars.",
+   "canonical": null,
+   "ogImage": null,
+   "ogTitle": "Pyoor: Salt from Sambhar Lake",
+   "twCard": "summary",
+   "twImage": null,
+   "lang": "en-IN",
+   "h1": 1,
+   "headingSkips": [],
+   "ld": [
+    "Organization"
+   ],
+   "icons": [
+    "/icon.png?icon.22zrtfo5_e9iw.png",
+    "/apple-icon.png?apple-icon.1icnc9issqcg4.png"
+   ]
+  },
+  {
+   "file": "/robots.txt",
+   "status": 404
+  },
+  {
+   "file": "/sitemap.xml",
+   "status": 200
+  },
+  {
+   "file": "/icon.png",
+   "status": 200
+  },
+  {
+   "file": "/apple-icon.png",
+   "status": 200
+  },
+  {
+   "file": "/favicon.ico",
+   "status": 404
+  },
+  {
+   "file": "/manifest.webmanifest",
+   "status": 404
+  }
+ ],
+ "bag": {
+  "before": {
+   "text": "Your bag Close bag Herbal Black Salt 1 kg jar · ₹199 1 Remove Herbal Black Salt ₹199 Herbal Black Salt 1 kg refill pouch · ₹149 1 Remove Herbal Black Salt ₹149 Natural Lake Salt 1 kg jar · ₹199 1 Remove Natural Lake Salt ₹199 Natural Lake Salt 1 kg refill pouch · ₹149 1 Remove Natural Lake Salt ₹149 Subtotal ₹696 Cash on delivery and online payment at checkout Questions? WhatsApp us Checkout · Opening soon"
+  },
+  "incButtons": 1,
+  "afterInc": {
+   "text": "Your bag Close bag Herbal Black Salt 1 kg jar · ₹199 2 Remove Herbal Black Salt ₹398 Herbal Black Salt 1 kg refill pouch · ₹149 1 Remove Herbal Black Salt ₹149 Natural Lake Salt 1 kg jar · ₹199 1 Remove Natural Lake Salt ₹199 Natural Lake Salt 1 kg refill pouch · ₹149 1 Remove Natural Lake Salt ₹149 Subtotal ₹895 Cash on delivery and online payment at checkout Questions? WhatsApp us Checkout · Opening soon"
+  },
+  "afterRemove": {
+   "text": "Your bag Close bag Herbal Black Salt 1 kg refill pouch · ₹149 1 Remove Herbal Black Salt ₹149 Natural Lake Salt 1 kg jar · ₹199 1 Remove Natural Lake Salt ₹199 Natural Lake Salt 1 kg refill pouch · ₹149 1 Remove Natural Lake Salt ₹149 Subtotal ₹497 Cash on delivery and online payment at checkout Questions? WhatsApp us Checkout · Opening soon"
+  },
+  "afterReload": {
+   "text": "Your bag Close bag Herbal Black Salt 1 kg refill pouch · ₹149 1 Remove Herbal Black Salt ₹149 Natural Lake Salt 1 kg jar · ₹199 1 Remove Natural Lake Salt ₹199 Natural Lake Salt 1 kg refill pouch · ₹149 1 Remove Natural Lake Salt ₹149 Subtotal ₹497 Cash on delivery and online payment at checkout Questions? WhatsApp us Checkout · Opening soon"
+  }
+ },
+ "sound": {
+  "audioBefore": [],
+  "stored": {},
+  "toggleLabel": "SOUND\nOFF\nON",
+  "audioAfterOn": [
+   "http://localhost:3001/sounds/wind-loop.mp3",
+   "http://localhost:3001/sounds/water-loop.mp3",
+   "http://localhost:3001/sounds/pour-loop.mp3",
+   "http://localhost:3001/sounds/rake.mp3",
+   "http://localhost:3001/sounds/jar-tone.mp3",
+   "http://localhost:3001/sounds/cap-clicks.mp3"
+  ]
+ },
+ "reloadMid": {
+  "beforeReload": 10172,
+  "afterReload": 0,
+  "backUrl": "http://localhost:3001/",
+  "fwdUrl": "http://localhost:3001/recipes"
+ },
+ "labelReader": {
+  "open": "closed",
+  "textScroll": [
+   0,
+   309
+  ],
+  "closed": "closed",
+  "focusReturnsToCta": true
+ },
+ "drag": {
+  "ERROR": "locator.screenshot: Timeout 29994.425000000003ms exceeded."
+ },
+ "axe": [
+  {
+   "label": "/",
+   "r": [
+    {
+     "id": "aria-prohibited-attr",
+     "impact": "serious",
+     "n": 1,
+     "ex": [
+      ".SJVzlq_field"
+     ]
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "n": 1,
+     "ex": [
+      "#plate-pink-rock-salt"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "/recipes",
+   "r": []
+  },
+  {
+   "label": "/recipes/nimbu-pani",
+   "r": []
+  },
+  {
+   "label": "/recipes/fruit-chaat",
+   "r": []
+  },
+  {
+   "label": "/recipes/masala-chaas",
+   "r": []
+  },
+  {
+   "label": "/product/herbal-black-salt",
+   "r": []
+  },
+  {
+   "label": "/product/natural-lake-salt",
+   "r": []
+  },
+  {
+   "label": "/product/pink-rock-salt",
+   "r": []
+  },
+  {
+   "label": "/nope",
+   "r": [
+    {
+     "id": "landmark-one-main",
+     "impact": "moderate",
+     "n": 1,
+     "ex": [
+      "html"
+     ]
+    },
+    {
+     "id": "region",
+     "impact": "moderate",
+     "n": 3,
+     "ex": [
+      ".skip-link",
+      "h1"
+     ]
+    },
+    {
+     "id": "skip-link",
+     "impact": "moderate",
+     "n": 1,
+     "ex": [
+      ".skip-link"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "menu open",
+   "r": []
+  },
+  {
+   "label": "bag open",
+   "r": []
+  },
+  {
+   "label": "label reader open",
+   "r": []
+  }
+ ],
+ "keyboard": {
+  "total": 70,
+  "noVisibleFocus": [
+   "A Read the recipe →: Nimbu pani",
+   "A Read the recipe →: Fruit chaat",
+   "A Read the recipe →: Masala chaa",
+   "BODY Skip to contentMenuCloseMenuBa",
+   "A Read the recipe →: Nimbu pani",
+   "A Read the recipe →: Fruit chaat",
+   "A Read the recipe →: Masala chaa"
+  ],
+  "offScreen": []
+ },
+ "reducedMotion": {
+  "height": 17464,
+  "shots": [
+   "rm-00.jpg",
+   "rm-01.jpg",
+   "rm-02.jpg",
+   "rm-03.jpg",
+   "rm-04.jpg",
+   "rm-05.jpg",
+   "rm-06.jpg",
+   "rm-07.jpg",
+   "rm-08.jpg",
+   "rm-09.jpg",
+   "rm-10.jpg",
+   "rm-11.jpg",
+   "rm-12.jpg",
+   "rm-13.jpg"
+  ]
+ },
+ "textSize": [
+  {
+   "pct": 125,
+   "w": 1440,
+   "url": "/",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 900,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1800,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2700,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3600,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 4500,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 125,
+   "w": 1440,
+   "url": "/recipes/masala-chaas",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 900,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1800,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2700,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 125,
+   "w": 390,
+   "url": "/",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 844,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1688,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2532,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3376,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 4220,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 125,
+   "w": 390,
+   "url": "/recipes/masala-chaas",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 844,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1688,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2532,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3376,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 150,
+   "w": 1440,
+   "url": "/",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 900,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1800,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2700,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3600,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 4500,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 150,
+   "w": 1440,
+   "url": "/recipes/masala-chaas",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 900,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1800,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2700,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3600,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 150,
+   "w": 390,
+   "url": "/",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 844,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1688,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2532,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3376,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 4220,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      "Sambhar",
+      ": Herbal Black Salt, 1 kg jar"
+     ]
+    }
+   ]
+  },
+  {
+   "pct": 150,
+   "w": 390,
+   "url": "/recipes/masala-chaas",
+   "issues": [
+    {
+     "y": 0,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 844,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 1688,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 2532,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 3376,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    },
+    {
+     "y": 4220,
+     "ox": -15,
+     "bad": [
+      "Menu",
+      ", 0 items",
+      ": Herbal Black Salt, 1 kg jar",
+      ": Natural Lake Salt, 1 kg jar"
+     ]
+    }
+   ]
+  }
+ ]
+}

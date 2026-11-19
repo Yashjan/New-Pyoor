@@ -1,7 +1,15 @@
-import { PerspectiveCamera, WebGLRenderer } from 'three';
+import {
+  PerspectiveCamera,
+  WebGLRenderer,
+  type Material,
+  type Mesh,
+  type Texture,
+} from 'three';
 import { createTurn } from '@/components/hero/scene/turn';
 import { coveredStore } from '@/lib/motion/covered';
 import { pickQualityTier } from '@/lib/three/quality';
+import { precompile } from '@/lib/three/precompile';
+import { whenCalm } from '@/lib/three/calm';
 import { SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
 
 /** `?still`: no idle sway (the dead-scroll test measures only what scrolling changes). */
@@ -37,6 +45,7 @@ export async function createStage(
   onFirstFrame: () => void,
 ): Promise<Stage> {
   const tier = pickQualityTier();
+  await whenCalm(signal);
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.debug.checkShaderErrors = false;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier?.name === 'weak' ? 1.25 : 2));
@@ -50,6 +59,7 @@ export async function createStage(
     renderer.dispose();
     throw err;
   }
+  await whenCalm(signal);
   studio.scene.add(model.root);
   plateCamera(camera, model);
   const m = model;
@@ -62,10 +72,29 @@ export async function createStage(
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
   resize();
-  try {
-    await renderer.compileAsync(studio.scene, camera);
-  } catch {
-    // older drivers: the first render compiles
+  await precompile(renderer, studio.scene, camera, signal);
+  // Warm-up, unseen: one material per calm moment (without parallel compile, linking every
+  // program in one render freezes the page), textures uploaded, never to the visible canvas.
+  {
+    const mats = new Map<Material, boolean>();
+    studio.scene.traverse((o) => {
+      const mm = (o as Mesh).material;
+      if (mm) (Array.isArray(mm) ? mm : [mm]).forEach((x) => mats.set(x, x.visible));
+    });
+    studio.scene.traverse((o) => {
+      const mm = (o as Mesh).material as (Material & { map?: Texture | null }) | undefined;
+      if (mm && !Array.isArray(mm) && mm.map) renderer.initTexture(mm.map);
+    });
+    // (to its own canvas, not yet shown: an offscreen target would compile other variants)
+    for (const mat of mats.keys()) {
+      await whenCalm(signal);
+      mats.forEach((_, x) => (x.visible = x === mat));
+      renderer.render(studio.scene, camera);
+    }
+    mats.forEach((v, x) => (x.visible = v));
+    await whenCalm(signal);
+    renderer.render(studio.scene, camera);
+    renderer.clear();
   }
 
   const turn = createTurn(canvas, () => {});

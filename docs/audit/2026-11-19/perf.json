@@ -1,0 +1,497 @@
+{
+ "cpu1": {
+  "firstLoadBytesKB": 1211,
+  "totalBytesKB": 6625,
+  "bigResponses": [],
+  "longTasksWhileScrolling": {
+   "count": 12,
+   "over100": 9,
+   "max": 1722
+  },
+  "fps": [
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 0,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 59,
+    "worstFrame": 42,
+    "y": 479,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 959,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 1439,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 1919,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 2399,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 2879,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 3359,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 60,
+    "worstFrame": 33,
+    "y": 3839,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 21,
+    "worstFrame": 1717,
+    "y": 4320,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 4799,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 5279,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 52,
+    "worstFrame": 50,
+    "y": 5759,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 6239,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 60,
+    "worstFrame": 33,
+    "y": 6719,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 7199,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 48,
+    "worstFrame": 217,
+    "y": 7679,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 55,
+    "worstFrame": 83,
+    "y": 8159,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 8639,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 9119,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 9599,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 10079,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 45,
+    "worstFrame": 33,
+    "y": 10559,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 14,
+    "worstFrame": 683,
+    "y": 11040,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 20,
+    "worstFrame": 383,
+    "y": 11520,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 53,
+    "worstFrame": 50,
+    "y": 11999,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 12479,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 39,
+    "worstFrame": 200,
+    "y": 12959,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 58,
+    "worstFrame": 67,
+    "y": 13439,
+    "sec": ""
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 13919,
+    "sec": "The Pair"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 14399,
+    "sec": "The Pair"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 14879,
+    "sec": ""
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 15359,
+    "sec": ""
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 15839,
+    "sec": ""
+   },
+   {
+    "fps": 54,
+    "worstFrame": 33,
+    "y": 16320,
+    "sec": ""
+   },
+   {
+    "fps": 54,
+    "worstFrame": 34,
+    "y": 16799,
+    "sec": ""
+   },
+   {
+    "fps": 52,
+    "worstFrame": 83,
+    "y": 17279,
+    "sec": ""
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 17759,
+    "sec": ""
+   },
+   {
+    "fps": 61,
+    "worstFrame": 17,
+    "y": 18239,
+    "sec": ""
+   }
+  ]
+ },
+ "cpu4": {
+  "firstLoadBytesKB": 1211,
+  "totalBytesKB": 6625,
+  "bigResponses": [],
+  "longTasksWhileScrolling": {
+   "count": 287,
+   "over100": 23,
+   "max": 679
+  },
+  "fps": [
+   {
+    "fps": 62,
+    "worstFrame": 17,
+    "y": 0,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 61,
+    "worstFrame": 33,
+    "y": 480,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 62,
+    "worstFrame": 17,
+    "y": 959,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 62,
+    "worstFrame": 17,
+    "y": 1439,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 44,
+    "worstFrame": 50,
+    "y": 1920,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 36,
+    "worstFrame": 133,
+    "y": 2399,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 54,
+    "worstFrame": 83,
+    "y": 2880,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 48,
+    "worstFrame": 33,
+    "y": 3360,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 34,
+    "worstFrame": 117,
+    "y": 3839,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 35,
+    "worstFrame": 250,
+    "y": 4320,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 47,
+    "worstFrame": 33,
+    "y": 4800,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 48,
+    "worstFrame": 33,
+    "y": 5279,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 36,
+    "worstFrame": 117,
+    "y": 5760,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 48,
+    "worstFrame": 33,
+    "y": 6240,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 50,
+    "worstFrame": 33,
+    "y": 6719,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 51,
+    "worstFrame": 33,
+    "y": 7199,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 49,
+    "worstFrame": 50,
+    "y": 7679,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 37,
+    "worstFrame": 83,
+    "y": 8159,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 42,
+    "worstFrame": 33,
+    "y": 8639,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 40,
+    "worstFrame": 33,
+    "y": 9119,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 38,
+    "worstFrame": 34,
+    "y": 9600,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 39,
+    "worstFrame": 50,
+    "y": 10080,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 37,
+    "worstFrame": 33,
+    "y": 10560,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 12,
+    "worstFrame": 250,
+    "y": 11040,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 19,
+    "worstFrame": 83,
+    "y": 11520,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 16,
+    "worstFrame": 183,
+    "y": 12000,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 10,
+    "worstFrame": 183,
+    "y": 12480,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 6,
+    "worstFrame": 783,
+    "y": 12960,
+    "sec": "Pyoor Herbal Black Salt"
+   },
+   {
+    "fps": 18,
+    "worstFrame": 67,
+    "y": 13440,
+    "sec": ""
+   },
+   {
+    "fps": 22,
+    "worstFrame": 67,
+    "y": 13920,
+    "sec": "The Pair"
+   },
+   {
+    "fps": 20,
+    "worstFrame": 133,
+    "y": 14400,
+    "sec": "The Pair"
+   },
+   {
+    "fps": 20,
+    "worstFrame": 67,
+    "y": 14880,
+    "sec": ""
+   },
+   {
+    "fps": 18,
+    "worstFrame": 67,
+    "y": 15360,
+    "sec": ""
+   },
+   {
+    "fps": 21,
+    "worstFrame": 67,
+    "y": 15840,
+    "sec": ""
+   },
+   {
+    "fps": 14,
+    "worstFrame": 133,
+    "y": 16320,
+    "sec": ""
+   },
+   {
+    "fps": 14,
+    "worstFrame": 100,
+    "y": 16800,
+    "sec": ""
+   },
+   {
+    "fps": 21,
+    "worstFrame": 117,
+    "y": 17280,
+    "sec": ""
+   },
+   {
+    "fps": 23,
+    "worstFrame": 50,
+    "y": 17760,
+    "sec": ""
+   },
+   {
+    "fps": 24,
+    "worstFrame": 50,
+    "y": 18240,
+    "sec": ""
+   }
+  ]
+ },
+ "drag": {
+  "backRequests": []
+ }
+}

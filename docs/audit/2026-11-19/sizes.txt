@@ -1,0 +1,24 @@
+## JS chunks (raw / gzip), top 12
+  605449   149924 446dencime6ry.js
+  229052    71696 3jn_x8ihwq16e.js
+  169437    46365 0c1ad7rcpjghx.js
+  112594    39496 0cz1d0mv5g_q7.js
+  110190    37270 0kcomaj6-r3ge.js
+   79952    23681 443bph-0msix-.js
+   70998    27392 2a3iml0rheide.js
+   46905    17678 41q2zelrhefy2.js
+   43477    17474 04s0sdy-i_vwo.js
+   41781    12741 4471bpezrjv_v.js
+   29127     7677 1wnov70f88xjy.js
+   19438     8586 40s7gmgb846h9.js
+total JS: 1641049 raw, 483465 gzip
+## CSS
+97366 bytes css
+## public files > 500 KB
+1959044 public/models/pyoor-pouch-herbal-black-salt.glb
+1879652 public/models/pyoor-pouch-natural-lake-salt.glb
+1783852 public/models/pyoor-pouch-pink-rock-salt.glb
+924104 public/textures/label-herbal-black-salt-8192.webp
+634888 public/images/crystals/field-sharp.webp
+601056 public/models/pyoor-herbal-black-salt.glb
+526908 public/textures/pouch-pink-rock-salt-back.webp

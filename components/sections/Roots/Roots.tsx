@@ -4,7 +4,7 @@ import { SplitText } from '@/components/SplitText/SplitText';
 import { asset } from '@/lib/basePath';
 import { site } from '@/lib/site';
 import { PostmarkDate } from './PostmarkDate';
-import { RootsMotion } from './RootsMotion';
+import { RootsMotionLazy } from './RootsMotionLazy';
 import styles from './Roots.module.css';
 
 /** The founder's signature (public/brand/signature.svg, fill currentColor), inlined. */
@@ -237,7 +237,7 @@ export function Roots() {
           Write back to us <span aria-hidden="true">→</span>
         </a>
       </div>
-      <RootsMotion />
+      <RootsMotionLazy />
     </section>
   );
 }

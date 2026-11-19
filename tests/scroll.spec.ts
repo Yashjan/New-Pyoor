@@ -479,7 +479,7 @@ test('l: the lake opens: every wheel step moves it on, both ways, with no layout
       const h = document.querySelector<HTMLElement>('[data-hero]')!;
       const lake = document.querySelector<HTMLElement>('[data-lake]')!;
       const vh = window.innerHeight;
-      const open = window.matchMedia('(max-width: 699px)').matches ? 1.1 : 1.4;
+      const open = window.matchMedia('(max-width: 699px)').matches ? 0.95 : 1.15;
       const end = h.offsetTop + h.offsetHeight - vh;
       return {
         y: window.scrollY,

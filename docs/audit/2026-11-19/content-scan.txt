@@ -1,0 +1,62 @@
+## placeholders
+components/Button/Button.tsx:12: * A disabled button (e.g. "Price coming soon") renders in surface-sunk / text-muted.
+components/Footer/Footer.tsx:23:// [LINK] these pages don't exist yet
+components/sections/Fire/Fire.tsx:7:/** The five frames (tools/engravings/fire.mjs) and their words. [CONFIRM COPY] No claims. */
+components/sections/Roots/Roots.tsx:137:                {/* [CONFIRM COPY] */}
+components/sections/Roots/Roots.tsx:149:              {/* the stamp, engraved: the lake's outline, ₹5, भारत INDIA [CONFIRM ok] */}
+components/sections/SaltPans/SaltPans.tsx:366:      {/* [CONFIRM COPY] */}
+components/sections/Journey/Journey.tsx:34:    text: 'Heaped in baskets, the salt is carried from the pans by hand. [CONFIRM]',
+app/recipes/page.tsx:20:          {/* [CONFIRM] */}
+components/sections/Products/ProductPlate.tsx:323:          <span className={styles.amount}>{f.price ?? 'Price coming soon'}</span>
+components/sections/Products/ProductPlate.tsx:355:            <span className={styles.addText}>{f.price ? 'Add to bag' : 'Price coming soon'}</span>
+components/sections/Products/Products.tsx:58:      hindi: 'काला नमक', // [CONFIRM]
+components/sections/Products/Products.tsx:59:      line: 'Lake salt, slow-processed the traditional way.', // [CONFIRM]
+components/sections/Products/Products.tsx:64:      hindi: 'सांभर नमक', // [CONFIRM]
+components/sections/Products/Products.tsx:65:      line: 'Sun-dried crystals from the pans of Sambhar.', // [CONFIRM]
+components/sections/Products/Products.tsx:71:const HEADLINE = 'From the lake, to your kitchen.'; // [CONFIRM COPY]
+components/sections/Products/Products.tsx:130: * prices are set). COPY: every line marked [CONFIRM] is awaiting sign-off. No health claims.
+components/sections/Products/Products.tsx:157:            {/* [CONFIRM COPY] */}
+components/recipes/SaltStrip.tsx:69:          {f.size} · <span className={styles.amount}>{f.price ?? 'Price coming soon'}</span>
+components/recipes/SaltStrip.tsx:79:        {f.price ? 'Add to bag' : 'Price coming soon'}
+components/sections/Crystals/Crystals.tsx:7:/** The two halves' words (they follow the loupe). [CONFIRM] No claims. */
+components/sections/Recipes/Recipes.tsx:19:            {/* [CONFIRM] */}
+components/hero/Invite.tsx:19: * it) with the jar's price and "Add to bag" (or "Price coming soon" and a link to the
+components/hero/Invite.tsx:65:          <p className={styles.inviteSoon}>Price coming soon</p>
+lib/commerce/pricing.ts:5: *   - a product with a null price shows "Price coming soon" and cannot be added to the cart;
+components/LabelReader/labelData.ts:7: * second look, is marked [CONFIRM]. The label's "About" and "Benefits" paragraphs are left out
+components/LabelReader/labelData.ts:56:      ['Potassium', '0.02 g [CONFIRM: printed “0.02 gm”]'],
+components/LabelReader/labelData.ts:76:    ['Packed on', '[DATE] (printed “Date of Mfg”)'],
+components/LabelReader/labelData.ts:77:    ['Best before', '[DATE] [CONFIRM: the label prints “Use By”; shelf life not stated]'],
+components/LabelReader/labelData.ts:87: * [CONFIRM] against the printed label. Its "About" and "Benefits" paragraphs are left out (no
+components/LabelReader/labelData.ts:97:  ingredients: 'Natural White Salt. Self iodized (as printed) [CONFIRM]',
+components/LabelReader/labelData.ts:100:    note: 'Approximate values, per 100 g (serve size 1 g, 1000 servings per pack) [CONFIRM]',
+components/LabelReader/labelData.ts:133: * "Benefits" paragraphs are left out (no health claims). [CONFIRM] against the printed pouch.
+components/LabelReader/labelData.ts:137:  summary: `The pouch’s printed artwork, front and back, flat: the Pyoor ${L.name} (${L.nameHindi}) 1 kg refill pouch, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the back. [CONFIRM]`,
+components/LabelReader/labelData.ts:152: * panel. Every value [CONFIRM].
+components/LabelReader/labelData.ts:160:    'The front of the Pyoor Pink Rock Salt (सेंधा नमक) pack, flat, with the name, ingredients, net weight, FSSAI licence and packer as text. [CONFIRM]',
+components/LabelReader/labelData.ts:161:  ingredients: 'Rock salt (sendha namak) [CONFIRM]',
+components/LabelReader/labelData.ts:163:  netWeight: '1 kg [CONFIRM]',
+components/LabelReader/labelData.ts:167:  packer: { ...LABEL.packer, title: 'Packed and marketed by [CONFIRM]' },
+lib/commerce/local-data.ts:92:      { label: 'Iodised', value: '[CONFIRM]' },
+lib/commerce/local-data.ts:136:      { label: 'Iodised', value: '[CONFIRM]' },
+lib/commerce/local-data.ts:192:    summary: 'Rock salt (sendha namak), packed with the same care. [CONFIRM COPY]',
+lib/commerce/local-data.ts:194:      'Pink rock salt (sendha namak), in a 1 kg clear jar or a 1 kg refill pouch. [CONFIRM COPY]',
+lib/commerce/local-data.ts:215:    ingredients: ['Rock salt (sendha namak) [CONFIRM]'],
+lib/commerce/local-data.ts:218:      { label: 'Ingredients', value: 'Rock salt (sendha namak) [CONFIRM]' },
+lib/commerce/local-data.ts:220:      { label: 'Packed by', value: `${PACKED_BY} [CONFIRM]` },
+lib/content/recipes.ts:3: * [CONFIRM] all copy, quantities and steps. Each engraving is generated by
+
+## words
+components/LabelReader/labelData.ts:8: * on purpose: the site makes no health claims.
+components/LabelReader/labelData.ts:77:    ['Best before', '[DATE] [CONFIRM: the label prints “Use By”; shelf life not stated]'],
+components/LabelReader/labelData.ts:88: * health claims), as are the badges' claims.
+components/LabelReader/labelData.ts:97:  ingredients: 'Natural White Salt. Self iodized (as printed) [CONFIRM]',
+components/LabelReader/labelData.ts:133: * "Benefits" paragraphs are left out (no health claims). [CONFIRM] against the printed pouch.
+components/hero/scene/materials.ts:239:/** Points a label texture at the GPU's best filtering (the model's own is 2400 px). */
+components/sections/Products/Products.tsx:130: * prices are set). COPY: every line marked [CONFIRM] is awaiting sign-off. No health claims.
+lib/site.ts:3: * JSON-LD). Keep this file factual: no health, medicinal or nutritional claims.
+lib/commerce/local-data.ts:5: * No health, medicinal or nutritional claims. Unknown values use [BRACKETED] placeholders.
+lib/commerce/local-data.ts:42:  { label: 'Best before', value: '24 months from manufacture' },
+lib/content/recipes.ts:5: * No health claims here: taste and method only.
+lib/three/models.ts:9:  'pyoor-himalayan-pink-salt.glb': '270ea54f07',
+lib/commerce/pricing.ts:26: * The pouches' back artwork (it carries health-claim paragraphs until it is corrected): while

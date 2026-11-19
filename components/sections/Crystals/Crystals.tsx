@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
 import { asset } from '@/lib/basePath';
-import { Loupe } from './Loupe';
+import { LoupeLazy } from './LoupeLazy';
 import styles from './Crystals.module.css';
 
 /** The two halves' words (they follow the loupe). [CONFIRM] No claims. */
@@ -108,7 +108,7 @@ export function Crystals() {
           Shop both <span aria-hidden="true">→</span>
         </Link>
       </div>
-      <Loupe />
+      <LoupeLazy />
     </section>
   );
 }
