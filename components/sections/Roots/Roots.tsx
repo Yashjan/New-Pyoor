@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SplitText } from '@/components/SplitText/SplitText';
 import { asset } from '@/lib/basePath';
+import { site } from '@/lib/site';
 import { PostmarkDate } from './PostmarkDate';
 import { RootsMotion } from './RootsMotion';
 import styles from './Roots.module.css';
@@ -11,7 +12,7 @@ const SIGNATURE = readFileSync(join(process.cwd(), 'public/brand/signature.svg')
   / role="img"| aria-label="[^"]*"/g,
   ' aria-hidden="true"',
 );
-const WHATSAPP = 'https://wa.me/917665009882';
+const WHATSAPP = site.whatsapp.url;
 /** A simple leaf-and-sun emblem (not the logo), for the wax seal. */
 function Emblem() {
   return (

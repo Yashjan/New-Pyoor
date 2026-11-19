@@ -9,15 +9,15 @@
  */
 
 export const PRICES_INR: Record<string, number | null> = {
-  'local:variant:herbal-black-salt-1kg': 249,
-  'local:variant:natural-lake-salt-1kg': null,
-  // the 1 kg refill pouches: [PRICE]
-  'local:variant:herbal-black-salt-pouch-1kg': null,
-  'local:variant:natural-lake-salt-pouch-1kg': null,
+  // every 1 kg jar ₹199, every 1 kg refill pouch ₹149
+  'local:variant:herbal-black-salt-1kg': 199,
+  'local:variant:natural-lake-salt-1kg': 199,
+  'local:variant:pink-rock-salt-1kg': 199,
+  'local:variant:herbal-black-salt-pouch-1kg': 149,
+  'local:variant:natural-lake-salt-pouch-1kg': 149,
+  'local:variant:pink-rock-salt-pouch-1kg': 149,
+  // The Pair: hidden (SHOW_PAIR)
   'local:variant:the-sambhar-pair': null,
-  // Pink Rock Salt (behind SHOW_PINK_SALT): [PRICE]
-  'local:variant:pink-rock-salt-1kg': null,
-  'local:variant:pink-rock-salt-pouch-1kg': null,
 };
 
 export const FREE_SHIPPING_THRESHOLD_INR: number | null = null;
@@ -34,3 +34,6 @@ export const SHOW_POUCH_BACK = false;
  * routes). Live.
  */
 export const SHOW_PINK_SALT: boolean = true;
+
+/** "The Sambhar Pair": listed only while true (products, bag, sitemap, structured data, routes). */
+export const SHOW_PAIR: boolean = false;

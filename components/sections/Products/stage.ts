@@ -5,7 +5,8 @@ import { pickQualityTier } from '@/lib/three/quality';
 import { SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
 
 /** `?still`: no idle sway (the dead-scroll test measures only what scrolling changes). */
-const STILL = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('still');
+const STILL =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('still');
 import { loadPlateModel, plateCamera, studioScene, type Format } from './plateScene';
 
 /** The hold's slow turn, as the hero jar's: ±7° on y over 9 s. */

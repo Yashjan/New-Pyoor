@@ -1,0 +1,251 @@
+/* /recipes and /recipes/[slug] */
+.main {
+  min-height: 70vh;
+  padding: calc(var(--header-height) + clamp(2.5rem, 6vw, 5rem)) var(--gutter)
+    clamp(4rem, 8vw, 7rem);
+}
+
+.main :global(.py-wrap) {
+  padding: 0;
+}
+
+.indexHead {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  margin-bottom: 3rem;
+}
+
+.lead {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.recipe {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.back {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.back a {
+  color: var(--ink);
+  text-underline-offset: 4px;
+  text-decoration-color: var(--gold-500);
+}
+
+.hero {
+  width: min(100%, 26rem);
+  margin: 0 auto 2rem;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+  align-items: center;
+}
+
+.aka {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--accent-text);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  margin: 0.75rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.facts dt {
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate-500);
+}
+
+.facts dd {
+  margin: 0.125rem 0 0;
+  color: var(--ink);
+}
+
+.part {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--gold-500) 40%, transparent);
+}
+
+.partTitle {
+  margin: 0 0 1.25rem;
+  font-size: 2rem;
+  color: var(--ink);
+}
+
+.ingredients,
+.steps,
+.salts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ingredients li + li {
+  margin-top: 0.75rem;
+}
+
+.check {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0.1875rem 0 0;
+  accent-color: var(--gold-500);
+}
+
+.check input:checked + span {
+  text-decoration: line-through;
+  text-decoration-color: var(--gold-500);
+  color: var(--slate-500);
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.steps li + li {
+  margin-top: 1rem;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--gold-500);
+  text-align: right;
+}
+
+.steps p {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.salt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  padding: 1rem 0;
+}
+
+.salt + .salt {
+  border-top: 1px solid color-mix(in srgb, var(--gold-500) 25%, transparent);
+}
+
+.saltImg {
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.saltBody {
+  flex: 1 1 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.saltName {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  color: var(--ink);
+}
+
+.formats {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--slate-500);
+}
+
+.format {
+  padding: 0.125rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--slate-500);
+  cursor: pointer;
+}
+
+.format[aria-checked='true'] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 4px;
+}
+
+.saltPrice {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--slate-500);
+}
+
+.amount {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.add {
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--button-bg);
+  color: var(--ivory-100);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.add:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.add:focus-visible,
+.format:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 3px;
+}

@@ -607,3 +607,19 @@
     animation: none;
   }
 }
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1.5rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.contact a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--gold-300);
+  text-underline-offset: 4px;
+}

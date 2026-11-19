@@ -34,3 +34,4 @@ __pycache__/
 # stray working files in the project root (assets live in public/)
 /*.png
 /*.svg
+crystals/lake/*.png

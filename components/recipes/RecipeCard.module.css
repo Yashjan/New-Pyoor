@@ -1,0 +1,111 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.art {
+  margin-bottom: 1.25rem;
+  transition: transform var(--duration-base) var(--ease-settle);
+}
+
+.card:hover .art,
+.card:focus-within .art {
+  transform: translateY(-6px);
+}
+
+.name {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.nameText {
+  background: linear-gradient(var(--gold-500), var(--gold-500)) 0 100% / 0 1px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size var(--duration-base) var(--ease-settle);
+}
+
+.card:hover .nameText,
+.card:focus-within .nameText {
+  background-size: 100% 1px;
+}
+
+.meta {
+  margin: 0.5rem 0 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--slate-500);
+}
+
+.link {
+  margin-top: auto;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 5px;
+}
+
+/* the whole card is the link */
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.card:has(.link:focus-visible) {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art,
+  .nameText {
+    transition: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .row {
+    display: flex;
+    gap: 1rem;
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0.75rem var(--gutter) 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .row > li {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+}

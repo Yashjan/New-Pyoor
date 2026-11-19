@@ -21,6 +21,8 @@ export const site = {
     email: 'pyoorglobalenterprises@gmail.com',
     fssaiLicence: '12224999000443',
   },
+  whatsapp: { label: '+91 76650 09882', url: 'https://wa.me/917665009882' },
+  instagram: 'https://www.instagram.com/pyoorglobal',
   /** Required by FSSAI for brand names that sound like "pure". Must appear in the footer. */
   brandNameDisclaimer:
     '“Pyoor” is only a brand name and does not represent the true nature of the product.',

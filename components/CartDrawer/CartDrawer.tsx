@@ -1,5 +1,6 @@
 'use client';
 
+import { site } from '@/lib/site';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -125,9 +126,15 @@ export function CartDrawer() {
         <div className={styles.foot}>
           <p className={styles.subtotal}>
             <span>Subtotal</span>
-            <span>{formatPrice(cart?.subtotal ?? null)}</span>
+            <span>{formatPrice(cart?.subtotal ?? { amount: 0, currencyCode: 'INR' })}</span>
           </p>
           <p className={styles.note}>Cash on delivery and online payment at checkout</p>
+          <p className={styles.note}>
+            Questions?{' '}
+            <a href={site.whatsapp.url} target="_blank" rel="noopener noreferrer">
+              WhatsApp us
+            </a>
+          </p>
           {/* until Shopify is connected (step 6) */}
           <Button variant="primary" fullWidth disabled>
             Checkout · Opening soon

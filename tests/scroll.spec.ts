@@ -540,3 +540,60 @@ test('l: the lake opens: every wheel step moves it on, both ways, with no layout
   expect(end.o, 'and closed again').toBe(0);
   expect(cls, 'no layout shift through the stage').toBe(0);
 });
+
+test('m: each recipe page loads (Recipe JSON-LD, engraving drawn) and Add to bag fills the bag', async ({
+  page,
+}) => {
+  for (const slug of ['nimbu-pani', 'fruit-chaat', 'masala-chaas']) {
+    const res = await page.goto(`/recipes/${slug}`);
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('h1')).toBeVisible();
+    const lds = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? '{}')));
+    const ld = lds.find((d) => d['@type'] === 'Recipe');
+    expect(ld['@type']).toBe('Recipe');
+    expect(ld.recipeIngredient.length).toBeGreaterThan(3);
+    expect(ld.image[0]).toMatch(/recipe-.*\.png$/);
+    await expect(page.locator('[data-engr]').first()).toHaveAttribute('data-drawn', '', {
+      timeout: 8000,
+    });
+    // ticking an ingredient survives a reload
+    const box = page.locator('input[type="checkbox"]').first();
+    await box.check();
+    await page.reload();
+    await expect(page.locator('input[type="checkbox"]').first()).toBeChecked();
+  }
+  // black salt jar is priced: add it
+  const before = await page.evaluate(() => localStorage.length);
+  const row = page.locator('[data-salt="herbal-black-salt"]');
+  await row.getByRole('radio', { name: 'Jar' }).click();
+  await row.getByRole('button', { name: /Add to bag/ }).click();
+  await expect(page.locator('[data-bag-target]')).toContainText(/1/);
+  await row.getByRole('radio', { name: 'Pouch' }).click();
+  await row.getByRole('button', { name: /Add to bag/ }).click();
+  await expect(page.locator('[data-bag-target]')).toContainText(/2/);
+  for (const handle of ['natural-lake-salt']) {
+    const r2 = page.locator(`[data-salt="${handle}"]`);
+    await r2.getByRole('radio', { name: 'Pouch' }).click();
+    await expect(r2.getByRole('button', { name: /Add to bag/ })).toBeEnabled();
+  }
+  expect(await page.evaluate(() => localStorage.length)).toBeGreaterThanOrEqual(before);
+  // every product variant is priced and addable; the Pair is hidden
+  for (const handle of ['herbal-black-salt', 'natural-lake-salt', 'pink-rock-salt']) {
+    await page.goto(`/product/${handle}`);
+    const pld = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? '{}')));
+    const prod = pld.find((d) => d['@type'] === 'Product');
+    expect(prod.offers.map((o: { price: string }) => o.price)).toEqual(['199.00', '149.00']);
+    expect(pld.find((d) => d['@type'] === 'Organization').sameAs).toContain(
+      'https://www.instagram.com/pyoorglobal',
+    );
+  }
+  expect((await page.request.get('/product/the-sambhar-pair')).status()).toBe(404);
+  await page.goto('/');
+  await expect(page.getByText('Price coming soon')).toHaveCount(0);
+  const sitemap = await (await page.request.get('/sitemap.xml')).text();
+  expect(sitemap).toContain('/recipes/masala-chaas');
+});

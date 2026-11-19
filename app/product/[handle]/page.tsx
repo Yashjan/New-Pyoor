@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { HindiText } from '@/components/HindiText/HindiText';
 import { getProduct, getProducts } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
+import { ldScript, productLd } from '@/lib/jsonLd';
 import styles from './page.module.css';
 
 /** Skeleton: proves routing + the commerce layer. The full product page is built in Step 4. */
@@ -30,6 +31,10 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
   return (
     <main id="main" className={styles.main}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: ldScript(productLd(product)) }}
+      />
       <div className="py-wrap">
         {product.titleHindi && (
           <p className={`py-hindi ${styles.hindi}`}>

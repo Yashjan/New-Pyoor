@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { SHOW_PINK_SALT } from '@/lib/commerce/pricing';
+import { PRICES_INR, SHOW_PINK_SALT } from '@/lib/commerce/pricing';
+import { formatPrice } from '@/lib/format';
+import { site } from '@/lib/site';
 import { useRouter } from 'next/navigation';
 import {
   forwardRef,
@@ -25,16 +27,21 @@ const LINKS = [
   { href: '/#shop', label: 'Shop', plate: 'jar', light: 'dusk' },
   { href: '/#roots', label: 'Our roots', plate: 'roots', light: 'dawn' },
   { href: '/#journey', label: 'The journey', plate: 'harvest', light: 'midday' },
-  { href: '/#recipes', label: 'Recipes', plate: 'bowl', light: 'afternoon' },
+  { href: '/recipes', label: 'Recipes', plate: 'bowl', light: 'afternoon' },
 ] as const;
 const PLATES = ['jar', 'roots', 'harvest', 'bowl'] as const;
 type Plate = (typeof PLATES)[number];
 
+const toMoney = (n: number | null | undefined) =>
+  n == null ? null : { amount: n, currencyCode: 'INR' as const };
+
 const PRODUCTS = [
-  { href: '/product/herbal-black-salt', name: 'Black Salt' },
-  { href: '/product/natural-lake-salt', name: 'Lake Salt' },
+  { href: '/product/herbal-black-salt', name: 'Black Salt', variant: 'herbal-black-salt-1kg' },
+  { href: '/product/natural-lake-salt', name: 'Lake Salt', variant: 'natural-lake-salt-1kg' },
   // behind the switch (lib/commerce/pricing.ts)
-  ...(SHOW_PINK_SALT ? [{ href: '/product/pink-rock-salt', name: 'Pink Rock Salt' }] : []),
+  ...(SHOW_PINK_SALT
+    ? [{ href: '/product/pink-rock-salt', name: 'Pink Rock Salt', variant: 'pink-rock-salt-1kg' }]
+    : []),
 ];
 
 const MARQUEE = ['सांभर', 'Sambhar Lake', 'Rajasthan'];
@@ -225,7 +232,9 @@ export const SiteMenu = forwardRef<SiteMenuHandle, Props>(function SiteMenu(
                   <Link href={p.href} className={styles.product} onClick={(e) => go(e, p.href)}>
                     <MiniJar />
                     <span className={styles.pname}>{p.name}</span>
-                    <span className={styles.price}>[PRICE]</span>
+                    <span className={styles.price}>
+                      {formatPrice(toMoney(PRICES_INR[`local:variant:${p.variant}`]))}
+                    </span>
                     <span className={styles.arrow} aria-hidden="true">
                       →
                     </span>
@@ -233,6 +242,14 @@ export const SiteMenu = forwardRef<SiteMenuHandle, Props>(function SiteMenu(
                 </li>
               ))}
             </ul>
+            <p className={styles.contact} data-fade>
+              <a href={site.whatsapp.url} target="_blank" rel="noopener noreferrer">
+                WhatsApp {site.whatsapp.label}
+              </a>
+              <a href={site.instagram} target="_blank" rel="noopener noreferrer">
+                Instagram
+              </a>
+            </p>
           </div>
 
           <div className={styles.band} data-fade>

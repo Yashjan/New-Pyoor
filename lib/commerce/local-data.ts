@@ -4,7 +4,7 @@
  * COPY RULES (strict): factual only. Origin, ingredients, process, size, price, taste, use.
  * No health, medicinal or nutritional claims. Unknown values use [BRACKETED] placeholders.
  */
-import { PRICES_INR, SHOW_PINK_SALT } from './pricing';
+import { PRICES_INR, SHOW_PAIR, SHOW_PINK_SALT } from './pricing';
 import type { Image, Money, Product } from './types';
 import { modelUrl } from '@/lib/three/models';
 import { asset } from '@/lib/basePath';
@@ -150,7 +150,7 @@ export const products: Product[] = [
     summary: 'One jar of Herbal Black Salt and one of Natural Lake Salt.',
     description:
       'Both Pyoor salts from Sambhar Lake: one 1 kg jar of Herbal Black Salt and one 1 kg jar of Natural Lake Salt.',
-    published: true,
+    published: SHOW_PAIR,
     variants: [
       {
         id: 'local:variant:the-sambhar-pair',
@@ -218,7 +218,7 @@ export const products: Product[] = [
       { label: 'Ingredients', value: 'Rock salt (sendha namak) [CONFIRM]' },
       { label: 'Net weight', value: '1 kg' },
       { label: 'Packed by', value: `${PACKED_BY} [CONFIRM]` },
-      { label: 'FSSAI Lic. No.', value: '12224999000443 [CONFIRM]' },
+      { label: 'FSSAI Lic. No.', value: '12224999000443' },
     ],
     tags: ['rock-salt', 'sendha-namak'],
     seo: {

@@ -39,7 +39,7 @@ export function Footer() {
           <h2 className={styles.h}>Pyoor</h2>
           <Link href="/#roots">Our roots</Link>
           <Link href="/#journey">The journey</Link>
-          <Link href="/#recipes">Recipes</Link>
+          <Link href="/recipes">Recipes</Link>
         </div>
         <div>
           <h2 className={styles.h}>Contact</h2>
@@ -50,6 +50,14 @@ export function Footer() {
             <br />
             <br />
             <a href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a>
+            <br />
+            <a href={site.whatsapp.url} target="_blank" rel="noopener noreferrer">
+              WhatsApp {site.whatsapp.label}
+            </a>
+            <br />
+            <a href={site.instagram} target="_blank" rel="noopener noreferrer">
+              Instagram
+            </a>
           </p>
         </div>
       </div>

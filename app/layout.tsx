@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer/Footer';
 import { SmoothScroll } from '@/components/motion/SmoothScroll';
 import { CartProvider } from '@/components/providers/CartProvider';
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader';
+import { ldScript, organizationLd } from '@/lib/jsonLd';
 import { getSiteUrl, site } from '@/lib/site';
 import './globals.css';
 
@@ -83,6 +84,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: HEAD_FLAGS }} />
         <style dangerouslySetInnerHTML={{ __html: LOADER_CSS }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: ldScript(organizationLd()) }}
+        />
       </head>
       {/* Browser extensions (e.g. ColorZilla's `cz-shortcut-listen`) add attributes to <body>
           before React hydrates. This only ignores attribute differences on <body> itself;

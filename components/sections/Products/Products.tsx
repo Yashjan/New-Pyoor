@@ -1,3 +1,4 @@
+import { site } from '@/lib/site';
 import { isPurchasable, type Product } from '@/lib/commerce';
 import { RENDERS } from '@/lib/commerce/renders';
 import { formatPrice } from '@/lib/format';
@@ -189,9 +190,8 @@ export function Products({
             }}
           />
         )}
-        {/* [CONFIRM] */}
         <p className={styles.trust} data-rise style={{ '--i': 4 } as React.CSSProperties}>
-          <span>FSSAI licensed</span>
+          <span>FSSAI Lic. No. {site.company.fssaiLicence}</span>
           <span>Packed at Sambhar</span>
           <span>Batch-dated</span>
           <span>Cash on delivery</span>

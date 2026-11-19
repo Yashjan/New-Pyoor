@@ -278,3 +278,9 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.note a {
+  color: var(--ink);
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 3px;
+}
