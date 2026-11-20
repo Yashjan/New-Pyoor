@@ -21,7 +21,11 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const product = await getProduct((await params).handle);
   if (!product) return {};
-  return { title: product.seo.title, description: product.seo.description };
+  return {
+    title: product.seo.title,
+    description: product.seo.description,
+    alternates: { canonical: `/product/${product.handle}` },
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<Params> }) {

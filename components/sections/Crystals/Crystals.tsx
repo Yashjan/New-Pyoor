@@ -66,7 +66,9 @@ export function Crystals() {
         className={styles.field}
         data-loupe-field
         tabIndex={0}
-        aria-label="Magnifier: move it with the arrow keys"
+        role="application"
+        aria-roledescription="magnifier"
+        aria-label="Magnifier over the two salts: move it with the arrow keys"
       >
         <div className={styles.world} aria-hidden="true" data-world>
           <Field name="soft" className={styles.layer} />
@@ -92,7 +94,7 @@ export function Crystals() {
           KALA NAMAK · <span lang="hi">काला नमक</span>
         </p>
         <p className={`${styles.label} ${styles.labelR}`} aria-hidden="true">
-          LAKE SALT · <span lang="hi">सांभर नमक</span>
+          LAKE SALT · <span lang="hi">सफ़ेद नमक</span>
         </p>
       </div>
 

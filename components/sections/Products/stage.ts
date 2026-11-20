@@ -1,16 +1,11 @@
-import {
-  PerspectiveCamera,
-  WebGLRenderer,
-  type Material,
-  type Mesh,
-  type Texture,
-} from 'three';
+import { PerspectiveCamera, type Material, type Mesh, type Texture } from 'three';
 import { createTurn } from '@/components/hero/scene/turn';
 import { coveredStore } from '@/lib/motion/covered';
 import { pickQualityTier } from '@/lib/three/quality';
 import { precompile } from '@/lib/three/precompile';
+import { drawPlate, plateRenderer } from '@/lib/three/plateRenderer';
 import { whenCalm } from '@/lib/three/calm';
-import { SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
+import { SHOW_FULL_LABEL, SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
 
 /** `?still`: no idle sway (the dead-scroll test measures only what scrolling changes). */
 const STILL =
@@ -20,7 +15,7 @@ import { loadPlateModel, plateCamera, studioScene, type Format } from './plateSc
 /** The hold's slow turn, as the hero jar's: ±7° on y over 9 s. */
 const SWAY = (7 * Math.PI) / 180;
 const SWAY_PERIOD = 9;
-/** The pouch's turn limit while SHOW_POUCH_BACK is false (lib/commerce/pricing.ts). */
+/** The turn limit while SHOW_POUCH_BACK / SHOW_FULL_LABEL is false (lib/commerce/pricing.ts). */
 const LIMIT = (60 * Math.PI) / 180;
 
 export interface Stage {
@@ -32,7 +27,8 @@ export interface Stage {
 }
 
 /**
- * One live plate model (ProductPlate): its own small renderer on its own canvas, drawing only
+ * One live plate model (ProductPlate), drawn by the plates' shared renderer
+ * (lib/three/plateRenderer.ts) and copied onto its own canvas, drawing only
  * while on screen, active, the tab visible and nothing covering the page. Idle sway and
  * drag-to-rotate as the hero jar (hero/scene/turn.ts: horizontal drags on touch, the wheel
  * never taken, ←/→ when focused, back to the front after 4 s).
@@ -46,9 +42,9 @@ export async function createStage(
 ): Promise<Stage> {
   const tier = pickQualityTier();
   await whenCalm(signal);
-  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.debug.checkShaderErrors = false;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier?.name === 'weak' ? 1.25 : 2));
+  const renderer = plateRenderer();
+  const dpr = Math.min(window.devicePixelRatio, tier?.name === 'weak' ? 1.25 : 2);
+  const ctx = canvas.getContext('2d')!;
   const studio = studioScene(renderer);
   const camera = new PerspectiveCamera();
   let model;
@@ -56,7 +52,6 @@ export async function createStage(
     model = await loadPlateModel(format, url, signal);
   } catch (err) {
     studio.dispose();
-    renderer.dispose();
     throw err;
   }
   await whenCalm(signal);
@@ -64,14 +59,20 @@ export async function createStage(
   plateCamera(camera, model);
   const m = model;
 
+  let pw = 1;
+  let ph = 1;
   const resize = () => {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
-    if (w && h) renderer.setSize(w, h, false);
+    if (w && h) {
+      pw = Math.round(w * dpr);
+      ph = Math.round(h * dpr);
+    }
   };
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
   resize();
+  const draw = () => drawPlate(canvas, ctx, studio.scene, camera, pw, ph);
   await precompile(renderer, studio.scene, camera, signal);
   // Warm-up, unseen: one material per calm moment (without parallel compile, linking every
   // program in one render freezes the page), textures uploaded, never to the visible canvas.
@@ -85,16 +86,16 @@ export async function createStage(
       const mm = (o as Mesh).material as (Material & { map?: Texture | null }) | undefined;
       if (mm && !Array.isArray(mm) && mm.map) renderer.initTexture(mm.map);
     });
-    // (to its own canvas, not yet shown: an offscreen target would compile other variants)
+    // (to the shared canvas, never shown: an offscreen target would compile other variants)
     for (const mat of mats.keys()) {
       await whenCalm(signal);
       mats.forEach((_, x) => (x.visible = x === mat));
-      renderer.render(studio.scene, camera);
+      draw();
     }
     mats.forEach((v, x) => (x.visible = v));
     await whenCalm(signal);
-    renderer.render(studio.scene, camera);
-    renderer.clear();
+    draw();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   const turn = createTurn(canvas, () => {});
@@ -121,10 +122,11 @@ export async function createStage(
     if (!STILL) t += dt * turn.sway;
     const sway = Math.sin((2 * Math.PI * t) / SWAY_PERIOD) * SWAY * turn.sway;
     // the pouch's back stays out of sight while its artwork is being corrected
-    if (format === 'pouch' && !SHOW_POUCH_BACK)
+    // and the jars' label side panels (SHOW_FULL_LABEL)
+    if ((format === 'pouch' && !SHOW_POUCH_BACK) || (format === 'jar' && !SHOW_FULL_LABEL))
       turn.yaw = Math.max(-LIMIT + SWAY, Math.min(LIMIT - SWAY, turn.yaw));
     m.pose(turn.yaw + sway + awayDir * awayP * (Math.PI / 2), turn.tilt);
-    renderer.render(studio.scene, camera);
+    draw();
     if (first) {
       first = false;
       onFirstFrame();
@@ -156,8 +158,7 @@ export async function createStage(
       turn.dispose();
       unsub();
       document.removeEventListener('visibilitychange', onVis);
-      studio.dispose();
-      renderer.dispose();
+      studio.dispose(); // (the shared renderer stays for the other plates)
     },
   };
 }

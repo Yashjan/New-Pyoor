@@ -320,5 +320,5 @@ if __name__ == "__main__":
     O = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "source")
     build(TEX + "label-herbal-black-salt.png", "black", O + "/pyoor-herbal-black-salt.glb")
     build(TEX + "label-natural-lake-salt.png", "white", O + "/pyoor-natural-lake-salt.glb")
-    build(TEX + "label-himalayan-pink-salt.png", "pink", O + "/pyoor-himalayan-pink-salt.glb")
+    build(TEX + "label-himalayan-pink-salt.png", "pink", O + "/pyoor-jar-pink-rock-salt.glb")
     print("ok")

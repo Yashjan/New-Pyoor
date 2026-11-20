@@ -1,3 +1,4 @@
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import type { NextConfig } from 'next';
 
 /**
@@ -33,4 +34,18 @@ const nextConfig: NextConfig = {
       }),
 };
 
-export default nextConfig;
+/**
+ * A production build must know the live address (canonical URLs, Open Graph, JSON-LD, sitemap,
+ * robots: lib/site.ts getSiteUrl). .env.production sets it; a missing or localhost value fails
+ * the build rather than shipping links to localhost.
+ */
+export default function config(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD) {
+    const url = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+    if (!url || /localhost|127\.0\.0\.1/.test(url))
+      throw new Error(
+        `NEXT_PUBLIC_SITE_URL must be the live site's address for a production build (got "${url}"). Set it in .env.production.`,
+      );
+  }
+  return nextConfig;
+}

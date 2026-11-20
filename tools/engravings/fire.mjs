@@ -398,7 +398,7 @@ function four() {
   flames(F);
   const groups = F.svg('').match(/<g data-s="flame-\d+">.*?<\/g>/g) ?? [];
   const flameG = `<g data-s="flame">${groups.join('')}</g>`;
-  let sparks = '<g data-sparks>';
+  let sparks = '<g data-sparks="">';
   for (let i = 0; i < 18; i++) {
     const x = 110 + ((i * 97) % 420);
     const y = 236 - ((i * 53) % 64);
@@ -408,7 +408,7 @@ function four() {
   // soot: the pots darken as they burn (the section sets the group's opacity), above the wall
   const soot =
     '<clipPath id="fire-soot"><rect x="0" y="0" width="640" height="318"/></clipPath>' +
-    `<g data-soot clip-path="url(#fire-soot)" fill="#3a2e3a" stroke="none">${POTS.map(
+    `<g data-soot="" clip-path="url(#fire-soot)" fill="#3a2e3a" stroke="none">${POTS.map(
       (x) =>
         `<ellipse cx="${x}" cy="292" rx="34" ry="32"/><ellipse cx="${x}" cy="252" rx="13" ry="7"/>`,
     ).join('')}</g>`;

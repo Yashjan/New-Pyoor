@@ -18,9 +18,8 @@ const PYOOR = [
   { href: '/#roots', label: 'Our roots' },
   { href: '/#journey', label: 'The journey' },
   { href: '/recipes', label: 'Recipes' },
-  { href: site.whatsapp.url, label: 'Contact', external: true },
+  { href: '/contact', label: 'Contact' },
 ];
-// [LINK] these pages don't exist yet
 const HELP = [
   { href: '/shipping', label: 'Shipping' },
   { href: '/returns', label: 'Returns' },
@@ -79,13 +78,7 @@ export function Footer() {
             <ul className={styles.links}>
               {PYOOR.map((l) => (
                 <li key={l.label}>
-                  {l.external ? (
-                    <a href={l.href} target="_blank" rel="noopener noreferrer">
-                      {l.label}
-                    </a>
-                  ) : (
-                    <Link href={l.href}>{l.label}</Link>
-                  )}
+                  <Link href={l.href}>{l.label}</Link>
                 </li>
               ))}
             </ul>

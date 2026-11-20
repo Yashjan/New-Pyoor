@@ -22,17 +22,11 @@ export function generateStaticParams(): Params[] {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const r = getRecipe((await params).slug);
   if (!r) return {};
-  const image = asset(`/engravings/recipe-${r.slug}.png`);
   return {
     title: `${r.name}: a recipe`,
     description: r.description,
     alternates: { canonical: `/recipes/${r.slug}` },
-    openGraph: {
-      type: 'article',
-      title: r.name,
-      description: r.description,
-      images: [{ url: image, width: 1200, height: 1500, alt: r.art }],
-    },
+    openGraph: { type: 'article', title: r.name, description: r.description },
   };
 }
 

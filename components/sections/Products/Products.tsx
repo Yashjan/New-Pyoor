@@ -30,7 +30,7 @@ function formatsOf(p: Product, name: 'black' | 'lake' | 'pink', alt: string) {
       size: '1 kg jar',
       price: priceText(jar),
       render: { name, ...RENDERS[name], alt: `${alt}, 1 kg jar` },
-      model: modelUrl(`pyoor-${p.handle}.glb`),
+      model: p.model ?? modelUrl(`pyoor-${p.handle}.glb`),
       label: p.handle,
     },
     ...(pouch && {
@@ -61,7 +61,7 @@ function platesOf(black: Product | null, lake: Product | null) {
     },
     lake && {
       product: lake,
-      hindi: 'सांभर नमक', // [CONFIRM]
+      hindi: 'सफ़ेद नमक', // [CONFIRM]
       line: 'Sun-dried crystals from the pans of Sambhar.', // [CONFIRM]
       formats: formatsOf(lake, 'lake', 'Pyoor Natural Lake Salt'),
     },
@@ -148,12 +148,12 @@ export function Products({
   const save = pb && pl && pp ? pb.amount + pl.amount - pp.amount : 0;
 
   return (
-    <section className={`${shell.blk} ${styles.products}`} aria-label="The Pair" data-products>
+    <section className={`${shell.blk} ${styles.products}`} aria-label="Products" data-products>
       <div className="py-wrap">
         {/* beyond the lake: a third plate, set apart */}
         {pink && (
           <div className={styles.beyond}>
-            <p className={styles.chapter}>Beyond the lake</p>
+            <h2 className={styles.chapter}>Beyond the lake</h2>
             {/* [CONFIRM COPY] */}
             <p className={styles.beyondLine}>A rock salt we pack with the same care.</p>
             <div className={styles.beyondPlate}>

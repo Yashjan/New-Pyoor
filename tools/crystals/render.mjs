@@ -47,7 +47,10 @@ for (const [ext, enc] of [
   let w = 2700;
   let q = 60;
   for (;;) {
-    const png = await sharp(sharpPng).resize(w, Math.round((w * 3) / 8)).png().toBuffer();
+    const png = await sharp(sharpPng)
+      .resize(w, Math.round((w * 3) / 8))
+      .png()
+      .toBuffer();
     for (q = 60; q >= 30; q -= 4) {
       buf = await enc(sharp(png), q).toBuffer();
       if (buf.length <= 350 * 1024) break;

@@ -7,12 +7,18 @@ import { coveredStore } from '@/lib/motion/covered';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
 import { heroShare } from '@/lib/three/heroShare';
+import { SHOW_FULL_LABEL } from '@/lib/commerce/pricing';
 import type { Reader } from './readerScene';
 import { LABELS, type LabelContent } from './labelData';
 import styles from './LabelReader.module.css';
 
 const HERO = 'herbal-black-salt'; // the hero's 3D jar
 const labelImg = (handle: string, w: number) => asset(`/textures/label-${handle}-${w}.webp`);
+
+/** Notes still awaiting sign-off ([CONFIRM …], [BATCH] …) never reach the visible panel. */
+const clean = (s: string) => s.replace(/\s*\[[^\]]*\]/g, '').trim();
+/** Rows whose value is still a placeholder are left out. */
+const shown = ([, v]: readonly [string, string]) => !/\[[^\]]*\]/.test(v);
 
 /**
  * Opens the reader on a product's label from anywhere (the products section): always the flat
@@ -188,15 +194,15 @@ function LabelText({ L }: { L: LabelContent }) {
       {L.line && <p className={styles.line}>{L.line}</p>}
 
       <h3>Ingredients</h3>
-      <p>{L.ingredients}</p>
+      <p>{clean(L.ingredients)}</p>
 
       {L.nutrition && (
         <>
           <h3>{L.nutrition!.title}</h3>
           <table className={styles.table}>
-            <caption>{L.nutrition!.note}</caption>
+            <caption>{clean(L.nutrition!.note)}</caption>
             <tbody>
-              {L.nutrition!.rows.map(([k, v]) => (
+              {L.nutrition!.rows.filter(shown).map(([k, v]) => (
                 <tr key={k}>
                   <th scope="row">{k}</th>
                   <td>{v}</td>
@@ -210,7 +216,7 @@ function LabelText({ L }: { L: LabelContent }) {
       <dl className={styles.facts}>
         <div>
           <dt>Net weight</dt>
-          <dd>{L.netWeight}</dd>
+          <dd>{clean(L.netWeight)}</dd>
         </div>
         {L.use && (
           <div>
@@ -228,7 +234,7 @@ function LabelText({ L }: { L: LabelContent }) {
           <dt>FSSAI Lic. No.</dt>
           <dd>{L.fssai}</dd>
         </div>
-        {L.perJar.map(([k, v]) => (
+        {L.perJar.filter(shown).map(([k, v]) => (
           <div key={k}>
             <dt>{k}</dt>
             <dd>{v}</dd>
@@ -236,7 +242,7 @@ function LabelText({ L }: { L: LabelContent }) {
         ))}
       </dl>
 
-      <h3>{L.packer.title}</h3>
+      <h3>{clean(L.packer.title)}</h3>
       <address className={styles.address}>
         {L.packer.name}
         <br />
@@ -476,7 +482,8 @@ function createController(el: HTMLElement, opts: Opts) {
     state = 'opening';
     const share = heroShare.get();
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    flat = flatOnly || reduce || !share;
+    // while the label's side panels are being corrected: the flat front panel only
+    flat = flatOnly || reduce || !share || !SHOW_FULL_LABEL;
     lock();
     listen(true);
     const { gsap } = await loadGsap();

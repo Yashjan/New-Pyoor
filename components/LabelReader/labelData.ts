@@ -1,4 +1,15 @@
-import { SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
+import { SHOW_FULL_LABEL, SHOW_POUCH_BACK } from '@/lib/commerce/pricing';
+
+/** While SHOW_FULL_LABEL is false: a jar's label as its front panel alone (tools/labels/fronts.mjs). */
+const front = (handle: string, height: number, name: string, nameHindi: string) =>
+  SHOW_FULL_LABEL
+    ? {}
+    : {
+        sheets: [
+          { name: 'Front', src: `/textures/label-${handle}-front.webp`, width: 1500, height },
+        ],
+        summary: `The front panel of the jar's printed label: Pyoor ${name} (${nameHindi}).`,
+      };
 
 /**
  * The Herbal Black Salt label as text (the label reader's accessible content), read from the
@@ -66,19 +77,20 @@ export const LABEL: LabelContent = {
     title: 'Packed and marketed by',
     name: 'Pyoor Global Enterprises',
     address: ['58-R, Shiv Vihar Colony, Phulera Road', 'Sambhar Lake, Jaipur, Rajasthan 303604'],
-    phone: '+91 75976 15660',
+    phone: '+91 76650 09882',
     email: 'pyoorglobalenterprises@gmail.com',
     web: 'www.pyoorglobal.com',
   },
   /** printed blank on the label and filled in per batch */
   perJar: [
-    ['Batch no.', '[BATCH]'],
-    ['Packed on', '[DATE] (printed “Date of Mfg”)'],
-    ['Best before', '[DATE] [CONFIRM: the label prints “Use By”; shelf life not stated]'],
+    ['Batch no.', 'Printed on the pack'],
+    ['Date of manufacture', 'Printed on the pack'],
+    ['Use by', 'Printed on the pack'],
     ['MRP', '₹199 (incl. of all taxes)'],
   ],
   origin: 'Product of India',
   widths: [4096, 8192],
+  ...front('herbal-black-salt', 1050, 'Herbal Black Salt', 'काला नमक'),
 };
 
 /**
@@ -94,7 +106,7 @@ const LAKE: LabelContent = {
   line: 'Extracted from Sambhar Lake',
   summary:
     'The jar’s printed label, unrolled flat: the Pyoor Natural Lake Salt (सफ़ेद नमक) front panel, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the right-hand panels.',
-  ingredients: 'Natural White Salt. Self iodized (as printed) [CONFIRM]',
+  ingredients: 'Natural White Salt', // [CONFIRM] the label also prints “Self Iodized”
   nutrition: {
     title: 'Nutritional information',
     note: 'Approximate values, per 100 g (serve size 1 g, 1000 servings per pack) [CONFIRM]',
@@ -124,6 +136,7 @@ const LAKE: LabelContent = {
   perJar: LABEL.perJar,
   origin: 'Product of India',
   widths: [4096],
+  ...front('natural-lake-salt', 1051, 'Natural Lake Salt', 'सफ़ेद नमक'),
 };
 
 /**
@@ -134,7 +147,9 @@ const LAKE: LabelContent = {
  */
 const pouch = (L: LabelContent, handle: string, sizes: [number, number][]): LabelContent => ({
   ...L,
-  summary: `The pouch’s printed artwork, front and back, flat: the Pyoor ${L.name} (${L.nameHindi}) 1 kg refill pouch, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the back. [CONFIRM]`,
+  summary: SHOW_POUCH_BACK
+    ? `The pouch’s printed artwork, front and back, flat: the Pyoor ${L.name} (${L.nameHindi}) 1 kg refill pouch, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the back.`
+    : `The front of the Pyoor ${L.name} (${L.nameHindi}) 1 kg refill pouch, flat.`,
   sheets: (SHOW_POUCH_BACK ? (['Front', 'Back'] as const) : (['Front'] as const)).map(
     (name, i) => ({
       name,
@@ -157,7 +172,7 @@ const PINK: LabelContent = {
   brand: 'Pyoor',
   line: '',
   summary:
-    'The front of the Pyoor Pink Rock Salt (सेंधा नमक) pack, flat, with the name, ingredients, net weight, FSSAI licence and packer as text. [CONFIRM]',
+    'The front of the Pyoor Pink Rock Salt (सेंधा नमक) pack, flat, with the name, ingredients, net weight, FSSAI licence and packer as text.',
   ingredients: 'Rock salt (sendha namak) [CONFIRM]',
   nutrition: null,
   netWeight: '1 kg [CONFIRM]',

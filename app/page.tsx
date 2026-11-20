@@ -7,6 +7,9 @@ import { LakeOpening, Products } from '@/components/sections/Products/Products';
 import { Roots } from '@/components/sections/Roots/Roots';
 import { getProduct, getProducts, isPurchasable, type Money } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 /** Homepage (docs/design-handoff/hero-reference/concept.html): one idea per screen. */
 export default async function HomePage() {

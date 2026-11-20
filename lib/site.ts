@@ -17,7 +17,9 @@ export const site = {
       postalCode: '303604',
       country: 'IN',
     },
-    phone: '+91 75976 15660',
+    phone: '+91 76650 09882',
+    /** The number printed on the current labels (contact panel); not used on the site. */
+    labelPhone: '+91 75976 15660',
     email: 'pyoorglobalenterprises@gmail.com',
     fssaiLicence: '12224999000443',
   },

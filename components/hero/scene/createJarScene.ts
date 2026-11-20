@@ -1,16 +1,17 @@
 import { coveredStore } from '@/lib/motion/covered';
+import { SHOW_FULL_LABEL } from '@/lib/commerce/pricing';
 import {
   ACESFilmicToneMapping,
   Box3,
   ImageBitmapLoader,
   LinearMipmapLinearFilter,
   Texture,
-  Clock,
+  Timer,
   Color,
   DirectionalLight,
   Fog,
   HemisphereLight,
-  PCFSoftShadowMap,
+  PCFShadowMap,
   PerspectiveCamera,
   PMREMGenerator,
   Scene,
@@ -91,6 +92,8 @@ const IVORY = new Color('#f5f1e8');
 const SKY = new Color('#eee9df');
 /** The hold's slow turn: ±7° on y, back and forth over 9 s (a sine). */
 const TURN = (7 * Math.PI) / 180;
+/** The drag limit while SHOW_FULL_LABEL is false (the label's side panels stay out of sight). */
+const JAR_LIMIT = (60 * Math.PI) / 180;
 const TURN_PERIOD = 9;
 /** The key light's direction (from the jar): it eases towards the cursor, ±25°. */
 const KEY_DIR = new Vector3(0.6, 1.2, 0.8);
@@ -156,7 +159,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   renderer.toneMappingExposure = 1;
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.shadowMap.enabled = tier.shadows;
-  renderer.shadowMap.type = PCFSoftShadowMap;
+  renderer.shadowMap.type = PCFShadowMap;
 
   const scene = new Scene();
   scene.fog = new Fog(IVORY.clone(), 2.2, 9);
@@ -313,7 +316,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
   io.observe(canvas);
 
   // ---- loop ----
-  const clock = new Clock();
+  const clock = new Timer();
   const jarBase = new Vector3();
   const camPos = new Vector3();
   const keyDir = new Vector3();
@@ -373,12 +376,13 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
       }
     } else shownOpacity = -1;
     if (!visible || !shown || gone || journeyStore.covered || coveredStore.get()) {
-      clock.getDelta(); // don't let time pile up while paused
+      clock.update(); // don't let time pile up while paused
       sq = qGoal;
       return;
     }
+    clock.update();
     const dt = Math.min(clock.getDelta(), 0.05);
-    const t = still ? 0 : clock.elapsedTime;
+    const t = still ? 0 : clock.getElapsed();
     const goal = opts.getProgress();
     sp += (goal - sp) * Math.min(1, dt * 7);
     if (Math.abs(goal - sp) < 1e-5) sp = goal; // settle exactly, so frames repeat exactly
@@ -396,6 +400,8 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     const rest = 1 - smooth(0.06, 0.11, p);
     turnCtl.update(dt, !!canvasShown && rest >= 0.999 && calm === 0 && !still);
     if (!still && rest >= 1 && op.rise > 0) lifeT += dt * turnCtl.sway;
+    if (!SHOW_FULL_LABEL)
+      turnCtl.yaw = Math.max(-JAR_LIMIT + TURN, Math.min(JAR_LIMIT - TURN, turnCtl.yaw));
     const turn = Math.sin((2 * Math.PI * lifeT) / TURN_PERIOD) * TURN * (1 - calm) * turnCtl.sway;
     // sharpness: up to 2 only on the hero's first screen once the page has rested 300 ms; from
     // the film on, the tier's DPR throughout (each switch reallocates the full-screen canvas,

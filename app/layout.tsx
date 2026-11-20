@@ -47,6 +47,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     locale: 'en_IN',
   },
+  twitter: { card: 'summary_large_image' },
 };
 
 export const viewport: Viewport = {

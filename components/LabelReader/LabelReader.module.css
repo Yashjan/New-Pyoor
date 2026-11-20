@@ -318,7 +318,7 @@
   .hint {
     top: calc(72px + 34svh - 14px);
     bottom: auto;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 }
 

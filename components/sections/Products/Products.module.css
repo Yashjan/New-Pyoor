@@ -472,6 +472,7 @@
 
 .chapter {
   margin: 0;
+  font-weight: 500;
   font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 0.18em;

@@ -211,7 +211,7 @@ export const products: Product[] = [
     ],
     featuredImage: null,
     images: [],
-    model: modelUrl('pyoor-pink-rock-salt.glb'),
+    model: modelUrl('pyoor-jar-pink-rock-salt.glb'),
     ingredients: ['Rock salt (sendha namak) [CONFIRM]'],
     facts: [
       { label: 'Product', value: 'Pink rock salt (सेंधा नमक)' },

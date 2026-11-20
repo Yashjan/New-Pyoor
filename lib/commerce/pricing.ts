@@ -30,6 +30,14 @@ export const FREE_SHIPPING_THRESHOLD_INR: number | null = null;
 export const SHOW_POUCH_BACK = false;
 
 /**
+ * The jar labels' side panels (they carry claim paragraphs until the artwork is corrected): while
+ * false, every jar turns at most ±60° by drag (its idle sway inside that), and the label reader
+ * shows only the label's front panel (public/textures/label-<handle>-front.webp). The reader's
+ * text panel is unchanged.
+ */
+export const SHOW_FULL_LABEL: boolean = false;
+
+/**
  * Pink Rock Salt: listed only while true (products, menu, bag, sitemap, structured data,
  * routes). Live.
  */
