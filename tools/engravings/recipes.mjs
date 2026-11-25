@@ -316,7 +316,273 @@ function kulhad() {
   return P.svg(STYLE);
 }
 
-export const RECIPE_ART = { 'nimbu-pani': glass, 'fruit-chaat': bowl, 'masala-chaas': kulhad };
+/** A cube of potato, cucumber or tomato: its top, two faces, the shaded one hatched. */
+function cube(P, x, y, s, t = 3, seeds = false) {
+  const q = s * 0.45;
+  const topF = [
+    [x, y],
+    [x + s, y - q * 0.4],
+    [x + s + q, y + q * 0.3],
+    [x + q, y + q * 0.7],
+    [x, y],
+  ];
+  const side = [
+    [x, y],
+    [x + q, y + q * 0.7],
+    [x + q, y + q * 0.7 + s * 0.8],
+    [x, y + s * 0.8],
+    [x, y],
+  ];
+  const front = [
+    [x + q, y + q * 0.7],
+    [x + s + q, y + q * 0.3],
+    [x + s + q, y + q * 0.3 + s * 0.8],
+    [x + q, y + q * 0.7 + s * 0.8],
+  ];
+  P.line(topF, { w: 0.75, t, amp: 0.15, taper: false });
+  P.line(side.slice(2, 5), { w: 0.75, t, amp: 0.15, taper: false });
+  P.line([...front.slice(1), front[3]], { w: 1, t, amp: 0.15, taper: false });
+  P.line([front[0], front[3]], { w: 0.5, t: t + 1, taper: false });
+  if (seeds)
+    for (let k = 0; k < 4; k++)
+      P.line(arc(x + s * 0.3 + k * s * 0.15, y + q * 0.15, 1.4, 0.8, 0, Math.PI * 2, 8), {
+        w: 0.5,
+        t: t + 2,
+        taper: false,
+        amp: 0,
+      });
+  P.hatch([...front, front[0]], { angle: 75, gap: 2.2, t: t + 3, shade: () => 0.6 });
+  P.block([
+    [x, y],
+    [x + s, y - q * 0.4],
+    [x + s + q, y + q * 0.3],
+    [x + s + q, y + q * 0.3 + s * 0.8],
+    [x + q, y + q * 0.7 + s * 0.8],
+    [x, y + s * 0.8],
+    [x, y],
+  ]);
+}
+
+/* ---------------- jaljeera: a short brass tumbler, mint, a lemon wedge, boondi ---------------- */
+function tumbler() {
+  const P = Plate(7404, { vignette: false, width: W, height: H });
+  const cx = 196;
+  const top = 196;
+  const bot = 426;
+  leaf(P, [186, top + 4], [150, 136], 13, 2);
+  leaf(P, [196, top + 2], [212, 122], 12, 2);
+  leaf(P, [204, top + 4], [244, 148], 11, 2);
+  // the lemon wedge on the rim
+  const wedge = [...arc(276, top - 2, 34, 30, Math.PI, Math.PI * 2, 24), [242, top - 2]];
+  P.line(wedge, { w: 1, t: 2 });
+  P.line(arc(276, top - 2, 27, 23, Math.PI, Math.PI * 2, 20), { w: 0.5, t: 3, taper: false });
+  for (let k = 1; k < 5; k++) {
+    const a = Math.PI + (k / 5) * Math.PI;
+    P.line(
+      [
+        [276, top - 2],
+        [276 + Math.cos(a) * 26, top - 2 + Math.sin(a) * 22],
+      ],
+      { w: 0.5, t: 4, taper: false },
+    );
+  }
+  P.block(wedge);
+  // the tumbler: wide mouth, a beaded rim, straight sides
+  P.line(arc(cx, top, 84, 14), { w: 1.25, t: 1 });
+  P.line(arc(cx, top + 6, 84, 14, 0, Math.PI), { w: 0.75, t: 2 });
+  const left = curve([
+    [cx - 84, top],
+    [cx - 78, (top + bot) / 2],
+    [cx - 70, bot],
+  ]);
+  const right = curve([
+    [cx + 84, top],
+    [cx + 78, (top + bot) / 2],
+    [cx + 70, bot],
+  ]);
+  P.line(left, { w: 1, t: 1 });
+  P.line(right, { w: 1.4, t: 1 });
+  P.line(arc(cx, bot, 70, 11, 0, Math.PI), { w: 1.25, t: 1 });
+  for (const y of [top + 60, top + 66, bot - 40]) {
+    const f = (y - top) / (bot - top);
+    P.line(arc(cx, y, lerp(83, 71, f), 13 - f * 2, 0.05, Math.PI - 0.05), { w: 0.5, t: 4 });
+  }
+  // boondi floating on the surface
+  for (let i = 0; i < 16; i++) {
+    const a = P.rnd() * Math.PI * 2;
+    const r = Math.sqrt(P.rnd());
+    const x = cx + Math.cos(a) * 66 * r;
+    const y = top + 2 + Math.sin(a) * 8 * r;
+    P.line(arc(x, y, 3, 2.4, 0, Math.PI * 2, 10), { w: 0.5, t: 5, taper: false, amp: 0 });
+  }
+  const body = [...left, ...arc(cx, bot, 70, 11, Math.PI, 0), ...right.slice().reverse()];
+  P.hatch(body, { angle: 90, gap: 2.3, t: 6, shade: (x) => 0.1 + ((x - cx) / 80) * 0.9 });
+  P.hatch(body, { angle: 15, gap: 3.4, t: 7, shade: (x) => (x - cx) / 80 - 0.4 });
+  ground(P);
+  return P.svg(STYLE);
+}
+
+/* ---------------- aloo chaat: potato cubes heaped in a leaf bowl, coriander, lemon ---------------- */
+function chaat() {
+  const P = Plate(7505, { vignette: false, width: W, height: H });
+  const cx = 196;
+  const rimY = 300;
+  // coriander on top, then the heap of cubes (front ones first: they hide the ones behind)
+  for (const [x, y, k] of [
+    [176, 214, 12],
+    [214, 220, 10],
+    [150, 232, 9],
+  ]) {
+    const out = curve(
+      [
+        [x, y + k],
+        [x - k, y],
+        [x - k * 0.3, y - k * 0.8],
+        [x + k * 0.3, y - k * 0.8],
+        [x + k, y],
+        [x, y + k],
+      ],
+      true,
+    );
+    P.line(out, { w: 0.5, t: 2, taper: false });
+    P.block(out);
+  }
+  const spots = [];
+  for (let row = 0; row < 4; row++)
+    for (let i = 0; i < 6 - row; i++)
+      spots.push([
+        90 + row * 22 + i * 40 + P.rnd() * 10,
+        292 - row * 22 - P.rnd() * 6,
+        22 + P.rnd() * 8,
+      ]);
+  spots.sort((a, b) => b[1] - a[1]);
+  for (const [x, y, s] of spots) cube(P, x, y, s, 3);
+  // the lemon half beside it
+  const half = arc(330, 400, 36, 16);
+  P.line(half, { w: 1, t: 2 });
+  P.line(arc(330, 400, 29, 12), { w: 0.5, t: 3, taper: false });
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2;
+    P.line(
+      [
+        [330, 400],
+        [330 + Math.cos(a) * 27, 400 + Math.sin(a) * 11],
+      ],
+      { w: 0.5, t: 4, taper: false },
+    );
+  }
+  P.line(arc(330, 404, 36, 18, 0, Math.PI), { w: 1, t: 2 });
+  P.block([...arc(330, 402, 38, 22)]);
+  // the leaf bowl (dona): a shallow cone, its leaf veins
+  const front = arc(cx, rimY, 140, 28, 0, Math.PI);
+  P.line(front, { w: 1.25, t: 1, swell: true });
+  P.line(arc(cx, rimY, 140, 28, Math.PI, Math.PI * 2), { w: 1, t: 1 });
+  const under = curve([
+    [cx - 140, rimY],
+    [cx - 80, rimY + 70],
+    [cx, rimY + 96],
+    [cx + 80, rimY + 70],
+    [cx + 140, rimY],
+  ]);
+  P.line(under, { w: 1, t: 1 });
+  for (let k = -3; k <= 3; k++)
+    P.line(
+      curve([
+        [cx + k * 38, rimY + 26 - Math.abs(k) * 3],
+        [cx + k * 24, rimY + 64],
+        [cx + k * 6, rimY + 92],
+      ]),
+      { w: 0.5, t: 4 },
+    );
+  P.hatch([...front, ...under.slice().reverse()], {
+    angle: 12,
+    gap: 2.4,
+    t: 6,
+    shade: (x, y) => 0.1 + ((x - cx) / 140) * 0.8 + ((y - rimY) / 96) * 0.3,
+  });
+  ground(P);
+  return P.svg(STYLE);
+}
+
+/* ---------------- kachumber: cucumber, tomato and onion in a bowl, a lemon ---------------- */
+function kachumber() {
+  const P = Plate(7606, { vignette: false, width: W, height: H });
+  const cx = 196;
+  const rimY = 290;
+  // cucumber rounds (seeds in a ring), onion rings, tomato pieces: heaped over the rim
+  const items = [];
+  for (let i = 0; i < 34; i++) {
+    const u = P.rnd() * 2 - 1;
+    items.push([cx + u * 128, 256 + P.rnd() * 34 - (1 - u * u) * 22, i % 3]);
+  }
+  items.sort((a, b) => b[1] - a[1]);
+  for (const [x, y, kind] of items) {
+    if (kind === 0) {
+      const r = 18;
+      P.line(arc(x, y, r, r * 0.55), { w: 1, t: 3 });
+      P.line(arc(x, y, r * 0.75, r * 0.4), { w: 0.5, t: 4, taper: false });
+      for (let k = 0; k < 6; k++) {
+        const a = (k / 6) * Math.PI * 2;
+        P.line(
+          arc(x + Math.cos(a) * r * 0.42, y + Math.sin(a) * r * 0.22, 1.6, 0.9, 0, Math.PI * 2, 8),
+          { w: 0.5, t: 5, taper: false, amp: 0 },
+        );
+      }
+      P.block(arc(x, y, r + 1, r * 0.55 + 1));
+    } else if (kind === 1) {
+      P.line(arc(x, y, 16, 9), { w: 0.75, t: 3 });
+      P.line(arc(x, y, 11, 6), { w: 0.5, t: 4, taper: false });
+      P.block(arc(x, y, 17, 10));
+    } else cube(P, x - 10, y - 8, 18, 3, true);
+  }
+  // the lemon, whole, beside the bowl
+  const lemon = curve(
+    [
+      [300, 404],
+      [318, 384],
+      [352, 382],
+      [372, 400],
+      [354, 420],
+      [318, 420],
+      [300, 404],
+    ],
+    true,
+  );
+  P.line(lemon, { w: 1, t: 2 });
+  P.hatch(lemon, { angle: 70, gap: 2.4, t: 6, shade: (x, y) => (y - 396) / 20 + (x - 336) / 60 });
+  P.block(lemon);
+  // the bowl
+  const front = arc(cx, rimY, 146, 30, 0, Math.PI);
+  P.line(front, { w: 1.25, t: 1, swell: true });
+  P.line(arc(cx, rimY, 146, 30, Math.PI, Math.PI * 2), { w: 1, t: 1 });
+  const under = curve([
+    [cx - 146, rimY],
+    [cx - 126, rimY + 66],
+    [cx - 46, rimY + 106],
+    [cx + 46, rimY + 106],
+    [cx + 126, rimY + 66],
+    [cx + 146, rimY],
+  ]);
+  P.line(under, { w: 1, t: 1 });
+  P.line(arc(cx, rimY + 110, 50, 8, 0, Math.PI), { w: 1, t: 2 });
+  P.hatch([...front, ...under.slice().reverse()], {
+    angle: 8,
+    gap: 2.2,
+    t: 6,
+    shade: (x, y) => 0.1 + ((x - cx) / 146) * 0.8 + ((y - rimY) / 106) * 0.4,
+  });
+  ground(P);
+  return P.svg(STYLE);
+}
+
+export const RECIPE_ART = {
+  'nimbu-pani': glass,
+  'fruit-chaat': bowl,
+  'masala-chaas': kulhad,
+  jaljeera: tumbler,
+  'aloo-chaat': chaat,
+  'kachumber-salad': kachumber,
+};
 
 export async function buildRecipes() {
   for (const [slug, f] of Object.entries(RECIPE_ART)) {

@@ -8,6 +8,7 @@ import { LIVE, PANORAMA } from './panorama';
 import { LiveLayer, createLiving } from './Living';
 import styles from './Journey.module.css';
 import { asset } from '@/lib/basePath';
+import Link from 'next/link';
 
 const SCENES = [
   {
@@ -77,6 +78,7 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
   const sun = $('[data-sun]');
   const line = $('[data-handoff]');
   const captions = [...root.querySelectorAll<HTMLElement>('[data-scene]')];
+  const more = root.querySelector<HTMLElement>('[data-journey-more]');
   const layerEls = Object.fromEntries(
     LAYERS.map((l) => [l, root.querySelector<HTMLElement>(`[data-layer="${l}"]`)!]),
   ) as Record<Layer, HTMLElement>;
@@ -430,11 +432,10 @@ function mountPanorama(root: HTMLDivElement | null): (() => void) | undefined {
     captions.forEach((el, i) => {
       const d = Math.abs(x - c[i]!) / PANORAMA.scene;
       const on = 1 - ease(phase(d, 0.44, 0.5)); // held while its scene is on screen
-      el.style.opacity = (
-        on *
-        ease(phase(inP, 0.7, 1)) *
-        (1 - phase(outP, ...STEP.caption))
-      ).toFixed(3);
+      const o = on * ease(phase(inP, 0.7, 1)) * (1 - phase(outP, ...STEP.caption));
+      el.style.opacity = o.toFixed(3);
+      // the link under the last scene takes clicks only while its caption is up
+      if (more && i === captions.length - 1) more.style.pointerEvents = o > 0.5 ? 'auto' : '';
     });
     sun.style.opacity = outP > 0 ? (1 - phase(outP, ...STEP.caption)).toFixed(3) : '';
     step2(outP, vw / 2 - view('far') * k);
@@ -679,6 +680,11 @@ export function Journey() {
               </div>
               <h3 className="py-display py-d-m">{scene.title}</h3>
               <p>{scene.text}</p>
+              {i === SCENES.length - 1 && (
+                <Link className={styles.more} href="/the-journey" data-journey-more>
+                  Follow the whole journey <span aria-hidden="true">→</span>
+                </Link>
+              )}
             </div>
           </li>
         ))}

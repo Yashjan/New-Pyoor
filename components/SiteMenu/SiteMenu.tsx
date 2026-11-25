@@ -25,8 +25,8 @@ import styles from './SiteMenu.module.css';
 /** Each link's engraving and its time of day (the wash and the sun follow it). */
 const LINKS = [
   { href: '/#shop', label: 'Shop', plate: 'jar', light: 'dusk' },
-  { href: '/#roots', label: 'Our roots', plate: 'roots', light: 'dawn' },
-  { href: '/#journey', label: 'The journey', plate: 'harvest', light: 'midday' },
+  { href: '/our-roots', label: 'Our roots', plate: 'roots', light: 'dawn' },
+  { href: '/the-journey', label: 'The journey', plate: 'harvest', light: 'midday' },
   { href: '/recipes', label: 'Recipes', plate: 'bowl', light: 'afternoon' },
 ] as const;
 const PLATES = ['jar', 'roots', 'harvest', 'bowl'] as const;

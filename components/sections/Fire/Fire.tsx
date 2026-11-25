@@ -8,7 +8,7 @@ import styles from './Fire.module.css';
 export const FIRE_STEPS = [
   {
     alt: 'White lake salt heaped in a shallow brass vessel',
-    text: 'It begins with salt from our own lake. Sambhar salt, the same white crystals you saw in the pans.',
+    text: 'It begins with white Sambhar lake salt, the same crystals you saw in the pans.',
   },
   {
     alt: 'Hands mixing the salt with harad, baheda and amla fruits and strips of babul bark',
@@ -24,7 +24,7 @@ export const FIRE_STEPS = [
   },
   {
     alt: 'Dark glassy lumps of salt on a cloth, one broken with a stone, ground grains beside it',
-    text: 'Broken by hand. When it cools, the salt is glassy and dark. Our family breaks it, grinds it, and it turns the soft pinkish-brown of kala namak, with its unmistakable taste.',
+    text: 'Broken by hand. When it cools, the salt is glassy and dark. It is broken, ground, and turns the soft pinkish-brown of kala namak, with its unmistakable taste.',
   },
 ] as const;
 

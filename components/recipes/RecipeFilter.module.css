@@ -1,0 +1,44 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.625rem;
+  margin: 0 0 clamp(2rem, 5vw, 3.5rem);
+}
+
+.chip {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    color var(--duration-base) var(--ease-settle);
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--gold-500) 10%, transparent);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--navy-800);
+  border-color: var(--navy-800);
+  color: var(--ivory-100);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 3px;
+}
+
+.filter[data-filter='herbal-black-salt']
+  :global(li[data-salts]:not([data-salts~='herbal-black-salt'])),
+.filter[data-filter='natural-lake-salt']
+  :global(li[data-salts]:not([data-salts~='natural-lake-salt'])) {
+  display: none;
+}

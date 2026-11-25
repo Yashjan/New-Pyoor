@@ -7,6 +7,10 @@
   list-style: none;
 }
 
+.grid {
+  row-gap: clamp(2.5rem, 5vw, 4rem);
+}
+
 .card {
   position: relative;
   display: flex;

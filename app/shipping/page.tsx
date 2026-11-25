@@ -17,9 +17,8 @@ export default function ShippingPage() {
     >
       <h2>Where we ship</h2>
       <p>
-        We ship to most pin codes in India through our courier partners [CONFIRM]. If your pin code
-        isn’t serviceable, we’ll tell you at checkout or contact you before dispatch. We don’t ship
-        outside India yet.
+        We ship to most pin codes in India by courier [CONFIRM]. If your pin code isn’t serviceable,
+        we’ll tell you at checkout or contact you before dispatch. We don’t ship outside India yet.
       </p>
 
       <h2>When your order leaves</h2>
@@ -35,9 +34,7 @@ export default function ShippingPage() {
         <li>Metro cities: 3–5 working days [CONFIRM]</li>
         <li>Rest of India: 4–8 working days [CONFIRM]</li>
       </ul>
-      <p>
-        These are estimates from our courier partners. Remote areas and weather can add a few days.
-      </p>
+      <p>These are our couriers’ estimates. Remote areas and weather can add a few days.</p>
 
       <h2>Shipping charges</h2>
       <p>

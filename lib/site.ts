@@ -7,7 +7,7 @@
 export const site = {
   name: 'Pyoor',
   description:
-    'Salt from Sambhar Lake, Rajasthan. Herbal black salt and natural lake salt, packed at the source in 1 kg jars.',
+    'Salt from Sambhar Lake, Rajasthan. Herbal black salt and natural lake salt, checked and packed at Sambhar in 1 kg jars.',
   company: {
     legalName: 'Pyoor Global Enterprises',
     address: {

@@ -11,6 +11,8 @@ function inline(name: string, label: string) {
     svg = readFileSync(join(process.cwd(), 'public/engravings', `${name}.svg`), 'utf8');
     cache.set(name, svg);
   }
+  // no label: decoration beside its own words
+  if (!label) return svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
   return svg.replace('<svg ', `<svg role="img" aria-label="${label.replace(/"/g, '&quot;')}" `);
 }
 

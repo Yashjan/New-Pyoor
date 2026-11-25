@@ -34,7 +34,7 @@ export function RecipeCards({
   return (
     <ul className={`${styles.cards} ${layout === 'grid' ? styles.grid : styles.row}`}>
       {recipes.map((r) => (
-        <li key={r.slug}>
+        <li key={r.slug} data-salts={r.salts.join(' ')}>
           <RecipeCard recipe={r} as={as} />
         </li>
       ))}

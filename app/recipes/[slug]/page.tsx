@@ -6,10 +6,9 @@ import { Ingredients } from '@/components/recipes/Ingredients';
 import styles from '@/components/recipes/Recipe.module.css';
 import { SaltStrip, type StripSalt } from '@/components/recipes/SaltStrip';
 import { asset } from '@/lib/basePath';
-import { getProduct } from '@/lib/commerce';
 import { RECIPES, SALT_NAMES, getRecipe, type Recipe } from '@/lib/content/recipes';
-import { formatPrice } from '@/lib/format';
 import { getSiteUrl } from '@/lib/site';
+import { stripSalts } from '@/lib/content/strip';
 
 type Params = { slug: string };
 
@@ -47,33 +46,10 @@ function jsonLd(r: Recipe) {
   };
 }
 
-async function saltsFor(r: Recipe): Promise<StripSalt[]> {
-  const out: StripSalt[] = [];
-  for (const handle of r.salts) {
-    const p = await getProduct(handle);
-    if (!p) continue;
-    const fmt = (v: (typeof p.variants)[number]) => ({
-      id: v.id,
-      size: v.title,
-      price: v.price && v.availableForSale ? formatPrice(v.price) : null,
-    });
-    const [jar, pouch] = p.variants;
-    if (!jar) continue;
-    out.push({
-      handle,
-      title: p.title,
-      image: { url: p.featuredImage?.url ?? '', alt: p.featuredImage?.alt ?? '' },
-      jar: fmt(jar),
-      pouch: pouch ? fmt(pouch) : undefined,
-    });
-  }
-  return out;
-}
-
 export default async function RecipePage({ params }: { params: Promise<Params> }) {
   const r = getRecipe((await params).slug);
   if (!r) notFound();
-  const salts = await saltsFor(r);
+  const salts = await stripSalts(r.salts);
   const ld = JSON.stringify(jsonLd(r)).replace(/</g, '\\u003c');
 
   return (

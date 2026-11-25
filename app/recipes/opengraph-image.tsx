@@ -7,8 +7,8 @@ export const dynamic = 'force-static';
 
 export default function Image() {
   return ogImage({
-    eyebrow: '07 · Recipes',
-    title: 'From our kitchen.',
+    eyebrow: 'From our kitchen',
+    title: 'Simple things, made with salt.',
     image: '/engravings/recipe-masala-chaas.png',
   });
 }

@@ -473,7 +473,7 @@ function cropScene(svg, s, win) {
 }
 
 /** A scene in near-layer units: every layer moved so its scene centre sits on the near one's. */
-function composite(layers, L, s, box, extra = '') {
+export function composite(layers, L, s, box, extra = '') {
   const [bx, by, bw, bh] = box;
   const cN = L.near.centers[s];
   const out = ['sky', 'far', 'near']

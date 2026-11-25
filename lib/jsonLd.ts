@@ -46,7 +46,6 @@ export function productLd(p: Product) {
     description: p.description,
     image: p.images.map((i) => new URL(i.url, getSiteUrl()).href),
     brand: { '@type': 'Brand', name: site.name },
-    manufacturer: { '@id': absUrl('/#organization') },
     url: absUrl(`/product/${p.handle}`),
     offers: p.variants
       .filter((v) => v.price)

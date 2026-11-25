@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
 import { asset } from '@/lib/basePath';
 import { site } from '@/lib/site';
@@ -103,7 +104,7 @@ export function Roots() {
                 </p>
                 <p className={styles.note} data-line>
                   I grew up on the edge of Sambhar Lake. Every season I watched the pans turn from
-                  white to pink, and every year I watched salt from our lake leave in sacks, with no
+                  white to pink, and every year I watched salt from the lake leave in sacks, with no
                   one ever knowing where it came from.
                 </p>
               </div>
@@ -112,9 +113,9 @@ export function Roots() {
             <div className={`${styles.panel} ${styles.p2}`} data-panel="2">
               <div className={styles.face}>
                 <p className={styles.note} data-line>
-                  Pyoor is my family&rsquo;s way of putting our name on it. The lake salt is ours.
-                  The black salt is fired by my family for thirty-two hours in clay pots, the way it
-                  has always been done.
+                  {/* [CONFIRM COPY] */}
+                  Pyoor is my way of putting a name to it. Every jar is chosen, checked and packed
+                  by us at Sambhar.
                 </p>
               </div>
             </div>
@@ -227,15 +228,14 @@ export function Roots() {
           </div>
         </div>
 
-        <a
-          className={styles.write}
-          href={WHATSAPP}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-write
-        >
-          Write back to us <span aria-hidden="true">→</span>
-        </a>
+        <p className={styles.write} data-write>
+          <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
+            Write back to us <span aria-hidden="true">→</span>
+          </a>
+          <Link href="/our-roots">
+            Read our story <span aria-hidden="true">→</span>
+          </Link>
+        </p>
       </div>
       <RootsMotionLazy />
     </section>

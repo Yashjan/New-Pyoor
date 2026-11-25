@@ -14,7 +14,7 @@ export default function TermsPage() {
     <InfoPage
       eyebrow="Policies"
       title="Terms of sale"
-      lead={`These terms apply when you buy from ${CONTACT.legalName}, Sambhar Lake, Rajasthan, on this website.`}
+      lead={`These terms apply when you order from ${CONTACT.legalName}, Sambhar Lake, Rajasthan, on this website.`}
     >
       <h2>The products</h2>
       <p>

@@ -40,8 +40,8 @@ export default function PrivacyPage() {
 
       <h2>Who we share it with</h2>
       <p>
-        Only the partners who help us deliver your order: our courier partners [CONFIRM], Razorpay
-        for payments, and our email provider [CONFIRM] for the newsletter. We never sell your data.
+        Only the companies that help us deliver your order: our couriers [CONFIRM], Razorpay for
+        payments, and our email provider [CONFIRM] for the newsletter. We never sell your data.
       </p>
 
       <h2>How long we keep it</h2>

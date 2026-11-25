@@ -15,8 +15,8 @@ const SHOP = [
   { href: '/#shop', label: 'Pouches' },
 ];
 const PYOOR = [
-  { href: '/#roots', label: 'Our roots' },
-  { href: '/#journey', label: 'The journey' },
+  { href: '/our-roots', label: 'Our roots' },
+  { href: '/the-journey', label: 'The journey' },
   { href: '/recipes', label: 'Recipes' },
   { href: '/contact', label: 'Contact' },
 ];

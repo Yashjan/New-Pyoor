@@ -5,7 +5,7 @@ import { RECIPES } from '@/lib/content/recipes';
 import shell from '../section.module.css';
 import styles from './Recipes.module.css';
 
-/** 07 · Recipes: three cards from lib/content/recipes.ts, each linking to its page. */
+/** 07 · Recipes: the first three cards from lib/content/recipes.ts, each linking to its page. */
 export function Recipes() {
   return (
     <section className={shell.blk} id="recipes" aria-labelledby="recipes-title">
@@ -23,7 +23,7 @@ export function Recipes() {
             All recipes →
           </ButtonLink>
         </div>
-        <RecipeCards recipes={RECIPES} />
+        <RecipeCards recipes={RECIPES.slice(0, 3)} />
       </div>
     </section>
   );
