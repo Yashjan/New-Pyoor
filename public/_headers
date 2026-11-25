@@ -1,0 +1,14 @@
+# Cloudflare Pages response headers.
+# Compressed jar models: modelUrl() (lib/three/models.ts) adds a content hash to every URL, so a
+# rebuilt model gets a new URL and this cache can be immutable.
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# OG images are exported as extensionless PNG files
+/opengraph-image
+  Content-Type: image/png
+/*/opengraph-image
+  Content-Type: image/png

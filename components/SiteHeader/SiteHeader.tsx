@@ -8,7 +8,6 @@ import { SiteMenu, type SiteMenuHandle } from '@/components/SiteMenu/SiteMenu';
 import { loadGsap } from '@/lib/motion/gsap';
 import { scrollToHash } from '@/lib/motion/lenis';
 import styles from './SiteHeader.module.css';
-import { asset } from '@/lib/basePath';
 
 /**
  * Menu left, logo centred, bag right (design-system/component-SiteHeader.md). Transparent over
@@ -96,7 +95,7 @@ export function SiteHeader() {
           }}
         >
           <Image
-            src={asset('/brand/pyoor-logo.png')}
+            src={'/brand/pyoor-logo.png'}
             alt=""
             width={629}
             height={264}

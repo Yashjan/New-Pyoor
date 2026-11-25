@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { asset } from '@/lib/basePath';
 import { coveredStore } from '@/lib/motion/covered';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore } from '@/lib/motion/lenis';
@@ -13,7 +12,7 @@ import { LABELS, type LabelContent } from './labelData';
 import styles from './LabelReader.module.css';
 
 const HERO = 'herbal-black-salt'; // the hero's 3D jar
-const labelImg = (handle: string, w: number) => asset(`/textures/label-${handle}-${w}.webp`);
+const labelImg = (handle: string, w: number) => `/textures/label-${handle}-${w}.webp`;
 
 /** Notes still awaiting sign-off (bracketed notes) never reach the visible panel. */
 const clean = (s: string) => s.replace(/\s*\[[^\]]*\]/g, '').trim();
@@ -137,7 +136,7 @@ export function LabelReader() {
                     className={styles.flatImg}
                     data-flat-img
                     data-aspect={L.sheets[sheet]!.width / L.sheets[sheet]!.height}
-                    src={asset(L.sheets[sheet]!.src)}
+                    src={L.sheets[sheet]!.src}
                     alt=""
                     draggable={false}
                   />

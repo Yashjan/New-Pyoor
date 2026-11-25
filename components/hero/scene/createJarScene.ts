@@ -28,7 +28,6 @@ import {
 import { studioEnvironment } from './studio';
 import { dressJar } from './materials';
 import { heroShare } from '@/lib/three/heroShare';
-import { asset } from '@/lib/basePath';
 import { journeyStore, openingPose, openingStore } from '@/lib/motion/opening';
 import { disposeObject } from '@/lib/three/dispose';
 import { loadJarModel } from '@/lib/three/loaders';
@@ -564,7 +563,7 @@ export async function createJarScene(opts: JarSceneOptions): Promise<JarScene> {
     try {
       const loader = new ImageBitmapLoader();
       loader.setOptions({ imageOrientation: 'none', colorSpaceConversion: 'none' });
-      const bitmap = await loader.loadAsync(asset(LABEL_4K));
+      const bitmap = await loader.loadAsync(LABEL_4K);
       if (signal.aborted) return bitmap.close?.();
       const tex = new Texture(bitmap as unknown as HTMLImageElement);
       tex.flipY = false;

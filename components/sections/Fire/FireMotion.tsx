@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import { whenCalm } from '@/lib/three/calm';
-import { asset } from '@/lib/basePath';
 import { loadGsap } from '@/lib/motion/gsap';
 import { fireCrack, fireLevel } from '@/lib/sound/sound';
 
@@ -62,7 +61,7 @@ export function FireMotion() {
     const load = async () => {
       const got = await Promise.all(
         arts.map(async (a, i) => {
-          const res = await fetch(asset(`/engravings/fire-${i + 1}${tall ? '-tall' : ''}.svg`), {
+          const res = await fetch(`/engravings/fire-${i + 1}${tall ? '-tall' : ''}.svg`, {
             signal: controller.signal,
           });
           return res.ok ? res.text() : '';

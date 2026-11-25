@@ -16,7 +16,6 @@ import {
   type ProductVariant,
 } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
-import { asset } from '@/lib/basePath';
 import styles from './CartDrawer.module.css';
 
 /** Line thumbnails: the products section's studio stills (the pouch's for a pouch line). */
@@ -156,7 +155,7 @@ function CartLineItem({ line, onNavigate }: { line: CartLine; onNavigate: () => 
       <div className={styles.thumb}>
         {thumbOf(line) ? (
           <Image
-            src={asset(thumbOf(line)!)}
+            src={thumbOf(line)!}
             alt=""
             width={72}
             height={90}

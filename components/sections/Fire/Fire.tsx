@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
-import { asset } from '@/lib/basePath';
 import { FireMotionLazy } from './FireMotionLazy';
 import styles from './Fire.module.css';
 
@@ -70,7 +69,7 @@ export function Fire() {
               <div className={styles.art} data-fire-art={i + 1}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={asset(`/engravings/fire-${i + 1}.svg`)}
+                  src={`/engravings/fire-${i + 1}.svg`}
                   alt={s.alt}
                   loading="lazy"
                   decoding="async"

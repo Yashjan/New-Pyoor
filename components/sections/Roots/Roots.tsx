@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
-import { asset } from '@/lib/basePath';
 import { site } from '@/lib/site';
 import { PostmarkDate } from './PostmarkDate';
 import { RootsMotionLazy } from './RootsMotionLazy';
@@ -74,7 +73,7 @@ export function Roots() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className={styles.backdrop}
-          src={asset('/engravings/journey-far.svg')}
+          src={'/engravings/journey-far.svg'}
           alt=""
           aria-hidden="true"
           loading="lazy"

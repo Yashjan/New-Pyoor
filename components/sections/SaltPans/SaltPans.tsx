@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { asset } from '@/lib/basePath';
 import { loadGsap } from '@/lib/motion/gsap';
 import { coveredStore } from '@/lib/motion/covered';
 import { PANS, PANS_VH, beforeEnd, clamp01, openVh, power2InOut } from '@/lib/motion/pans';
@@ -278,7 +277,7 @@ export function SaltPans() {
     const load = async () => {
       const name = portrait.matches ? 'tall' : 'wide';
       try {
-        const res = await fetch(asset(`/engravings/pans-${name}.svg`), {
+        const res = await fetch(`/engravings/pans-${name}.svg`, {
           signal: controller.signal,
         });
         const text = await res.text();
@@ -354,9 +353,9 @@ export function SaltPans() {
       <div className={styles.field}>
         <div ref={artRef} className={styles.art} />
         <picture className={styles.still}>
-          <source media={PORTRAIT} srcSet={asset('/engravings/pans-tall.svg')} />
+          <source media={PORTRAIT} srcSet={'/engravings/pans-tall.svg'} />
           <img
-            src={asset('/engravings/pans-wide.svg')}
+            src={'/engravings/pans-wide.svg'}
             alt="Salt pans at Sambhar Lake, engraved in gold and coloured pink"
             loading="lazy"
             decoding="async"

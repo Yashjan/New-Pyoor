@@ -1,5 +1,4 @@
 import type { MetadataRoute } from 'next';
-import { asset } from '@/lib/basePath';
 import { getProducts } from '@/lib/commerce';
 import { RECIPES } from '@/lib/content/recipes';
 import { getSiteUrl } from '@/lib/site';
@@ -7,7 +6,7 @@ import { getSiteUrl } from '@/lib/site';
 export const dynamic = 'force-static';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const abs = (p: string) => new URL(asset(p), getSiteUrl()).href;
+  const abs = (p: string) => new URL(p, getSiteUrl()).href;
   const products = await getProducts();
   return [
     { url: abs('/'), changeFrequency: 'weekly', priority: 1 },

@@ -1,7 +1,6 @@
 import type { StripSalt } from '@/components/recipes/SaltStrip';
 import { getProduct } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
-import { asset } from '@/lib/basePath';
 
 /** The plates' still renders (public/images/renders), for products without a photo. */
 const STILLS: Record<string, { url: string; alt: string }> = {
@@ -40,7 +39,7 @@ export async function stripSalts(
       title: p.title,
       image:
         (stills || !p.featuredImage) && STILLS[handle]
-          ? { url: asset(STILLS[handle].url), alt: STILLS[handle].alt }
+          ? { url: STILLS[handle].url, alt: STILLS[handle].alt }
           : { url: p.featuredImage?.url ?? '', alt: p.featuredImage?.alt ?? '' },
       jar: fmt(jar),
       pouch: pouch ? fmt(pouch) : undefined,

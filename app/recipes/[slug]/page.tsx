@@ -5,7 +5,6 @@ import { Engraving } from '@/components/Engraving/Engraving';
 import { Ingredients } from '@/components/recipes/Ingredients';
 import styles from '@/components/recipes/Recipe.module.css';
 import { SaltStrip, type StripSalt } from '@/components/recipes/SaltStrip';
-import { asset } from '@/lib/basePath';
 import { RECIPES, SALT_NAMES, getRecipe, type Recipe } from '@/lib/content/recipes';
 import { getSiteUrl } from '@/lib/site';
 import { stripSalts } from '@/lib/content/strip';
@@ -30,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 }
 
 function jsonLd(r: Recipe) {
-  const abs = (p: string) => new URL(asset(p), getSiteUrl()).href;
+  const abs = (p: string) => new URL(p, getSiteUrl()).href;
   return {
     '@context': 'https://schema.org',
     '@type': 'Recipe',

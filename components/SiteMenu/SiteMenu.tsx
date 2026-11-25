@@ -14,7 +14,6 @@ import {
   useSyncExternalStore,
   type RefObject,
 } from 'react';
-import { asset } from '@/lib/basePath';
 import { coveredStore } from '@/lib/motion/covered';
 import { loadGsap } from '@/lib/motion/gsap';
 import { lenisStore, scrollToHash } from '@/lib/motion/lenis';
@@ -51,7 +50,7 @@ let plates: Promise<Record<Plate, string>> | null = null;
 const loadPlates = () =>
   (plates ??= Promise.all(
     PLATES.map((p) =>
-      fetch(asset(`/engravings/menu-${p}.svg`)).then((r) => (r.ok ? r.text() : '')),
+      fetch(`/engravings/menu-${p}.svg`).then((r) => (r.ok ? r.text() : '')),
     ),
   ).then(
     (list) => Object.fromEntries(PLATES.map((p, i) => [p, list[i]!])) as Record<Plate, string>,

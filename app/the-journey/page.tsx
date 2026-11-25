@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { asset } from '@/lib/basePath';
 import {
   ShopStrip,
   StoryChapter,
@@ -59,7 +58,7 @@ export default function JourneyPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element -- a still SVG drawing */}
                 <img
                   className={styles.fireImg}
-                  src={asset(`/engravings/fire-${i + 1}.svg`)}
+                  src={`/engravings/fire-${i + 1}.svg`}
                   alt={s.alt}
                   width={640}
                   height={360}

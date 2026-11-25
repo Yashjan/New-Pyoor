@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { SAMBHAR } from '@/components/opening/sambharGlyphs';
-import { asset } from '@/lib/basePath';
 import { site } from '@/lib/site';
 import { BackToTop } from './BackToTop';
 import { FooterEngrave } from './FooterEngrave';
@@ -47,7 +46,7 @@ export function Footer() {
           <div className={styles.brand}>
             <Link href="/#top" className={styles.logo} aria-label="Pyoor home">
               <Image
-                src={asset('/brand/pyoor-logo.png')}
+                src={'/brand/pyoor-logo.png'}
                 alt=""
                 width={629}
                 height={264}

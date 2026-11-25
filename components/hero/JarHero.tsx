@@ -14,7 +14,6 @@ import { SaltPans } from '@/components/sections/SaltPans/SaltPans';
 import { modelUrl } from '@/lib/three/models';
 import { pickQualityTier } from '@/lib/three/quality';
 import styles from './JarHero.module.css';
-import { asset } from '@/lib/basePath';
 
 const MODEL_URL = modelUrl('pyoor-herbal-black-salt.glb');
 /** "Drag to turn" is shown until the first turn, then not again this session. */
@@ -194,7 +193,7 @@ export function JarHero({
         <div className={styles.backdrop} aria-hidden="true" data-backdrop>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={asset('/engravings/journey-far.svg')}
+            src={'/engravings/journey-far.svg'}
             alt=""
             loading="lazy"
             decoding="async"
@@ -216,7 +215,7 @@ export function JarHero({
               />
               <Image
                 className={`${styles.poster} ${posterGone ? styles.gone : ''}`}
-                src={asset('/images/renders/jar-black.webp')}
+                src={'/images/renders/jar-black.webp'}
                 alt="Pyoor Herbal Black Salt jar"
                 width={1206}
                 height={1570}
@@ -227,7 +226,7 @@ export function JarHero({
                   end (jar, cap, mound) */}
               <Image
                 className={styles.posterOpen}
-                src={asset('/images/renders/jar-open.webp')}
+                src={'/images/renders/jar-open.webp'}
                 alt=""
                 width={1800}
                 height={1100}
@@ -236,7 +235,7 @@ export function JarHero({
               />
               <Image
                 className={styles.posterFinal}
-                src={asset('/images/renders/jar-pour-final.webp')}
+                src={'/images/renders/jar-pour-final.webp'}
                 alt=""
                 width={2320}
                 height={980}

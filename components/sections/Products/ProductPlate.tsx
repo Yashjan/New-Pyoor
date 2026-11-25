@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { labelReader } from '@/components/LabelReader/LabelReader';
 import { calmQueue } from '@/lib/three/calm';
 import { useCart } from '@/components/providers/CartProvider';
-import { asset } from '@/lib/basePath';
 import { MAX_LINE_QUANTITY } from '@/lib/commerce';
 import { pickQualityTier } from '@/lib/three/quality';
 import { flyToBag } from './flyToBag';
@@ -220,7 +219,7 @@ export function ProductPlate(p: PlateProps) {
       >
         {formats.map((k) => {
           const spec = p.formats[k]!;
-          const src = (ext: string) => asset(`/images/renders/${spec.render.name}-studio.${ext}`);
+          const src = (ext: string) => `/images/renders/${spec.render.name}-studio.${ext}`;
           return (
             <div
               key={k}

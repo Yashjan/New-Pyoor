@@ -1,6 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
-/** Scroll tests against the production build (next build && next start). Uses the system Chrome. */
+/**
+ * The browser suite against the Cloudflare build: the static export (out/) and the Functions with a
+ * local D1, served by wrangler pages dev. Uses the system Chrome.
+ */
 export default defineConfig({
   testDir: 'tests',
   timeout: 90_000,
@@ -16,7 +19,11 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'npx next build && npx next start -p 4173',
+    // PW_STATIC=1: out/ through tools/serve/pages-static.mjs where wrangler's runtime can't run
+    // (it needs glibc 2.35+); the API is then covered by the unit tests (npm run test:unit)
+    command: process.env.PW_STATIC
+      ? 'npx next build && node tools/serve/pages-static.mjs 4173'
+      : 'npx next build && npm run db:local && npx wrangler pages dev out --port 4173',
     url: 'http://localhost:4173',
     timeout: 300_000,
     reuseExistingServer: false,

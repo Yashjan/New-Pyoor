@@ -1,9 +1,8 @@
-import { asset } from '@/lib/basePath';
 import type { Product } from '@/lib/commerce';
 import { getSiteUrl, site } from '@/lib/site';
 
 /** An absolute URL for a site path (base path included). */
-export const absUrl = (path: string) => new URL(asset(path), getSiteUrl()).href;
+export const absUrl = (path: string) => new URL(path, getSiteUrl()).href;
 
 /** The JSON for a <script type="application/ld+json">, safe to inline. */
 export const ldScript = (data: object) => JSON.stringify(data).replace(/</g, '\\u003c');

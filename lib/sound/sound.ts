@@ -19,7 +19,6 @@ import { CAP_TURNS, unscrewAt } from '@/lib/motion/pour';
 import { flowAt } from '@/lib/motion/pourSim';
 import { pourStore } from '@/lib/motion/pourStore';
 import { PANS, PANS_VH, openVh } from '@/lib/motion/pans';
-import { asset } from '@/lib/basePath';
 
 export type SoundName =
   'wind-loop' | 'water-loop' | 'pour-loop' | 'rake' | 'jar-tone' | 'cap-clicks';
@@ -146,7 +145,7 @@ async function load() {
   const decoded = await Promise.all(
     FILES.map(async (name) => {
       try {
-        const res = await fetch(asset(`/sounds/${name}.mp3`));
+        const res = await fetch(`/sounds/${name}.mp3`);
         if (!res.ok) throw new Error(`${res.status}`);
         return [name, await c.decodeAudioData(await res.arrayBuffer())] as const;
       } catch (err) {

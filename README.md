@@ -277,10 +277,10 @@ The footer must carry: _“Pyoor” is only a brand name and does not represent 
 Note: the current printed labels (and therefore the product photos and 3D label textures) still
 show old claims; they will change when the labels are reprinted. Website copy must not repeat them.
 
-## Deploy (Vercel)
+## Deploy (Cloudflare Pages)
 
-1. Import the GitHub repo in Vercel; framework preset **Next.js**, no build overrides needed.
-2. Set `NEXT_PUBLIC_SITE_URL` for Production (e.g. `https://pyoor.in`). Previews fall back to `VERCEL_URL`.
-3. Every push to a branch gets a preview URL; `main` deploys to production.
+The site is a static export (`out/`) served by Cloudflare Pages, with the API in Pages Functions
+(`functions/`, `server/app.ts`) and a D1 database (`migrations/`, `db/seed.sql`). See **DEPLOY.md**.
 
-CLI alternative: `npx vercel` (preview) / `npx vercel --prod`.
+Local: `npm run dev:cf` (static build + Functions + local D1; needs glibc 2.35+). Unit tests for the
+API: `npm run test:unit`. Prices change in `lib/commerce/pricing.ts`, then `npm run db:seed:gen`.

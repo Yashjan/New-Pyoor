@@ -28,7 +28,6 @@ import {
 } from 'three';
 import { studioEnvironment } from '@/components/hero/scene/studio';
 import type { HeroShare } from '@/lib/three/heroShare';
-import { asset } from '@/lib/basePath';
 
 /**
  * The label reader's 3D (components/LabelReader): its own small renderer over the page, so the
@@ -257,7 +256,7 @@ export async function createReader(
   const size = hd && share.maxTextureSize >= 8192 ? 8192 : 4096;
   void new ImageBitmapLoader()
     .setOptions({ imageOrientation: 'none', colorSpaceConversion: 'none' })
-    .loadAsync(asset(`/textures/label-herbal-black-salt-${size}.webp`))
+    .loadAsync(`/textures/label-herbal-black-salt-${size}.webp`)
     .then((bitmap) => {
       if (disposed) return;
       hdTex = prep(new Texture(bitmap as unknown as HTMLImageElement));

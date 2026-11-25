@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { SplitText } from '@/components/SplitText/SplitText';
-import { asset } from '@/lib/basePath';
 import { LoupeLazy } from './LoupeLazy';
 import styles from './Crystals.module.css';
 
@@ -19,19 +18,19 @@ function Field({ name, className }: { name: 'soft' | 'sharp'; className?: string
         <>
           <source
             media="(max-width: 768px)"
-            srcSet={asset('/images/crystals/field-sharp-m.avif')}
+            srcSet={'/images/crystals/field-sharp-m.avif'}
             type="image/avif"
           />
           <source
             media="(max-width: 768px)"
-            srcSet={asset('/images/crystals/field-sharp-m.webp')}
+            srcSet={'/images/crystals/field-sharp-m.webp'}
             type="image/webp"
           />
         </>
       )}
-      <source srcSet={asset(`/images/crystals/field-${name}.avif`)} type="image/avif" />
+      <source srcSet={`/images/crystals/field-${name}.avif`} type="image/avif" />
       <img
-        src={asset(`/images/crystals/field-${name}.webp`)}
+        src={`/images/crystals/field-${name}.webp`}
         alt=""
         loading="lazy"
         decoding="async"
