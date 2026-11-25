@@ -26,8 +26,7 @@ export default function PrivacyPage() {
       <h3>When you browse</h3>
       <p>
         Your bag is kept in your own browser (local storage) so it is still there when you come
-        back. We use basic, privacy-friendly analytics to see which pages are visited [CONFIRM]. We
-        don’t use advertising trackers [CONFIRM].
+        back. We don’t use analytics or advertising trackers.
       </p>
 
       <h2>How we use it</h2>
@@ -40,20 +39,19 @@ export default function PrivacyPage() {
 
       <h2>Who we share it with</h2>
       <p>
-        Only the companies that help us deliver your order: our couriers [CONFIRM], Razorpay for
-        payments, and our email provider [CONFIRM] for the newsletter. We never sell your data.
+        Only the companies that help us deliver your order: Shiprocket and its courier partners,
+        Razorpay for payments, and our email provider for the newsletter. We never sell your data.
       </p>
 
       <h2>How long we keep it</h2>
       <p>
-        Order records for as long as tax law requires (currently 8 years) [CONFIRM]; newsletter
-        details until you unsubscribe.
+        Order records for as long as tax law requires; newsletter details until you unsubscribe.
       </p>
 
       <h2>Your choices</h2>
       <p>
         You can ask to see, correct or delete your details, or unsubscribe at any time. Write to{' '}
-        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> [CONFIRM EMAIL] or WhatsApp{' '}
+        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> or WhatsApp{' '}
         <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a>.
       </p>
 

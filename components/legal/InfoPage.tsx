@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import styles from './InfoPage.module.css';
 
-/** "Last updated" on every information page. [CONFIRM] before launch. */
-export const LAST_UPDATED = '19 November 2026';
+/** "Last updated" on every information page. before launch. */
+export const LAST_UPDATED = '25 November 2026';
 
 /**
  * Shipping, returns, FAQ, privacy, terms and contact: one quiet layout (sand page, the gold

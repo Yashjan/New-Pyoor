@@ -363,7 +363,6 @@ export function SaltPans() {
           />
         </picture>
       </div>
-      {/* [CONFIRM COPY] */}
       <p ref={lineRef} className={`py-display py-d-m ${styles.line}`} data-pans-line>
         The lake turns pink before it gives salt.
       </p>

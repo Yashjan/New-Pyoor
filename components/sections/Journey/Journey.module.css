@@ -452,3 +452,14 @@
     bottom: auto;
   }
 }
+
+/* 04: the dust behind the tractor (Living.tsx): a soft puff, scaled about its own centre */
+.dust {
+  fill: color-mix(in srgb, var(--gold-500) 22%, var(--ivory-100));
+  stroke: var(--gold-500);
+  stroke-width: 0.5px;
+  stroke-dasharray: 1.5 2.5;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+}

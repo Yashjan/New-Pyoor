@@ -28,10 +28,10 @@ export default function ReturnsPage() {
         <li>
           Within <strong>48 hours</strong> of delivery, WhatsApp{' '}
           <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a> or email{' '}
-          <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> [CONFIRM EMAIL].
+          <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>.
         </li>
         <li>Send your order number and a clear photo of the item and the outer box.</li>
-        <li>We reply within 1 working day [CONFIRM] and arrange a replacement or a refund.</li>
+        <li>We reply within 1 working day and arrange a replacement or a refund.</li>
       </ol>
       <p>
         You usually don’t need to send anything back. If we need the item, we arrange the pickup at
@@ -54,8 +54,7 @@ export default function ReturnsPage() {
       <h2>Refunds</h2>
       <p>
         Prepaid orders are refunded to the original payment method through Razorpay within 5–7
-        working days [CONFIRM] of approval. For cash-on-delivery orders we refund by UPI or bank
-        transfer [CONFIRM].
+        working days of approval. For cash-on-delivery orders we refund by UPI or bank transfer.
       </p>
     </InfoPage>
   );

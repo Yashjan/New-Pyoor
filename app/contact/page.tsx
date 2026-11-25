@@ -18,12 +18,12 @@ export default function ContactPage() {
     >
       <h2>WhatsApp</h2>
       <p>
-        <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a>, Monday to Saturday, 10 am to 6
-        pm IST [CONFIRM].
+        <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a>, Monday to Saturday, 10:00 to
+        18:00 IST.
       </p>
       <h2>Email</h2>
       <p>
-        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> [CONFIRM EMAIL]
+        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
       </p>
       <h2>Address</h2>
       <p>

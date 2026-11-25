@@ -128,6 +128,7 @@ export function CartDrawer() {
             <span>Subtotal</span>
             <span>{formatPrice(cart?.subtotal ?? { amount: 0, currencyCode: 'INR' })}</span>
           </p>
+          {lines.length > 0 && <FreeShipping amount={cart?.subtotal.amount ?? 0} />}
           <p className={styles.note}>Cash on delivery and online payment at checkout</p>
           <p className={styles.note}>
             Questions?{' '}
@@ -199,5 +200,24 @@ function CartLineItem({ line, onNavigate }: { line: CartLine; onNavigate: () => 
       </div>
       <p className={styles.lineTotal}>{formatPrice(line.lineTotal)}</p>
     </li>
+  );
+}
+
+/** "Free shipping from ₹499", with a thin line filling towards it (site.shipping). */
+function FreeShipping({ amount }: { amount: number }) {
+  const { freeFrom } = site.shipping;
+  const left = freeFrom - amount;
+  const p = Math.min(1, Math.max(0, amount / freeFrom));
+  return (
+    <div className={styles.ship}>
+      <p className={styles.note}>
+        {left > 0
+          ? `Free shipping from ₹${freeFrom}: ₹${left} to go`
+          : 'Free shipping on this order'}
+      </p>
+      <span className={styles.shipLine} aria-hidden="true">
+        <span style={{ transform: `scaleX(${p})` }} />
+      </span>
+    </div>
   );
 }

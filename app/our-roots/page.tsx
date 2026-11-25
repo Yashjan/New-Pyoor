@@ -45,9 +45,6 @@ export default function OurRootsPage() {
                     </li>
                   ))}
                 </ul>
-                <p className={styles.body}>
-                  <span className="py-confirm">[CONFIRM LIST]</span>
-                </p>
               </StoryChapter>
             );
           if (c.id === 'the-letter')

@@ -4,7 +4,7 @@ import { asset } from '@/lib/basePath';
 import { LoupeLazy } from './LoupeLazy';
 import styles from './Crystals.module.css';
 
-/** The two halves' words (they follow the loupe). [CONFIRM] No claims. */
+/** The two halves' words (they follow the loupe). No claims. */
 const SIDES = [
   'Ground fine and pinkish-brown, with the tang of the fire. For chaat, raita, fruit and nimbu pani.',
   'A small, bright crystal, clean and simple. For everyday cooking, the way Sambhar has always cooked.',

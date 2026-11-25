@@ -20,7 +20,7 @@ const QA: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: 'What sizes do you sell?',
-    a: 'Each salt comes in a 1 kg jar (₹199) and a 1 kg refill pouch (₹149) [CONFIRM].',
+    a: 'Each salt comes in a 1 kg jar (₹199) and a 1 kg refill pouch (₹149).',
   },
   {
     q: 'How should I store it?',
@@ -30,14 +30,14 @@ const QA: { q: string; a: React.ReactNode }[] = [
     q: 'How long does delivery take?',
     a: (
       <>
-        Usually 2–8 working days after dispatch, depending on where you are [CONFIRM]. See{' '}
+        We dispatch within 1–2 working days, and delivery takes 3–7 working days across India. See{' '}
         <Link href="/shipping">Shipping</Link>.
       </>
     ),
   },
   {
     q: 'Do you offer cash on delivery?',
-    a: 'Yes, on most pin codes [CONFIRM]. You can also pay online by UPI, card or net banking through Razorpay.',
+    a: 'Yes, on orders up to ₹2,000, with no extra fee. You can also pay online by UPI, card or net banking through Razorpay.',
   },
   {
     q: 'My order arrived damaged. What do I do?',
@@ -56,8 +56,8 @@ const QA: { q: string; a: React.ReactNode }[] = [
     q: 'Do you sell in bulk or to shops?',
     a: (
       <>
-        Yes [CONFIRM]. WhatsApp us at <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a>{' '}
-        with what you need.
+        Yes. Write to us on WhatsApp at <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a>{' '}
+        for bulk and gifting orders.
       </>
     ),
   },

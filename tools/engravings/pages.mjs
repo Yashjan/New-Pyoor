@@ -999,108 +999,35 @@ function icon(seed, draw) {
   return P.svg(STYLE);
 }
 const CHECKS = {
-  // cleanliness: one clear crystal, a glint
-  clean: (P) => {
-    crystal(P, 34, 50, 40, 2);
-    for (const [a, b] of [
-      [
-        [86, 22],
-        [86, 40],
-      ],
-      [
-        [77, 31],
-        [95, 31],
-      ],
-    ])
-      P.line([a, b], { w: 0.75, t: 1, taper: false });
+  // lab-tested: a flask with a little salt solution, a test tube beside it
+  lab: (P) => {
+    const flask = curve([[50, 14], [50, 44], [24, 92], [28, 102], [92, 102], [96, 92], [70, 44], [70, 14]]);
+    P.line(flask, { w: 1.25, t: 1 });
+    P.line([[44, 14], [76, 14]], { w: 1, t: 1, taper: false });
+    const liquid = close([[34, 74], [86, 74], [96, 92], [92, 102], [28, 102], [24, 92]]);
+    P.line([[34, 74], [86, 74]], { w: 0.75, t: 2, taper: false });
+    P.hatch(liquid, { angle: 0, gap: 2.4, t: 3, shade: (x) => (x - 60) / 40 + 0.4 });
+    for (const [x, y] of [[52, 86], [66, 90], [58, 80]]) P.line(arc(x, y, 2, 2, 0, Math.PI * 2, 10), { w: 0.5, t: 4, taper: false, amp: 0 });
+    P.block(close(flask));
+    const tube = close([[100, 30], [112, 30], [112, 96], [106, 102], [100, 96]]);
+    P.line(tube, { w: 1, t: 1, taper: false });
+    P.hatch(close([[100, 70], [112, 70], [112, 96], [106, 102], [100, 96]]), { angle: 0, gap: 2.4, t: 3 });
   },
-  // crystal size: three crystals in a row, a rule under them
-  size: (P) => {
-    crystal(P, 12, 60, 14, 2);
-    crystal(P, 42, 52, 22, 2);
-    crystal(P, 78, 42, 30, 2);
-    P.line(
-      [
-        [10, 98],
-        [112, 98],
-      ],
-      { w: 1, t: 1, taper: false },
-    );
-    for (let x = 10; x <= 112; x += 8.5)
-      P.line(
-        [
-          [x, 98],
-          [x, x % 17 < 1 ? 92 : 95],
-        ],
-        { w: 0.5, t: 3, taper: false, amp: 0 },
-      );
-  },
-  // moisture: a drop over a little heap
-  moisture: (P) => {
-    const drop = curve([
-      [60, 14],
-      [74, 38],
-      [78, 54],
-      [70, 66],
-      [60, 68],
-      [50, 66],
-      [42, 54],
-      [46, 38],
-      [60, 14],
-    ]);
-    P.line(drop, { w: 1, t: 1 });
-    P.hatch(drop, { angle: 80, gap: 2.2, t: 4, shade: (x) => (x - 60) / 18 + 0.2 });
-    P.block(drop);
-    mound(P, 60, 104, 40, 22, { t: 2 });
-  },
-  // colour: a dish of salt, half in shade, a swatch strip
-  colour: (P) => {
-    P.line(arc(60, 56, 44, 44), { w: 1, t: 1 });
-    P.line(arc(60, 56, 36, 36), { w: 0.5, t: 2, taper: false });
-    P.hatch(arc(60, 56, 35, 35), { angle: 45, gap: 2.4, t: 4, shade: (x) => (x - 60) / 30 + 0.4 });
-    for (let i = 0; i < 4; i++) {
-      const r = close([
-        [16 + i * 23, 106],
-        [36 + i * 23, 106],
-        [36 + i * 23, 114],
-        [16 + i * 23, 114],
-      ]);
-      P.line(r, { w: 0.75, t: 3, taper: false });
-      P.hatch(r, { angle: 0, gap: 4 - i * 0.8, t: 5 });
+  // checked by batch: a clipboard with ruled lines, a tick
+  batch: (P) => {
+    const board = close([[22, 16], [98, 16], [98, 110], [22, 110]]);
+    P.line(board, { w: 1.25, t: 1, taper: false });
+    P.line(close([[44, 8], [76, 8], [76, 22], [44, 22]]), { w: 1, t: 1, taper: false });
+    for (const y of [40, 56, 72, 88]) {
+      P.line(close([[32, y - 5], [40, y - 5], [40, y + 3], [32, y + 3]]), { w: 0.5, t: 2, taper: false });
+      P.line([[48, y], [88, y]], { w: 0.5, t: 3, taper: false, amp: 0 });
     }
+    P.line([[30, 38], [36, 46], [50, 26]], { w: 1.4, t: 4, taper: false });
+    P.line([[30, 54], [36, 62], [50, 42]], { w: 1.4, t: 4, taper: false });
+    P.hatch(board, { angle: 90, gap: 3, t: 5, shade: (x) => (x - 60) / 40 - 0.2 });
   },
-  // taste: a spoon with a pinch of grains
-  taste: (P) => {
-    const bowl = arc(46, 58, 28, 18);
-    P.line(bowl, { w: 1.25, t: 1 });
-    for (let i = 0; i < 18; i++) {
-      const x = 32 + P.rnd() * 28;
-      const y = 52 + P.rnd() * 10;
-      P.line(
-        [
-          [x, y],
-          [x + 1.6, y + 0.4],
-        ],
-        { w: 0.75, t: 3, taper: false, amp: 0 },
-      );
-    }
-    P.hatch(bowl, { angle: 20, gap: 2.4, t: 4, shade: (x, y) => (y - 58) / 18 + 0.2 });
-    P.block(bowl);
-    P.line(
-      [
-        [72, 52],
-        [112, 30],
-      ],
-      { w: 1.4, t: 1 },
-    );
-    P.line(
-      [
-        [73, 58],
-        [112, 34],
-      ],
-      { w: 0.75, t: 2 },
-    );
-  },
+  // packed at Sambhar: the jar, sealed
+  packed: (P) => jar(P, 60, 110, 56, 96, 1),
 };
 
 /** The panorama (its three layers, from disk) and its constants (panorama.ts). */
@@ -1125,7 +1052,14 @@ export function buildPages() {
   // the Journey's first four scenes (05's jar is the homepage's live overlay), each as one plate (its centre at the near layer's; 820 × 512)
   for (let s = 0; s < 4; s++) {
     const c = L.near.centers[s];
-    const extra = s === 2 ? LIVE.rake.html : '';
+    // the living details that belong in the still plate: 03's rake; 04's worker, and the
+    // tractor where its haul ends
+    const extra =
+      s === 2
+        ? LIVE.rake.html
+        : s === 3
+          ? `${LIVE.worker.html}<g transform="translate(${LIVE.tractor.dx} 0)">${LIVE.tractor.html}</g>`
+          : '';
     files[`scene-${s + 1}`] = composite(
       layers,
       L,

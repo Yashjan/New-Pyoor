@@ -32,6 +32,8 @@ const D = LIVE as unknown as {
     furrows: [number, number, number, number][];
   };
   shimmer: { s: number; box: Box; paper: string; a: string; b: string };
+  tractor: { s: number; box: Box; html: string; dx: number; dust: [number, number, number][] };
+  worker: { s: number; box: Box; html: string };
   glints: { s: number; pts: [number, number, number][] };
   jar: { s: number; box: Box; html: string };
   birds: {
@@ -201,6 +203,46 @@ export function LiveLayer({ layer, scene }: { layer: Layer; scene?: number }) {
           />
         </svg>,
       );
+    // 04: the worker at the trolley's tail (still); the tractor hauls along the bund, dust behind
+    if (show(D.worker.s))
+      out.push(
+        <svg
+          key="worker"
+          className={cls}
+          data-live="worker"
+          data-live-s={D.worker.s}
+          style={place(D.worker.box, cc)}
+          {...svgProps(D.worker.box)}
+          dangerouslySetInnerHTML={{ __html: D.worker.html }}
+        />,
+      );
+    if (show(D.tractor.s))
+      out.push(
+        <svg
+          key="tractor"
+          className={cls}
+          data-live="tractor"
+          data-live-s={D.tractor.s}
+          style={place(D.tractor.box, cc)}
+          {...svgProps(D.tractor.box)}
+        >
+          <g data-haul="" transform={`translate(${still ? D.tractor.dx : 0} 0)`}>
+            {!still &&
+              D.tractor.dust.map(([x, y, r], i) => (
+                <circle
+                  key={i}
+                  className={styles.dust}
+                  data-dust=""
+                  cx={x}
+                  cy={y}
+                  r={r}
+                  opacity="0"
+                />
+              ))}
+            <g dangerouslySetInnerHTML={{ __html: D.tractor.html }} />
+          </g>
+        </svg>,
+      );
     if (show(D.shimmer.s))
       out.push(
         <div
@@ -336,7 +378,9 @@ export function createLiving(journey: HTMLElement) {
   };
 
   /* ---------- scroll-linked ---------- */
-  const last = { flow: NaN, evap: NaN, rake: NaN };
+  const last = { flow: NaN, evap: NaN, rake: NaN, haul: NaN };
+  const haul = root.querySelector<SVGGElement>('[data-haul]');
+  const dust = q<SVGCircleElement>('[data-dust]');
   const ex = D.evap.box[0];
   const ew = D.evap.box[2];
   const shown = new Map<Element, string>();
@@ -376,6 +420,22 @@ export function createLiving(journey: HTMLElement) {
       mover?.style.setProperty('--dx', dx.toFixed(2));
       furrows.forEach((el, i) => {
         el.style.strokeDashoffset = (D.rake.furrows[i]![2] * (1 - rp)).toFixed(2);
+      });
+    }
+    // 04: the tractor hauls slowly along the bund; puffs of dust rise behind it and fade (each
+    // a function of the scroll, so scrolling back runs it all backwards)
+    const hp = +phase(pan, 0.58, 0.94).toFixed(4);
+    if (hp !== last.haul && haul) {
+      last.haul = hp;
+      haul.setAttribute('transform', `translate(${(D.tractor.dx * hp).toFixed(2)} 0)`);
+      const moving = hp > 0 && hp < 1 ? 1 : 0;
+      dust.forEach((el, i) => {
+        const f = (hp * 9 + i / dust.length) % 1; // each puff's own cycle
+        set(
+          el,
+          `translate(${(-f * 10).toFixed(2)}px, ${(-f * 6).toFixed(2)}px) scale(${(0.6 + f * 0.9).toFixed(3)})`,
+          (moving * 0.55 * Math.sin(Math.PI * f)).toFixed(3),
+        );
       });
     }
   };

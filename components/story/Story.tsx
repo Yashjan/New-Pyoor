@@ -5,7 +5,6 @@ import { Engraving } from '@/components/Engraving/Engraving';
 import { SaltStrip } from '@/components/recipes/SaltStrip';
 import { stripSalts } from '@/lib/content/strip';
 import { LETTER, type Chapter as ChapterData } from '@/lib/content/story';
-import { Confirm } from './Confirm';
 import { StoryProgress, type Mark } from './StoryProgress';
 import styles from './Story.module.css';
 
@@ -26,7 +25,7 @@ export function StoryIntro({
       <p className="py-eyebrow">{eyebrow}</p>
       <h1 className="py-display py-d-l">{title}</h1>
       <p className={styles.lead}>
-        <Confirm text={lead} />
+        {lead}
       </p>
     </header>
   );
@@ -74,7 +73,7 @@ export function StoryChapter({
         </h2>
         {chapter.body.map((t, i) => (
           <p key={i} className={styles.body}>
-            <Confirm text={t} />
+            {t}
           </p>
         ))}
         {children}
@@ -121,7 +120,7 @@ export function Letter() {
       </p>
       {LETTER.paragraphs.map((t, i) => (
         <p key={i} className={styles.note}>
-          <Confirm text={t} />
+          {t}
         </p>
       ))}
       <div

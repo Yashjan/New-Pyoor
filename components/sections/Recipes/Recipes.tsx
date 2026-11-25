@@ -16,7 +16,6 @@ export function Recipes() {
             <SplitText id="recipes-title" className="py-display py-d-l">
               From our kitchen.
             </SplitText>
-            {/* [CONFIRM] */}
             <p className={styles.lead}>Simple things we make at home with our salt.</p>
           </div>
           <ButtonLink variant="link" href="/recipes">

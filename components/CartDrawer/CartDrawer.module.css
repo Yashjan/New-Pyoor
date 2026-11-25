@@ -284,3 +284,27 @@
   text-decoration-color: var(--gold-500);
   text-underline-offset: 3px;
 }
+
+/* free shipping: the note and a hairline filling towards the threshold */
+.ship {
+  display: grid;
+  gap: var(--space-2);
+}
+.shipLine {
+  display: block;
+  height: 2px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+.shipLine > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shipLine > span {
+    transition: none;
+  }
+}

@@ -276,9 +276,9 @@ export function JarHero({
               </ButtonLink>
             </div>
             <div className={styles.trust}>
-              <span>FSSAI licensed</span>
-              <span>Batch and dates on every jar</span>
-              <span>Cash on delivery</span>
+              <span>Lab-tested</span>
+              <span>Checked by batch</span>
+              <span>Packed at Sambhar</span>
             </div>
           </div>
         </div>

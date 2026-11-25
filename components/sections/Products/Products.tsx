@@ -55,20 +55,20 @@ function platesOf(black: Product | null, lake: Product | null) {
   return [
     black && {
       product: black,
-      hindi: 'काला नमक', // [CONFIRM]
-      line: 'Lake salt, slow-processed the traditional way.', // [CONFIRM]
+      hindi: 'काला नमक',
+      line: 'Lake salt, slow-processed the traditional way.',
       formats: formatsOf(black, 'black', 'Pyoor Herbal Black Salt'),
     },
     lake && {
       product: lake,
-      hindi: 'सफ़ेद नमक', // [CONFIRM]
-      line: 'Sun-dried crystals from the pans of Sambhar.', // [CONFIRM]
+      hindi: 'सफ़ेद नमक',
+      line: 'Sun-dried crystals from the pans of Sambhar.',
       formats: formatsOf(lake, 'lake', 'Pyoor Natural Lake Salt'),
     },
   ].filter((x) => !!x);
 }
 
-const HEADLINE = 'From the lake, to your kitchen.'; // [CONFIRM COPY]
+const HEADLINE = 'From the lake, to your kitchen.';
 
 /**
  * Step 4 opens inside the hero's pin ("the lake opens": LakeMotion): the gold rule, the
@@ -127,7 +127,7 @@ export function LakeOpening({ black, lake }: { black: Product | null; lake: Prod
 /**
  * The rest of the products, after the hero's pin (the two salts open in it: LakeOpening): The
  * Pair, a trust strip. Prices and the bag come from lib/commerce (pricing.ts is the one place
- * prices are set). COPY: every line marked [CONFIRM] is awaiting sign-off. No health claims.
+ * prices are set). COPY: every line marked is awaiting sign-off. No health claims.
  */
 export function Products({
   black,
@@ -154,7 +154,6 @@ export function Products({
         {pink && (
           <div className={styles.beyond}>
             <h2 className={styles.chapter}>Beyond the lake</h2>
-            {/* [CONFIRM COPY] */}
             <p className={styles.beyondLine}>A rock salt we pack with the same care.</p>
             <div className={styles.beyondPlate}>
               <ProductPlate
@@ -192,8 +191,9 @@ export function Products({
         )}
         <p className={styles.trust} data-rise style={{ '--i': 4 } as React.CSSProperties}>
           <span>FSSAI Lic. No. {site.company.fssaiLicence}</span>
+          <span>Lab-tested</span>
+          <span>Checked by batch</span>
           <span>Packed at Sambhar</span>
-          <span>Batch-dated</span>
           <span>Cash on delivery</span>
         </p>
       </div>

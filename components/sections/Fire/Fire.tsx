@@ -4,7 +4,7 @@ import { asset } from '@/lib/basePath';
 import { FireMotionLazy } from './FireMotionLazy';
 import styles from './Fire.module.css';
 
-/** The five frames (tools/engravings/fire.mjs) and their words. [CONFIRM COPY] No claims. */
+/** The five frames (tools/engravings/fire.mjs) and their words. No claims. */
 export const FIRE_STEPS = [
   {
     alt: 'White lake salt heaped in a shallow brass vessel',

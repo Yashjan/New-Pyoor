@@ -113,7 +113,6 @@ export function Roots() {
             <div className={`${styles.panel} ${styles.p2}`} data-panel="2">
               <div className={styles.face}>
                 <p className={styles.note} data-line>
-                  {/* [CONFIRM COPY] */}
                   Pyoor is my way of putting a name to it. Every jar is chosen, checked and packed
                   by us at Sambhar.
                 </p>
@@ -135,7 +134,6 @@ export function Roots() {
                 <p className={styles.byline} data-line>
                   Yash Jangid, Founder, Pyoor
                 </p>
-                {/* [CONFIRM COPY] */}
                 <p className={styles.ps} data-line>
                   P.S. Come and see the lake when the pans turn pink.
                 </p>
@@ -147,7 +145,7 @@ export function Roots() {
           <div className={styles.envFront} aria-hidden="true" data-env-front>
             <div className={styles.pocket}>
               <p className={styles.to}>To you, wherever you are.</p>
-              {/* the stamp, engraved: the lake's outline, ₹5, भारत INDIA [CONFIRM ok] */}
+              {/* the stamp, engraved: the lake's outline, ₹5, भारत INDIA */}
               <svg className={styles.stamp} viewBox="0 0 60 72">
                 <rect x="1" y="1" width="58" height="70" fill="#f5f1e8" />
                 {/* the perforated edge: the envelope's navy bitten out all round */}

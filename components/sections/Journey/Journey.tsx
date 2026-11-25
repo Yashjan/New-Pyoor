@@ -30,9 +30,9 @@ const SCENES = [
     sun: [50, 92],
   },
   {
-    title: 'Carry',
-    alt: 'Etching in the afternoon: a woman walks through shallow water, a basket of salt on her head.',
-    text: 'Heaped in baskets, the salt is carried from the pans by hand. [CONFIRM]',
+    title: 'Carried to the heaps',
+    alt: 'Etching in the afternoon: a tractor and trolley piled with salt on the bund road beside the pans, a worker loading it with a shovel, salt heaps behind.',
+    text: 'Tractors haul the raked salt along the bunds to the great white heaps at the edge of the pans.',
     sun: [36, 120],
   },
   {

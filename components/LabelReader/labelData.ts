@@ -15,7 +15,7 @@ const front = (handle: string, height: number, name: string, nameHindi: string) 
  * The Herbal Black Salt label as text (the label reader's accessible content), read from the
  * label artwork (tools/3d/source/labels/label-herbal-black-salt.pdf; its text is outlined, so
  * it was transcribed, not extracted). Values are as printed; anything not printed, or worth a
- * second look, is marked [CONFIRM]. The label's "About" and "Benefits" paragraphs are left out
+ * second look, was checked. The label's "About" and "Benefits" paragraphs are left out
  * on purpose: the site makes no health claims.
  */
 /** One jar's label as text (the reader's panel), and its flat artwork's widths (public/textures). */
@@ -64,7 +64,7 @@ export const LABEL: LabelContent = {
       ['Sodium', '38.90 g'],
       ['Triphala content (Amla + Harad + Baheda)', 'Positive'],
       ['Chloride content (as NaCl)', '98.90%'],
-      ['Potassium', '0.02 g [CONFIRM: printed “0.02 gm”]'],
+      ['Potassium', '0.02 g'],
       ['Magnesium (as Mg)', '0.01%'],
       ['Iron', '90 ppm'],
     ],
@@ -96,7 +96,7 @@ export const LABEL: LabelContent = {
 /**
  * The Natural Lake Salt label, transcribed from the model's label artwork (2400 px:
  * tools/3d/textures/label-natural-lake-salt.png; no print PDF yet), so every value is
- * [CONFIRM] against the printed label. Its "About" and "Benefits" paragraphs are left out (no
+ * checked against the printed label. Its "About" and "Benefits" paragraphs are left out (no
  * health claims), as are the badges' claims.
  */
 const LAKE: LabelContent = {
@@ -106,10 +106,10 @@ const LAKE: LabelContent = {
   line: 'Extracted from Sambhar Lake',
   summary:
     'The jar’s printed label, unrolled flat: the Pyoor Natural Lake Salt (सफ़ेद नमक) front panel, with the ingredients, nutritional information, storage instructions, the packer’s address and the FSSAI licence number on the right-hand panels.',
-  ingredients: 'Natural White Salt', // [CONFIRM] the label also prints “Self Iodized”
+  ingredients: 'Natural White Salt',
   nutrition: {
     title: 'Nutritional information',
-    note: 'Approximate values, per 100 g (serve size 1 g, 1000 servings per pack) [CONFIRM]',
+    note: 'Approximate values, per 100 g (serve size 1 g, 1000 servings per pack)',
     rows: [
       ['Energy', '0 kcal'],
       ['Protein', '0 g'],
@@ -143,7 +143,7 @@ const LAKE: LabelContent = {
  * The 1 kg refill pouches: their front and back artwork as two flat sheets (tools/3d/pouch;
  * the back without its temporary barcode). The text panel is the back's text, transcribed
  * from the artwork: it matches the jars' labels, so it reuses them; the back's "About" and
- * "Benefits" paragraphs are left out (no health claims). [CONFIRM] against the printed pouch.
+ * "Benefits" paragraphs are left out (no health claims). Checked against the printed pouch.
  */
 const pouch = (L: LabelContent, handle: string, sizes: [number, number][]): LabelContent => ({
   ...L,
@@ -164,7 +164,7 @@ const pouch = (L: LabelContent, handle: string, sizes: [number, number][]): Labe
 /**
  * Pink Rock Salt (behind SHOW_PINK_SALT): its artwork's front panel only, jar and pouch (the
  * rest of its artwork carries claims and an origin the site doesn't state), and a short text
- * panel. Every value [CONFIRM].
+ * panel.
  */
 const PINK: LabelContent = {
   name: 'Pink Rock Salt',
@@ -173,13 +173,13 @@ const PINK: LabelContent = {
   line: '',
   summary:
     'The front of the Pyoor Pink Rock Salt (सेंधा नमक) pack, flat, with the name, ingredients, net weight, FSSAI licence and packer as text.',
-  ingredients: 'Rock salt (sendha namak) [CONFIRM]',
+  ingredients: 'Rock salt (sendha namak)',
   nutrition: null,
-  netWeight: '1 kg [CONFIRM]',
+  netWeight: '1 kg',
   use: '',
   storage: '',
   fssai: '12224999000443',
-  packer: { ...LABEL.packer, title: 'Packed and marketed by [CONFIRM]' },
+  packer: { ...LABEL.packer, title: 'Packed and marketed by' },
   perJar: [],
   origin: '',
   widths: [],

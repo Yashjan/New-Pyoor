@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { asset } from '@/lib/basePath';
-import { Confirm } from '@/components/story/Confirm';
 import {
   ShopStrip,
   StoryChapter,
@@ -52,9 +51,6 @@ export default function JourneyPage() {
           <h2 id="kala-namak-title" className="py-display py-d-m">
             {KALA_NAMAK.title}
           </h2>
-          <p className={styles.body}>
-            <Confirm text={KALA_NAMAK.note} />
-          </p>
         </header>
         <ol className={styles.frames}>
           {KALA_NAMAK.steps.map((s, i) => (

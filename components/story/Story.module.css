@@ -110,7 +110,8 @@
 /* ---------------- what we check: five small engraved icons ---------------- */
 .checks {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 44rem;
   gap: clamp(1rem, 3vw, 2.5rem);
   width: 100%;
   margin: 0 0 1rem;
@@ -457,11 +458,8 @@
   }
 
   .checks {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .checks li:last-child {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
   }
 }
 

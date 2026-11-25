@@ -25,8 +25,8 @@ export default function TermsPage() {
 
       <h2>Prices and payment</h2>
       <p>
-        Prices are in Indian rupees and include GST [CONFIRM]. Shipping is shown at checkout. You
-        can pay online through Razorpay (UPI, cards, net banking) or by cash on delivery where it’s
+        Prices are in Indian rupees. All prices include GST. Shipping is shown at checkout. You can
+        pay online through Razorpay (UPI, cards, net banking) or by cash on delivery where it’s
         available.
       </p>
 
@@ -56,16 +56,16 @@ export default function TermsPage() {
 
       <h2>Law and disputes</h2>
       <p>
-        These terms are governed by the laws of India. Courts in Jaipur, Rajasthan have jurisdiction
-        [CONFIRM].
+        These terms are governed by the laws of India. Courts at Jaipur, Rajasthan have
+        jurisdiction.
       </p>
 
       <h2>Grievances</h2>
       <p>
-        Grievance officer: [CONFIRM NAME], {CONTACT.legalName}, {CONTACT.address}. WhatsApp{' '}
+        Grievance officer: Yash Jangid, {CONTACT.legalName}, {CONTACT.address}. WhatsApp{' '}
         <a href={CONTACT.whatsapp.url}>{CONTACT.whatsapp.label}</a> or email{' '}
-        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> [CONFIRM EMAIL]. We acknowledge
-        complaints within 48 hours and resolve them within 30 days [CONFIRM].
+        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>. We acknowledge complaints within 48
+        hours and resolve them within 30 days. Hours: Monday to Saturday, 10:00 to 18:00 IST.
       </p>
     </InfoPage>
   );

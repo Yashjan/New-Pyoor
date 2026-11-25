@@ -16,7 +16,6 @@ export default function NotFound() {
         <path d="M88 63.5 A32 32 0 0 1 152 63.5" />
       </svg>
       <p className="py-eyebrow">404</p>
-      {/* [CONFIRM COPY] */}
       <h1 className={`py-display py-d-l ${styles.title}`}>This path leads off the lake.</h1>
       <p className={styles.lead}>The page you were looking for isn’t here.</p>
       <p className={styles.links}>

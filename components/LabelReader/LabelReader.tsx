@@ -15,7 +15,7 @@ import styles from './LabelReader.module.css';
 const HERO = 'herbal-black-salt'; // the hero's 3D jar
 const labelImg = (handle: string, w: number) => asset(`/textures/label-${handle}-${w}.webp`);
 
-/** Notes still awaiting sign-off ([CONFIRM …], [BATCH] …) never reach the visible panel. */
+/** Notes still awaiting sign-off (bracketed notes) never reach the visible panel. */
 const clean = (s: string) => s.replace(/\s*\[[^\]]*\]/g, '').trim();
 /** Rows whose value is still a placeholder are left out. */
 const shown = ([, v]: readonly [string, string]) => !/\[[^\]]*\]/.test(v);

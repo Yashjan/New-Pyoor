@@ -314,6 +314,146 @@ function raker(P, x0, y0, R) {
   return { board, flip, y0, top: y0 - 7.3 * s, right: x0 + 1.6 * s };
 }
 
+/**
+ * 04: a tractor hauling a trolley piled with salt along the bund road (facing right), drawn into
+ * its own overlay plate with a paper backing (it moves); and a worker with a shovel at the
+ * trolley's tail, beside a small heap (still). Both at the bund's depth, so they sit in the scene.
+ */
+function haulers(cx, y, K = 1) {
+  const T = Plate(707, { vignette: false, width: L.near.width });
+  const Wk = Plate(708, { vignette: false, width: L.near.width });
+  const solid = (Q, p) => (Q.block(p), Q.paper(p));
+  const circ = (x, yy, r, n = 40) =>
+    Array.from({ length: n + 1 }, (_, i) => {
+      const a = (i / n) * Math.PI * 2;
+      return [x + Math.cos(a) * r, yy + Math.sin(a) * r];
+    });
+  const x = cx; // the tractor's rear axle
+  // wheels first (they are in front of the body): rear big, front small, the trolley's
+  const wheel = (wx, wy, r, t = 1) => {
+    const o = circ(wx, wy, r);
+    T.line(o, { w: 1.25, t, taper: false });
+    T.line(circ(wx, wy, r * 0.58, 28), { w: 0.75, t: t + 1, taper: false });
+    T.line(circ(wx, wy, r * 0.18, 12), { w: 0.75, t: t + 1, taper: false });
+    for (let k = 0; k < 18; k++) {
+      const a = (k / 18) * Math.PI * 2;
+      T.line(
+        [
+          [wx + Math.cos(a) * r * 0.74, wy + Math.sin(a) * r * 0.74],
+          [wx + Math.cos(a) * r, wy + Math.sin(a) * r],
+        ],
+        { w: 0.5, t: t + 2, taper: false, amp: 0 },
+      );
+    }
+    T.hatch(o, { angle: 70, gap: 1.6, t: t + 3, shade: (px) => (px - wx) / r + 0.2 });
+    solid(T, o);
+  };
+  wheel(x + 64, y - 9, 9);
+  wheel(x, y - 17, 17);
+  wheel(x - 66, y - 8, 8);
+  // the rear fender over the big wheel
+  const fender = [
+    ...Array.from({ length: 17 }, (_, i) => {
+      const a = Math.PI + (i / 16) * Math.PI;
+      return [x + Math.cos(a) * 21, y - 17 + Math.sin(a) * 21];
+    }),
+  ];
+  T.line(fender, { w: 1, t: 1 });
+  // the bonnet, grille and exhaust
+  const bonnet = rect(x + 14, y - 34, x + 76, y - 18);
+  T.line(bonnet, { w: 1.25, t: 1, taper: false });
+  for (let gx = x + 70; gx < x + 76; gx += 2) T.line([[gx, y - 32], [gx, y - 20]], { w: 0.5, t: 3, taper: false, amp: 0 });
+  T.hatch(bonnet, { angle: 0, gap: 1.8, t: 4, shade: (px, py) => (py - (y - 34)) / 16 });
+  T.line([[x + 58, y - 34], [x + 58, y - 50]], { w: 1, t: 2, taper: false });
+  solid(T, bonnet);
+  // the seat and canopy, a driver's head under it
+  T.line(circ(x + 4, y - 44, 3.2, 14), { w: 0.75, t: 2, taper: false });
+  T.line([[x - 2, y - 40], [x + 6, y - 40], [x + 10, y - 30]], { w: 0.75, t: 2 });
+  T.line([[x - 14, y - 58], [x + 18, y - 58]], { w: 1.25, t: 1, taper: false });
+  T.line([[x - 12, y - 58], [x - 12, y - 30]], { w: 0.75, t: 2, taper: false });
+  T.line([[x + 16, y - 58], [x + 16, y - 34]], { w: 0.75, t: 2, taper: false });
+  solid(T, rect(x - 22, y - 40, x + 14, y - 18));
+  // the hitch, then the trolley: its box and the salt heaped in it
+  T.line([[x - 22, y - 12], [x - 40, y - 12]], { w: 1, t: 2, taper: false });
+  const pile = curve([
+    [x - 108, y - 30],
+    [x - 96, y - 40],
+    [x - 78, y - 50],
+    [x - 62, y - 52],
+    [x - 48, y - 44],
+    [x - 38, y - 30],
+  ]);
+  T.line(pile, { w: 1, t: 2 });
+  T.hatch([...pile, pile[0]], { angle: 63, gap: 1.8, t: 4, shade: (px) => (px - (x - 76)) / 34 + 0.15 });
+  T.hatch([...pile, pile[0]], { angle: 118, gap: 2, t: 4, shade: (px) => (px - (x - 70)) / 34 - 0.1 });
+  solid(T, [...pile, pile[0]]);
+  const box = rect(x - 110, y - 30, x - 38, y - 14);
+  T.line(box, { w: 1.25, t: 1, taper: false });
+  for (const bx of [x - 92, x - 74, x - 56]) T.line([[bx, y - 30], [bx, y - 14]], { w: 0.5, t: 3, taper: false });
+  T.hatch(box, { angle: 90, gap: 2.2, t: 4, shade: () => 0.45 });
+  solid(T, box);
+  // the dust it raises, behind the trolley (the page fades these in and out as it moves)
+  const dust = [
+    [x - 122, y - 6, 4],
+    [x - 134, y - 10, 5.5],
+    [x - 148, y - 7, 4.5],
+    [x - 160, y - 13, 6],
+  ].map((v) => v.map(r1));
+
+  // the worker at the trolley's tail, shovel raised towards it, a small heap at his feet
+  const fx = x - 136;
+  const s = 7.4;
+  const F2 = figure(fx, y, s);
+  const W = (pts, o) => {
+    const p = Wk.shape(F2(pts), { w: 1, t: 2, amp: 0.05, ...o });
+    return p;
+  };
+  const head = W([[-0.2, 7.6], [0.3, 7.9], [0.7, 7.6], [0.6, 7.1], [0.1, 7.0], [-0.2, 7.2]]);
+  solid(Wk, head);
+  const body = W([
+    [-0.3, 6.9], [0.8, 6.9], [1.0, 5.0], [0.9, 3.6], [1.2, 0.2], [0.8, 0], [0.4, 3.2],
+    [0.0, 0], [-0.4, 0.2], [-0.1, 3.6], [-0.5, 5.2],
+  ]);
+  Wk.hatch(body, { angle: 70, gap: 1.6, t: 3, shade: (px) => (px - fx) / (1.2 * s) + 0.3 });
+  solid(Wk, body);
+  // the shovel: shaft from his hands up to the blade over the trolley's edge
+  const [h0] = F2([[0.9, 5.4]]);
+  const [h1] = F2([[2.6, 6.4]]);
+  Wk.line([h0, h1], { w: 1, t: 2 });
+  Wk.line([F2([[0.2, 5.6]])[0], h0], { w: 0.75, t: 2 });
+  const blade = F2([[2.5, 6.2], [3.4, 6.8], [3.6, 6.4], [2.8, 5.9]]);
+  Wk.line([...blade, blade[0]], { w: 1, t: 2, taper: false });
+  solid(Wk, [...blade, blade[0]]);
+  for (let i = 0; i < 6; i++) {
+    const [gx, gy] = F2([[3.0 + Wk.rnd() * 0.8, 7.0 + Wk.rnd() * 0.5]])[0];
+    Wk.line([[gx, gy], [gx + 1.2, gy + 0.3]], { w: 0.5, t: 4, taper: false, amp: 0 });
+  }
+  mound(Wk, fx - 22, y, 18, 14, { t: 3 });
+
+  // drawn at the far bund's size, set at the near bund's depth: scaled about the ground point
+  // (the hatching's gaps grow with it to the plate's usual spacing; strokes don't scale)
+  const at = ([px, py]) => [r1(x + (px - x) * K), r1(y + (py - y) * K)];
+  const all = (Q) =>
+    `<g transform="translate(${r1(x * (1 - K))} ${r1(y * (1 - K))}) scale(${K})">${inner(Q)}</g>`;
+  const DX = 96;
+  return {
+    tractor: {
+      layer: 'near',
+      s: 3,
+      box: bbox([at([x - 170, y - 66]), [at([x + 84, y])[0] + DX, y + 3]]),
+      html: all(T),
+      dx: DX,
+      dust: dust.map(([dx0, dy0, r]) => [...at([dx0, dy0]), r1(r * K)]),
+    },
+    worker: {
+      layer: 'near',
+      s: 3,
+      box: bbox([at([fx - 44, y - 62]), at([fx + 30, y + 2])]),
+      html: all(Wk),
+    },
+  };
+}
+
 /** 04: walking left, the basket ON her head, one arm steadying it, reflected in the brine. */
 function carrier(P, fx, fy) {
   const s = 16.5;
@@ -1303,8 +1443,17 @@ function buildNear() {
   P.block(rect(jarX - 340, 262, jarX + 340, H + 4));
   // 04
   P.at(3);
-  carrier(P, C[3] - 70, 432);
+  {
+    // she is drawn only to keep the plate's random stream as approved, then left out: the
+    // tractor, its trolley and the worker (overlays, haulers) carry the salt now
+    const free = P.blocks();
+    P.at('drop');
+    carrier(P, C[3] - 70, 432);
+    P.release(free);
+    P.at(3);
+  }
   mound(P, C[3] + 186, 392, 56, 84, { t: 4 });
+  Object.assign(LIVE, haulers(C[3] - 110, 357, 1.5));
   // 03
   P.at(2);
   const R = Plate(404, { vignette: false, width: L.near.width });
