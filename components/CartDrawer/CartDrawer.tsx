@@ -17,26 +17,7 @@ import {
 } from '@/lib/commerce';
 import { formatPrice } from '@/lib/format';
 import styles from './CartDrawer.module.css';
-
-/** Line thumbnails: the products section's studio stills (the pouch's for a pouch line). */
-const THUMBS: Record<string, string> = {
-  'herbal-black-salt': '/images/renders/black-studio.webp',
-  'natural-lake-salt': '/images/renders/lake-studio.webp',
-  'the-sambhar-pair': '/images/renders/pair-studio.webp',
-  'pink-rock-salt': '/images/renders/pink-studio.webp',
-};
-const POUCH_THUMBS: Record<string, string> = {
-  'herbal-black-salt': '/images/renders/black-pouch-studio.webp',
-  'natural-lake-salt': '/images/renders/lake-pouch-studio.webp',
-  'pink-rock-salt': '/images/renders/pink-pouch-studio.webp',
-};
-/** A salt's refill pouch variant id from its jar's (local-data.ts). */
-const isPouch = (variantId: string) => variantId.endsWith('-pouch-1kg');
-const pouchOf = (jarVariantId: string) => jarVariantId.replace(/-1kg$/, '-pouch-1kg');
-const thumbOf = (line: CartLine) => {
-  const h = line.merchandise.product.handle;
-  return (isPouch(line.merchandise.variantId) && POUCH_THUMBS[h]) || THUMBS[h];
-};
+import { POUCH_THUMBS, isPouch, pouchOf, thumbOf } from './thumbs';
 
 /**
  * After a jar: one quiet line offering the same salt's refill pouch (the latest jar in the
@@ -135,10 +116,15 @@ export function CartDrawer() {
               WhatsApp us
             </a>
           </p>
-          {/* until Shopify is connected (step 6) */}
-          <Button variant="primary" fullWidth disabled>
-            Checkout · Opening soon
-          </Button>
+          {lines.length > 0 ? (
+            <ButtonLink href="/checkout" variant="primary" fullWidth onClick={closeCart}>
+              Checkout
+            </ButtonLink>
+          ) : (
+            <Button variant="primary" fullWidth disabled>
+              Checkout
+            </Button>
+          )}
         </div>
       </div>
     </dialog>

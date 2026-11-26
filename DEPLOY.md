@@ -74,19 +74,46 @@ npx wrangler pages deploy out
 Never put these in the repo. Dashboard → the Pages project → **Settings → Variables and Secrets** →
 add each as an encrypted **Secret** for Production:
 
-`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `ADMIN_EMAIL`
+`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY`,
+`ADMIN_TOKEN`, `ADMIN_EMAIL`
+
+And one build variable (not secret), so the checkout uses your Turnstile widget instead of the test
+key: `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Until it is set, the build uses Cloudflare's always-passing
+test key, which a real `TURNSTILE_SECRET_KEY` refuses: checkout fails closed, not open.
+
+- **Turnstile**: dashboard → **Turnstile** → **Add widget**, domain `pyoorglobal.com` (and the
+  `*.pages.dev` address), mode **Invisible**. It gives the site key and the secret.
+- **Razorpay webhook**: Razorpay dashboard → **Webhooks** → **Add**: URL
+  `https://www.pyoorglobal.com/api/webhooks/razorpay`, events `payment.captured` and
+  `payment.failed`, and a secret you choose (= `RAZORPAY_WEBHOOK_SECRET`). It settles payments
+  when the customer's browser closes before the confirmation.
+- **Live mode**: switch the two Razorpay keys to the live ones only after a full test order.
 
 Or: `npx wrangler pages secret put RAZORPAY_KEY_SECRET` (it asks for the value).
 Locally they go in `.dev.vars` (gitignored; copy `.dev.vars.example`).
 
-## 5. Check it
+## 5. Protect /admin with Cloudflare Access
+
+The admin page asks for `ADMIN_TOKEN`; in production it also sits behind Cloudflare Access
+(free for up to 50 users):
+
+1. Dashboard → **Zero Trust** → **Access** → **Applications** → **Add** → **Self-hosted**.
+2. Application domain: `www.pyoorglobal.com`, path `admin`; add a second one for path
+   `api/admin` (the page's API). Do the same for the `*.pages.dev` address.
+3. Policy: **Allow**, include **Emails** → your address (`ADMIN_EMAIL`). Login method: one-time
+   PIN by email.
+
+Access then asks for an emailed code before either path loads; the token check stays as the second
+lock.
+
+## 6. Check it
 
 ```sh
 curl https://<project>.pages.dev/api/health     # {"ok":true,"db":true}
 curl https://<project>.pages.dev/api/products
 ```
 
-## 6. Connect the domain (later)
+## 7. Connect the domain (later)
 
 1. Add `pyoorglobal.com` to Cloudflare (**Add a site**, free plan) and change the nameservers at
    your registrar to the two Cloudflare gives you. Wait until the zone shows **Active**.

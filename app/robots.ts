@@ -6,7 +6,7 @@ export const dynamic = 'force-static';
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl();
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: ['/dev/'] }],
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/dev/', '/checkout', '/order', '/admin'] }],
     sitemap: new URL('/sitemap.xml', base).href,
     host: base.origin,
   };

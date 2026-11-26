@@ -9,7 +9,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { addToCart, getCart, removeFromCart, updateCartLine, type Cart } from '@/lib/commerce';
+import {
+  addToCart,
+  clearCart,
+  getCart,
+  removeFromCart,
+  updateCartLine,
+  type Cart,
+} from '@/lib/commerce';
 
 interface CartContextValue {
   /** `null` until the cart has been read from storage on the client. */
@@ -23,6 +30,8 @@ interface CartContextValue {
   added: { id: number; label: string } | null;
   update: (lineId: string, quantity: number) => Promise<void>;
   remove: (lineId: string) => Promise<void>;
+  /** Empties the bag (the order confirmation). */
+  clear: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -63,9 +72,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart(await removeFromCart(lineId));
   }, []);
 
+  const clear = useCallback(async () => {
+    setCart(await clearCart());
+  }, []);
+
   const value = useMemo(
-    () => ({ cart, isOpen, openCart, closeCart, add, added, update, remove }),
-    [cart, isOpen, openCart, closeCart, add, added, update, remove],
+    () => ({ cart, isOpen, openCart, closeCart, add, added, update, remove, clear }),
+    [cart, isOpen, openCart, closeCart, add, added, update, remove, clear],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -2,7 +2,6 @@
 // Content hashes of public/models/*.glb: they version the URLs, because the models are
 // served with an immutable cache header and a rebuild keeps the same filenames.
 
-
 const HASHES: Record<string, string> = {
   'pyoor-herbal-black-salt.glb': '95ba130c1e',
   'pyoor-jar-pink-rock-salt.glb': '270ea54f07',

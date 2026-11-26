@@ -132,4 +132,10 @@ export const localCart: CartProvider = {
       cart.lines = cart.lines.filter((l) => l.id !== lineId);
     });
   },
+
+  async clearCart() {
+    return mutate((cart) => {
+      cart.lines = [];
+    });
+  },
 };

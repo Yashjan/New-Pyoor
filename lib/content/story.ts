@@ -105,8 +105,16 @@ export const ROOTS: Chapter[] = [
 /** What we check (our roots 04): three promises. No test results, minerals or percentages. */
 export const CHECKS = [
   { icon: 'check-lab', name: 'Lab-tested', text: 'Tested in a lab for quality.' },
-  { icon: 'check-batch', name: 'Checked by batch', text: 'Every batch is checked before it’s packed.' },
-  { icon: 'check-packed', name: 'Packed at Sambhar', text: 'Filled and sealed in our unit at Sambhar.' },
+  {
+    icon: 'check-batch',
+    name: 'Checked by batch',
+    text: 'Every batch is checked before it’s packed.',
+  },
+  {
+    icon: 'check-packed',
+    name: 'Packed at Sambhar',
+    text: 'Filled and sealed in our unit at Sambhar.',
+  },
 ] as const;
 
 /** The founder's letter (our roots 06), open and signed. */
@@ -168,9 +176,7 @@ export const JOURNEY: Chapter[] = [
   {
     id: 'harvest',
     title: 'The harvest',
-    body: [
-      'When the crust is ready it is raked into long furrows and drawn into rows, by hand.',
-    ],
+    body: ['When the crust is ready it is raked into long furrows and drawn into rows, by hand.'],
     art: {
       name: 'scene-3',
       label: 'Etching at midday: a figure draws a long rake through the pan beside a salt heap',
@@ -230,9 +236,7 @@ export const JOURNEY: Chapter[] = [
   {
     id: 'kitchen',
     title: 'Into your kitchen',
-    body: [
-      'From the lake to your shelf: a jar for the table, and a pouch to refill it.',
-    ],
+    body: ['From the lake to your shelf: a jar for the table, and a pouch to refill it.'],
     art: {
       name: 'page-kitchen',
       label:

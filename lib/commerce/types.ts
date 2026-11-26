@@ -114,4 +114,6 @@ export interface CartProvider {
   addToCart(variantId: string, quantity?: number): Promise<Cart>;
   updateCartLine(lineId: string, quantity: number): Promise<Cart>;
   removeFromCart(lineId: string): Promise<Cart>;
+  /** Empties the bag (after an order is placed). */
+  clearCart(): Promise<Cart>;
 }

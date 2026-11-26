@@ -189,8 +189,7 @@ export const products: Product[] = [
     title: 'Pink Rock Salt',
     titleHindi: 'सेंधा नमक',
     summary: 'Rock salt (sendha namak), packed with the same care.',
-    description:
-      'Pink rock salt (sendha namak), in a 1 kg clear jar or a 1 kg refill pouch.',
+    description: 'Pink rock salt (sendha namak), in a 1 kg clear jar or a 1 kg refill pouch.',
     published: SHOW_PINK_SALT,
     variants: [
       {

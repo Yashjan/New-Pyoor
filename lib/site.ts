@@ -1,3 +1,5 @@
+import { FREE_SHIPPING_THRESHOLD_INR, SHIPPING_CHARGE_INR } from '@/lib/commerce/pricing';
+
 /**
  * Site-wide facts and copy that appear in more than one place (header, footer, metadata,
  * JSON-LD). Keep this file factual: no health, medicinal or nutritional claims.
@@ -25,7 +27,7 @@ export const site = {
   },
   whatsapp: { label: '+91 76650 09882', url: 'https://wa.me/917665009882' },
   /** Shipping: free from this order value (rupees), otherwise a flat charge. */
-  shipping: { freeFrom: 499, charge: 49 },
+  shipping: { freeFrom: FREE_SHIPPING_THRESHOLD_INR ?? 0, charge: SHIPPING_CHARGE_INR },
   instagram: 'https://www.instagram.com/pyoorglobal',
   /** Required by FSSAI for brand names that sound like "pure". Must appear in the footer. */
   brandNameDisclaimer:

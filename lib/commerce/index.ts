@@ -21,6 +21,7 @@ export const getCart = cart.getCart;
 export const addToCart = cart.addToCart;
 export const updateCartLine = cart.updateCartLine;
 export const removeFromCart = cart.removeFromCart;
+export const clearCart = cart.clearCart;
 
 /** Free-shipping threshold, or `null` while not set (the message is then hidden). */
 export function getFreeShippingThreshold(): Money | null {

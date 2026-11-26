@@ -924,9 +924,21 @@ function kitchen() {
 }
 
 /* ---------------- come and see the lake: the horizon, a half sun, birds ---------------- */
-function horizon() {
+function horizon(withJar = false) {
   const P = Plate(8707, { vignette: false, width: W, height: 300 });
   const HZ = 180;
+  // the order confirmation's plate: the jar in front, on a strip of shore (drawn first: it blocks
+  // the water behind it)
+  if (withJar) {
+    jar(P, 470, 286, 78, 124);
+    P.line(
+      [
+        [404, 287],
+        [540, 287],
+      ],
+      { w: 1, t: 2, amp: 0.3 },
+    );
+  }
   const c = [320, HZ];
   const R = 70;
   for (let i = 0; i < 5; i++) {
@@ -1001,29 +1013,118 @@ function icon(seed, draw) {
 const CHECKS = {
   // lab-tested: a flask with a little salt solution, a test tube beside it
   lab: (P) => {
-    const flask = curve([[50, 14], [50, 44], [24, 92], [28, 102], [92, 102], [96, 92], [70, 44], [70, 14]]);
+    const flask = curve([
+      [50, 14],
+      [50, 44],
+      [24, 92],
+      [28, 102],
+      [92, 102],
+      [96, 92],
+      [70, 44],
+      [70, 14],
+    ]);
     P.line(flask, { w: 1.25, t: 1 });
-    P.line([[44, 14], [76, 14]], { w: 1, t: 1, taper: false });
-    const liquid = close([[34, 74], [86, 74], [96, 92], [92, 102], [28, 102], [24, 92]]);
-    P.line([[34, 74], [86, 74]], { w: 0.75, t: 2, taper: false });
+    P.line(
+      [
+        [44, 14],
+        [76, 14],
+      ],
+      { w: 1, t: 1, taper: false },
+    );
+    const liquid = close([
+      [34, 74],
+      [86, 74],
+      [96, 92],
+      [92, 102],
+      [28, 102],
+      [24, 92],
+    ]);
+    P.line(
+      [
+        [34, 74],
+        [86, 74],
+      ],
+      { w: 0.75, t: 2, taper: false },
+    );
     P.hatch(liquid, { angle: 0, gap: 2.4, t: 3, shade: (x) => (x - 60) / 40 + 0.4 });
-    for (const [x, y] of [[52, 86], [66, 90], [58, 80]]) P.line(arc(x, y, 2, 2, 0, Math.PI * 2, 10), { w: 0.5, t: 4, taper: false, amp: 0 });
+    for (const [x, y] of [
+      [52, 86],
+      [66, 90],
+      [58, 80],
+    ])
+      P.line(arc(x, y, 2, 2, 0, Math.PI * 2, 10), { w: 0.5, t: 4, taper: false, amp: 0 });
     P.block(close(flask));
-    const tube = close([[100, 30], [112, 30], [112, 96], [106, 102], [100, 96]]);
+    const tube = close([
+      [100, 30],
+      [112, 30],
+      [112, 96],
+      [106, 102],
+      [100, 96],
+    ]);
     P.line(tube, { w: 1, t: 1, taper: false });
-    P.hatch(close([[100, 70], [112, 70], [112, 96], [106, 102], [100, 96]]), { angle: 0, gap: 2.4, t: 3 });
+    P.hatch(
+      close([
+        [100, 70],
+        [112, 70],
+        [112, 96],
+        [106, 102],
+        [100, 96],
+      ]),
+      { angle: 0, gap: 2.4, t: 3 },
+    );
   },
   // checked by batch: a clipboard with ruled lines, a tick
   batch: (P) => {
-    const board = close([[22, 16], [98, 16], [98, 110], [22, 110]]);
+    const board = close([
+      [22, 16],
+      [98, 16],
+      [98, 110],
+      [22, 110],
+    ]);
     P.line(board, { w: 1.25, t: 1, taper: false });
-    P.line(close([[44, 8], [76, 8], [76, 22], [44, 22]]), { w: 1, t: 1, taper: false });
+    P.line(
+      close([
+        [44, 8],
+        [76, 8],
+        [76, 22],
+        [44, 22],
+      ]),
+      { w: 1, t: 1, taper: false },
+    );
     for (const y of [40, 56, 72, 88]) {
-      P.line(close([[32, y - 5], [40, y - 5], [40, y + 3], [32, y + 3]]), { w: 0.5, t: 2, taper: false });
-      P.line([[48, y], [88, y]], { w: 0.5, t: 3, taper: false, amp: 0 });
+      P.line(
+        close([
+          [32, y - 5],
+          [40, y - 5],
+          [40, y + 3],
+          [32, y + 3],
+        ]),
+        { w: 0.5, t: 2, taper: false },
+      );
+      P.line(
+        [
+          [48, y],
+          [88, y],
+        ],
+        { w: 0.5, t: 3, taper: false, amp: 0 },
+      );
     }
-    P.line([[30, 38], [36, 46], [50, 26]], { w: 1.4, t: 4, taper: false });
-    P.line([[30, 54], [36, 62], [50, 42]], { w: 1.4, t: 4, taper: false });
+    P.line(
+      [
+        [30, 38],
+        [36, 46],
+        [50, 26],
+      ],
+      { w: 1.4, t: 4, taper: false },
+    );
+    P.line(
+      [
+        [30, 54],
+        [36, 62],
+        [50, 42],
+      ],
+      { w: 1.4, t: 4, taper: false },
+    );
     P.hatch(board, { angle: 90, gap: 3, t: 5, shade: (x) => (x - 60) / 40 - 0.2 });
   },
   // packed at Sambhar: the jar, sealed
@@ -1076,6 +1177,7 @@ export function buildPages() {
     'page-checking': checking(),
     'page-kitchen': kitchen(),
     'page-horizon': horizon(),
+    'page-thanks': horizon(true),
   });
   let seed = 8900;
   for (const [name, draw] of Object.entries(CHECKS)) files[`check-${name}`] = icon(seed++, draw);

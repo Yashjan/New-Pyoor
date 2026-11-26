@@ -1,5 +1,11 @@
 # Copy to .dev.vars (gitignored) for `npm run dev:cf`. Never commit real values.
+# Razorpay dashboard (Test mode) → Account & Settings → API keys
 RAZORPAY_KEY_ID=
 RAZORPAY_KEY_SECRET=
+# Razorpay dashboard → Webhooks → the secret you set on the webhook
 RAZORPAY_WEBHOOK_SECRET=
+# Cloudflare Turnstile secret. Locally, the official test secret: 1x0000000000000000000000000000000AA
+TURNSTILE_SECRET_KEY=
+# A long random string (e.g. `openssl rand -hex 24`): the /admin page asks for it
+ADMIN_TOKEN=
 ADMIN_EMAIL=

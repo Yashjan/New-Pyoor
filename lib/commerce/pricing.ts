@@ -20,7 +20,20 @@ export const PRICES_INR: Record<string, number | null> = {
   'local:variant:the-sambhar-pair': null,
 };
 
-export const FREE_SHIPPING_THRESHOLD_INR: number | null = null;
+/** Shipping: free on orders from this subtotal (rupees), otherwise a flat charge. */
+export const FREE_SHIPPING_THRESHOLD_INR: number | null = 499;
+export const SHIPPING_CHARGE_INR = 49;
+/** Cash on delivery: only for order totals up to this (rupees). */
+export const COD_LIMIT_INR = 2000;
+
+/** Shipping for a subtotal, in paise (the checkout and the API both use this). */
+export function shippingPaise(subtotalPaise: number): number {
+  if (subtotalPaise <= 0) return 0;
+  const free = FREE_SHIPPING_THRESHOLD_INR;
+  return free != null && subtotalPaise >= free * 100 ? 0 : SHIPPING_CHARGE_INR * 100;
+}
+
+export const codAllowed = (totalPaise: number) => totalPaise <= COD_LIMIT_INR * 100;
 
 /**
  * The pouches' back artwork (it carries health-claim paragraphs until it is corrected): while
