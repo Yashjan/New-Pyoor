@@ -7,5 +7,5 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'tools/**', 'public/**']),
+  globalIgnores(['.next/**', '.wrangler/**', 'out/**', 'build/**', 'next-env.d.ts', 'tools/**', 'public/**']),
 ]);

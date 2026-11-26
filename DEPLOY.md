@@ -5,8 +5,23 @@ The site is a static export (`next build` → `out/`) served by **Cloudflare Pag
 data lives in **D1** (`migrations/`, seeded from `db/seed.sql`). Nothing is deployed yet; these are
 the steps for when you do.
 
-`wrangler` needs Node 20+ and, to run anything locally, Linux with glibc 2.35+ (Ubuntu 22.04+) or
-macOS. The remote commands below (`login`, `d1 create`, `deploy`) work anywhere.
+`wrangler` needs Node 20+. The remote commands below (`login`, `d1 create`, `deploy`) work
+anywhere; the local runtime runs in Docker (next section).
+
+## Local runtime (Docker)
+
+`wrangler pages dev` needs glibc 2.35+, which Ubuntu 20.04 lacks, so it runs in a container
+(`docker/cf.Dockerfile`, Node 22 on Debian bookworm; `compose.yaml` mounts the repo).
+
+```sh
+cp .dev.vars.example .dev.vars   # once; fill in only what you need
+npm run dev:cf                   # builds out/ on the host, then http://localhost:8788
+npm run dev:cf:down              # stop it
+```
+
+The site, the Functions and a local D1 (`.wrangler/state`, migrated and seeded on every start)
+run as on Cloudflare. To run the browser suite against it (with the API tests):
+`PW_BASE_URL=http://localhost:8788 npx playwright test --workers=1`.
 
 ## 1. Log in
 

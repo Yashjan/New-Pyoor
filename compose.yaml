@@ -1,0 +1,17 @@
+# npm run dev:cf: builds out/ on the host, then this serves it with the Functions and a local D1
+# (.wrangler/state) on http://localhost:8788. Secrets come from .dev.vars (gitignored), which
+# wrangler reads from /app.
+services:
+  cf:
+    build:
+      context: docker
+      dockerfile: cf.Dockerfile
+    user: '${HOST_UID:-1000}:${HOST_GID:-1000}'
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - '8788:8788'
+    command: >
+      sh -c "npm run db:local &&
+             npx wrangler pages dev out --ip 0.0.0.0 --port 8788 --show-interactive-dev-session=false"
