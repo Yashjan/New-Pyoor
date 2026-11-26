@@ -68,6 +68,24 @@ type RazorpayCtor = new (opts: Record<string, unknown>) => {
 };
 
 /** Opens Razorpay Standard Checkout; resolves with the payment, or null if it was closed. */
+/** The checkout's header logo: an absolute https URL in production; Razorpay won't load an http
+ *  (local) URL, so there the same PNG goes inline as a data URL. */
+async function logoUrl(): Promise<string> {
+  const url = `${window.location.origin}/brand/razorpay-logo.png`;
+  if (window.location.protocol === 'https:') return url;
+  try {
+    const blob = await (await fetch(url)).blob();
+    return await new Promise<string>((ok, no) => {
+      const r = new FileReader();
+      r.onload = () => ok(String(r.result));
+      r.onerror = no;
+      r.readAsDataURL(blob);
+    });
+  } catch {
+    return url;
+  }
+}
+
 export async function razorpayPay(opts: {
   keyId: string;
   orderId: string;
@@ -77,6 +95,7 @@ export async function razorpayPay(opts: {
 }): Promise<RazorpayResponse | 'failed' | null> {
   await loadScript('https://checkout.razorpay.com/v1/checkout.js');
   const Razorpay = (window as unknown as { Razorpay: RazorpayCtor }).Razorpay;
+  const image = await logoUrl();
   return new Promise((resolve) => {
     let failed = false;
     const rzp = new Razorpay({
@@ -85,6 +104,7 @@ export async function razorpayPay(opts: {
       amount: opts.amount,
       currency: 'INR',
       name: 'Pyoor',
+      image,
       description: `Order ${opts.ref}`,
       prefill: opts.prefill,
       theme: { color: '#18214a' },

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node tools/brand/razorpay-logo.mjs",
     "build": "next build",
     "start": "wrangler pages dev out --port 8788",
     "lint": "eslint .",
