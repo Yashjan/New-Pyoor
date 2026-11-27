@@ -63,7 +63,7 @@ export function Invite({ title, size, price, variantId }: InviteProps) {
       ) : (
         <>
           <p className={styles.inviteSoon}>Price coming soon</p>
-          <Link className={styles.inviteLink} href="/#shop">
+          <Link className={styles.inviteLink} href="/shop">
             See products
           </Link>
         </>

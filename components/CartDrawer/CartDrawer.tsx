@@ -88,7 +88,7 @@ export function CartDrawer() {
         {lines.length === 0 ? (
           <div className={styles.empty}>
             <p>Your bag is empty.</p>
-            <ButtonLink href="/#shop" variant="secondary" onClick={closeCart}>
+            <ButtonLink href="/shop" variant="secondary" onClick={closeCart}>
               Shop the salts
             </ButtonLink>
           </div>
@@ -134,7 +134,7 @@ export function CartDrawer() {
 function CartLineItem({ line, onNavigate }: { line: CartLine; onNavigate: () => void }) {
   const { update, remove } = useCart();
   const { product, variantTitle } = line.merchandise;
-  const href = `/product/${product.handle}`;
+  const href = `/shop/${product.handle}`;
 
   return (
     <li className={styles.line}>

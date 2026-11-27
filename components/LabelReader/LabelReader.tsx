@@ -41,7 +41,8 @@ const no = () => false;
  * close; the hero's 3D and its sequence pause (lib/motion/covered.ts). No ScrollTrigger is
  * refreshed or touched. Reduced motion, or no 3D: a 0.2 s crossfade to the flat label.
  */
-export function LabelReader() {
+/** `cta={false}`: the dialog only (a page that opens it with labelReader.open). */
+export function LabelReader({ cta = true }: { cta?: boolean } = {}) {
   const button = useRef<HTMLButtonElement>(null);
   const root = useRef<HTMLDivElement>(null);
   // the dialog is portalled into <body>: client only (the server renders the button)
@@ -76,23 +77,25 @@ export function LabelReader() {
 
   return (
     <>
-      <button
-        ref={button}
-        type="button"
-        className={styles.cta}
-        data-label-cta
-        aria-haspopup="dialog"
-        aria-controls="label-reader"
-        onPointerEnter={prefetch}
-        onFocus={prefetch}
-        onClick={() => {
-          returnTo.current = null;
-          setHandle(HERO);
-          void ctl.current?.open();
-        }}
-      >
-        Read the label
-      </button>
+      {cta && (
+        <button
+          ref={button}
+          type="button"
+          className={styles.cta}
+          data-label-cta
+          aria-haspopup="dialog"
+          aria-controls="label-reader"
+          onPointerEnter={prefetch}
+          onFocus={prefetch}
+          onClick={() => {
+            returnTo.current = null;
+            setHandle(HERO);
+            void ctl.current?.open();
+          }}
+        >
+          Read the label
+        </button>
+      )}
       {mounted &&
         createPortal(
           <div

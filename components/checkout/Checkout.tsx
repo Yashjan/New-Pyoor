@@ -257,7 +257,7 @@ export function Checkout() {
     return (
       <div className={styles.empty}>
         <p>Your bag is empty.</p>
-        <ButtonLink href="/#shop" variant="secondary">
+        <ButtonLink href="/shop" variant="secondary">
           Shop the salts
         </ButtonLink>
       </div>

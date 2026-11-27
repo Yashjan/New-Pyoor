@@ -1,0 +1,358 @@
+/* The shop (/shop) and the product pages (/shop/[slug]): ivory, Cormorant names, Manrope details,
+   gold hairlines. */
+
+.main {
+  padding: calc(var(--header-height) + clamp(2.5rem, 6vw, 5rem)) var(--gutter)
+    clamp(4rem, 9vw, 8rem);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- the shop's head */
+
+.head {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.lead {
+  margin: 0;
+  max-width: 44ch;
+  font-family: var(--font-sans);
+  font-size: var(--body-l-size);
+  line-height: var(--body-l-leading);
+}
+
+/* the headline's words rise out of their masks, once, on load */
+.rise :global(.py-ln) > span {
+  animation: rise 0.9s var(--ease-settle) both;
+}
+
+.rise :global(.py-ln) > span:nth-of-type(1) {
+  animation-delay: 0.05s;
+}
+
+.rise > span > span:nth-child(2) :global(.py-ln) > span {
+  animation-delay: 0.16s;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* ---------------------------------------------------------------- chips */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.chip {
+  position: relative;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.55rem;
+  height: 1px;
+  background: var(--gold-500);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-base) var(--ease-settle);
+}
+
+.chip:hover,
+.chip[aria-pressed='true'] {
+  color: var(--ink);
+}
+
+.chip[aria-pressed='true']::after {
+  transform: scaleX(1);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- the grid and its cards */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 3vw, 2.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item[hidden] {
+  display: none;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.media {
+  position: relative;
+  margin-bottom: 1.25rem;
+  background: var(--ivory-100);
+  perspective: 900px;
+}
+
+.pic {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition:
+    opacity var(--duration-base) ease,
+    transform 0.7s var(--ease-settle);
+}
+
+.pic[data-on] {
+  opacity: 1;
+}
+
+.pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-size: cover;
+}
+
+@media (hover: hover) {
+  .card:hover .pic[data-on] {
+    transform: rotateY(-9deg) translateY(-4px);
+  }
+}
+
+.name {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* the whole card is the link; the switch and the button sit above it */
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.link:focus-visible::after {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 6px;
+}
+
+.nameText {
+  background: linear-gradient(var(--gold-500), var(--gold-500)) 0 100% / 0 1px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size var(--duration-base) var(--ease-settle);
+}
+
+.card:hover .nameText,
+.card:focus-within .nameText {
+  background-size: 100% 1px;
+}
+
+.hindi {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-deva);
+  font-size: 1.0625rem;
+  color: var(--gold-700);
+}
+
+.line {
+  margin: 0.625rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.formats {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  margin-top: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.format {
+  min-height: 2.25rem;
+  padding: 0 0.125rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.format[aria-checked='true'] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 6px;
+}
+
+.format:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+}
+
+.buy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.price {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.add {
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 1px solid var(--navy-800);
+  border-radius: var(--radius-pill);
+  background: var(--navy-800);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ivory-100);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.add:hover:not(:disabled) {
+  background: transparent;
+  color: var(--navy-800);
+}
+
+.add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 3px;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  padding: 2rem 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+}
+
+.empty p {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- the promise row */
+
+.promise {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--gold-500) 45%, transparent);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.promise ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text);
+}
+
+.promise li + li::before {
+  content: '·';
+  margin-right: 1.75rem;
+  margin-left: -0.25rem;
+  color: var(--gold-500);
+}
+
+.more {
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.more:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 6px;
+}
+
+@media (max-width: 64rem) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

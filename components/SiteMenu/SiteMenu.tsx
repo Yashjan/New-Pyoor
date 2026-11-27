@@ -23,7 +23,7 @@ import styles from './SiteMenu.module.css';
 
 /** Each link's engraving and its time of day (the wash and the sun follow it). */
 const LINKS = [
-  { href: '/#shop', label: 'Shop', plate: 'jar', light: 'dusk' },
+  { href: '/shop', label: 'Shop', plate: 'jar', light: 'dusk' },
   { href: '/our-roots', label: 'Our roots', plate: 'roots', light: 'dawn' },
   { href: '/the-journey', label: 'The journey', plate: 'harvest', light: 'midday' },
   { href: '/recipes', label: 'Recipes', plate: 'bowl', light: 'afternoon' },
@@ -35,11 +35,11 @@ const toMoney = (n: number | null | undefined) =>
   n == null ? null : { amount: n, currencyCode: 'INR' as const };
 
 const PRODUCTS = [
-  { href: '/product/herbal-black-salt', name: 'Black Salt', variant: 'herbal-black-salt-1kg' },
-  { href: '/product/natural-lake-salt', name: 'Lake Salt', variant: 'natural-lake-salt-1kg' },
+  { href: '/shop/herbal-black-salt', name: 'Black Salt', variant: 'herbal-black-salt-1kg' },
+  { href: '/shop/natural-lake-salt', name: 'Lake Salt', variant: 'natural-lake-salt-1kg' },
   // behind the switch (lib/commerce/pricing.ts)
   ...(SHOW_PINK_SALT
-    ? [{ href: '/product/pink-rock-salt', name: 'Pink Rock Salt', variant: 'pink-rock-salt-1kg' }]
+    ? [{ href: '/shop/pink-rock-salt', name: 'Pink Rock Salt', variant: 'pink-rock-salt-1kg' }]
     : []),
 ];
 

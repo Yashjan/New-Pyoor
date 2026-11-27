@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects. The product pages moved to /shop/[slug].
+/product/herbal-black-salt /shop/herbal-black-salt 301
+/product/natural-lake-salt /shop/natural-lake-salt 301
+/product/pink-rock-salt /shop/pink-rock-salt 301
+/product /shop 301

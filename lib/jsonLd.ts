@@ -37,15 +37,15 @@ export function organizationLd() {
   };
 }
 
-export function productLd(p: Product) {
+export function productLd(p: Product, images?: string[]) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.title,
     description: p.description,
-    image: p.images.map((i) => new URL(i.url, getSiteUrl()).href),
+    image: (images ?? p.images.map((i) => i.url)).map((u) => new URL(u, getSiteUrl()).href),
     brand: { '@type': 'Brand', name: site.name },
-    url: absUrl(`/product/${p.handle}`),
+    url: absUrl(`/shop/${p.handle}`),
     offers: p.variants
       .filter((v) => v.price)
       .map((v) => ({
@@ -57,7 +57,21 @@ export function productLd(p: Product) {
         availability: v.availableForSale
           ? 'https://schema.org/InStock'
           : 'https://schema.org/OutOfStock',
-        url: absUrl(`/product/${p.handle}`),
+        url: absUrl(`/shop/${p.handle}`),
       })),
+  };
+}
+
+/** BreadcrumbList: [name, path] from the top. */
+export function breadcrumbLd(items: [string, string][]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map(([name, path], i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name,
+      item: absUrl(path),
+    })),
   };
 }

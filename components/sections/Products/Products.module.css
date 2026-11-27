@@ -584,3 +584,19 @@
     width: min(70vw, 280px);
   }
 }
+
+/* "See all salts →": to /shop */
+.all {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.all a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 6px;
+}

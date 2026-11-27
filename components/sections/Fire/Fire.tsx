@@ -56,7 +56,7 @@ export function Fire() {
               </p>
             ))}
           </div>
-          <Link className={styles.shop} href="/#shop" data-fire-shop>
+          <Link className={styles.shop} href="/shop/herbal-black-salt" data-fire-shop>
             Shop Herbal Black Salt <span aria-hidden="true">→</span>
           </Link>
         </div>

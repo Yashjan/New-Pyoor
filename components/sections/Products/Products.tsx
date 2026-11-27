@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { site } from '@/lib/site';
 import { isPurchasable, type Product } from '@/lib/commerce';
 import { RENDERS } from '@/lib/commerce/renders';
@@ -195,6 +196,11 @@ export function Products({
           <span>Checked by batch</span>
           <span>Packed at Sambhar</span>
           <span>Cash on delivery</span>
+        </p>
+        <p className={styles.all}>
+          <Link href="/shop">
+            See all salts <span aria-hidden="true">→</span>
+          </Link>
         </p>
       </div>
       <Entrance />

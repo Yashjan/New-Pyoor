@@ -20,7 +20,7 @@ export default function NotFound() {
       <p className={styles.lead}>The page you were looking for isn’t here.</p>
       <p className={styles.links}>
         <Link href="/">Home</Link>
-        <Link href="/#shop">Shop the salts</Link>
+        <Link href="/shop">Shop the salts</Link>
       </p>
     </main>
   );

@@ -8,10 +8,10 @@ import { NewsletterForm } from './NewsletterForm';
 import styles from './Footer.module.css';
 
 const SHOP = [
-  { href: '/product/herbal-black-salt', label: 'Herbal Black Salt' },
-  { href: '/product/natural-lake-salt', label: 'Natural Lake Salt' },
-  { href: '/product/pink-rock-salt', label: 'Pink Rock Salt' },
-  { href: '/#shop', label: 'Pouches' },
+  { href: '/shop/herbal-black-salt', label: 'Herbal Black Salt' },
+  { href: '/shop/natural-lake-salt', label: 'Natural Lake Salt' },
+  { href: '/shop/pink-rock-salt', label: 'Pink Rock Salt' },
+  { href: '/shop?format=pouch', label: 'Pouches' },
 ];
 const PYOOR = [
   { href: '/our-roots', label: 'Our roots' },

@@ -1,0 +1,450 @@
+/* The product page (/shop/[slug]): the live model left, the details right; sections under gold
+   rules. Phones: the model on top, the details below, a sticky bar with the price. */
+
+.main {
+  padding: calc(var(--header-height) + clamp(1.5rem, 4vw, 3.5rem)) var(--gutter)
+    clamp(4rem, 9vw, 8rem);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.crumbs {
+  margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.crumbs li + li::before {
+  content: '›';
+  margin-right: 0.5rem;
+  color: var(--gold-500);
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+.crumbs [aria-current] {
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- the top */
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+}
+
+.media {
+  position: relative;
+  width: min(100%, 520px);
+  aspect-ratio: 3 / 4;
+  isolation: isolate;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s var(--ease-settle),
+    visibility 0s 0.5s;
+}
+
+.layer[data-on] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s var(--ease-settle);
+}
+
+.poster {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.4s var(--ease-settle);
+}
+
+.poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-size: cover;
+}
+
+.gl {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  transition: opacity 0.4s var(--ease-settle);
+}
+
+.glOn {
+  opacity: 1;
+}
+
+.gl:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: -2px;
+}
+
+.ground {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 86%;
+  z-index: 0;
+  height: 1px;
+  background: var(--accent-line);
+  pointer-events: none;
+}
+
+.read {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-500);
+  text-underline-offset: 6px;
+  cursor: pointer;
+}
+
+.read:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 3px;
+}
+
+.details {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.eyebrowHindi {
+  font-family: var(--font-deva);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.title {
+  margin-top: 0.25rem;
+}
+
+.line {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--font-sans);
+  font-size: var(--body-l-size);
+  line-height: var(--body-l-leading);
+}
+
+.price {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.size {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.formats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.format {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 7rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--hairline);
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.format small {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.format[aria-checked='true'] {
+  border-color: var(--navy-800);
+  box-shadow: inset 0 -2px 0 var(--gold-500);
+}
+
+.format:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+}
+
+.buy {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.stepper button {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 1.125rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper output {
+  min-width: 2rem;
+  font-family: var(--font-sans);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.add {
+  flex: 1;
+  max-width: 18rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border: 1px solid var(--navy-800);
+  border-radius: var(--radius-pill);
+  background: var(--navy-800);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ivory-100);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.add:hover:not(:disabled) {
+  background: transparent;
+  color: var(--navy-800);
+}
+
+.add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 3px;
+}
+
+.note {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.note:first-of-type {
+  margin-top: 0.5rem;
+}
+
+/* the phones' sticky bar */
+.bar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- the sections */
+
+.section {
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  border-top: 1px solid color-mix(in srgb, var(--gold-500) 45%, transparent);
+}
+
+.section > h2 {
+  margin-bottom: 1.5rem;
+}
+
+.prose {
+  display: grid;
+  gap: 1rem;
+  max-width: 62ch;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.prose p {
+  margin: 0;
+}
+
+.uses {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 62ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.uses li {
+  display: flex;
+  gap: 0.875rem;
+}
+
+.uses li::before {
+  content: '';
+  flex: none;
+  width: 1.25rem;
+  height: 1px;
+  margin-top: 0.8em;
+  background: var(--gold-500);
+}
+
+.facts {
+  display: grid;
+  max-width: 48rem;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+}
+
+.facts div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.facts dt {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.facts dd {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.others {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  max-width: 52rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 56rem) {
+  .top {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .media {
+    width: max(62%, min(100%, 420px));
+  }
+
+  .bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--hairline);
+    background: var(--ivory-100);
+    transform: translateY(110%);
+    transition: transform 0.35s var(--ease-settle);
+  }
+
+  .bar[data-open] {
+    transform: none;
+  }
+
+  .barPrice {
+    display: grid;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .barPrice span {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .barAdd {
+    flex: 0 1 12rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .others {
+    grid-template-columns: 1fr;
+  }
+
+  .facts div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}

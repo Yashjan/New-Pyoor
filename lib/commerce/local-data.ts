@@ -54,6 +54,17 @@ export const products: Product[] = [
       'Black salt made from Sambhar Lake salt with harad, baheda and amla, packed at the lake. ' +
       'Sulphurous and tangy, with the distinct aroma of kala namak. ' +
       'Made for chaat, raita, fruit, chaas and nimbu pani.',
+    about: [
+      'It begins as salt from Sambhar Lake. We fire it slowly with harad, baheda, amla and babul bark, the way kala namak has long been made, then cool it, grind it and pack it at the lake.',
+      'The taste is sulphurous and tangy, with the deep aroma kala namak is known for. A pinch is enough to change a chaat, a raita or a glass of chaas.',
+      'Every batch is checked before it is packed, and the batch number is printed on the pack.',
+    ],
+    uses: [
+      'Sprinkle over fruit, chaat and salads.',
+      'Stir into raita, chaas, jaljeera and nimbu pani.',
+      'Finish chutneys, pakoras and roasted makhana.',
+      'Start with a pinch: it is stronger than white salt.',
+    ],
     published: true,
     variants: [
       {
@@ -107,6 +118,17 @@ export const products: Product[] = [
     description:
       'White salt harvested from the salt pans of Sambhar Lake and dried in the sun, then packed at the lake. ' +
       'A clean, bright saltiness for everyday cooking: dal, sabzi, rotis and baking.',
+    about: [
+      'Harvested from the salt pans of Sambhar Lake in Rajasthan and dried in the sun, then cleaned and packed by us at the lake.',
+      'Its saltiness is clean and bright, the kind you reach for every day without thinking: in dal, in sabzi, in the atta for rotis.',
+      'Every batch is checked before it is packed, and the batch number is printed on the pack.',
+    ],
+    uses: [
+      'Season dal, sabzi and rice as they cook.',
+      'Knead into atta for rotis and parathas.',
+      'Bake breads, biscuits and namak pare.',
+      'Salt the water for pasta and vegetables.',
+    ],
     published: true,
     variants: [
       {
@@ -190,6 +212,16 @@ export const products: Product[] = [
     titleHindi: 'सेंधा नमक',
     summary: 'Rock salt (sendha namak), packed with the same care.',
     description: 'Pink rock salt (sendha namak), in a 1 kg clear jar or a 1 kg refill pouch.',
+    about: [
+      'Pink rock salt, sendha namak, ground and packed by us with the same care as our lake salts.',
+      'Its saltiness is mild and rounded. In many kitchens it is the salt for vrat days.',
+      'Every batch is checked before it is packed, and the batch number is printed on the pack.',
+    ],
+    uses: [
+      'Vrat cooking: sabudana khichdi, aloo and fruit chaat.',
+      'Season salads, raitas and grilled paneer.',
+      'Use as you would any table salt.',
+    ],
     published: SHOW_PINK_SALT,
     variants: [
       {

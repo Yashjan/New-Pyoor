@@ -105,7 +105,7 @@ export function Crystals() {
             </p>
           ))}
         </div>
-        <Link className={styles.shop} href="/#shop">
+        <Link className={styles.shop} href="/shop">
           Shop both <span aria-hidden="true">→</span>
         </Link>
       </div>

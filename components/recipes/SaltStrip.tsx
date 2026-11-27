@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/components/providers/CartProvider';
 import styles from './Recipe.module.css';
@@ -46,7 +47,9 @@ function SaltRow({ salt }: { salt: StripSalt }) {
         loading="lazy"
       />
       <div className={styles.saltBody}>
-        <h3 className={styles.saltName}>{salt.title}</h3>
+        <h3 className={styles.saltName}>
+          <Link href={`/shop/${salt.handle}`}>{salt.title}</Link>
+        </h3>
         {salt.pouch && (
           <div className={styles.formats} role="radiogroup" aria-label={`Format, ${salt.title}`}>
             {(['jar', 'pouch'] as const).map((k, i) => (

@@ -267,7 +267,9 @@ export function JarHero({
               ))}
             </h1>
             <div className={styles.cta}>
-              <ButtonLink variant="primary" href="/#shop">
+              {/* no viewport prefetch: /shop is another route, and fetching it during the
+                  intro delays the first scroll's split (tests/scroll.spec.ts a, e) */}
+              <ButtonLink variant="primary" href="/shop" prefetch={false}>
                 {fromPrice ? `Shop the salts — from ${fromPrice}` : 'Shop the salts'}
               </ButtonLink>
               <ButtonLink variant="link" href="/#roots">

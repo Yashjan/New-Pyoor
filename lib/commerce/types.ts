@@ -55,6 +55,10 @@ export interface Product {
   summary: string;
   /** Longer factual description (origin, ingredients, process, taste, use). */
   description: string;
+  /** The product page's "About this salt": 2–3 short factual paragraphs (no health claims). */
+  about?: string[];
+  /** The product page's "How to use it": short lines. */
+  uses?: string[];
   /** Unpublished products are kept in data but never listed or routable. */
   published: boolean;
   variants: ProductVariant[];

@@ -13,11 +13,11 @@ const RENDER: Record<string, string> = {
 };
 
 export async function generateStaticParams() {
-  return (await getProducts()).map((p) => ({ handle: p.handle }));
+  return (await getProducts()).map((p) => ({ slug: p.handle }));
 }
 
-export default async function Image({ params }: { params: Promise<{ handle: string }> }) {
-  const { handle } = await params;
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug: handle } = await params;
   const p = await getProduct(handle);
   return ogImage({
     eyebrow: 'Pyoor · 1 kg jar or refill pouch',
